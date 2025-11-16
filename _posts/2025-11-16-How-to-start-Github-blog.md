@@ -3,7 +3,7 @@ layout: post
 title: "🚩깃허브 블로그를 시작하며"
 subtitle: "준비된 사람에게 기회가 온다"
 categories: ["📂/etc"]
-tags: [일상]
+tags: ["#blogging", "how_to"]
 banner:
   image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1920"
   opacity: 0.8
