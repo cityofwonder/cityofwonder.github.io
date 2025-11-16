@@ -164,7 +164,7 @@ header_pages:
    home:
      heading: "🚩 CityofWonder's blog"
      subheading: "Computer Science | Pwnable | Reversing | AI"
-     banner: /assets/images/banner.jpeg
+     banner: /assets/images/banner.jpg
 
 # Banner default settings
 # These banner settings are for global banner default, but you can also
