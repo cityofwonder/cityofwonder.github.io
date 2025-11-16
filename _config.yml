@@ -160,11 +160,11 @@ header_pages:
   - about.html
 
 # Page default value
- defaults:
-   home:
-     heading: "🚩 CityofWonder's blog"
-     subheading: "Computer Science | Pwnable | Reversing | AI"
-     banner: /assets/images/banner.jpg
+# defaults:
+#   home:
+#     heading: "🚩 CityofWonder's blog"
+#     subheading: "Computer Science | Pwnable | Reversing | AI"
+#     banner: /assets/images/banner.jpg
 
 # Banner default settings
 # These banner settings are for global banner default, but you can also
