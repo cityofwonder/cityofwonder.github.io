@@ -4,6 +4,9 @@
 <script charset="UTF-8"
         src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"
         async></script>
+<script charset="UTF-8"
+        src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/diff.min.js"
+        async></script>
 
 {%- assign name = 'code_badge.enabled' -%}
 {%- include functions.html func='get_value' default='true' -%}
@@ -222,5 +225,44 @@ document.addEventListener('DOMContentLoaded', function(event) {
 
   html[data-theme="dark"] pre > code {
     color: #abb2bf !important;
+  }
+
+  /* Diff syntax highlighting */
+  .hljs-deletion,
+  .hljs-deletion .hljs-string {
+    background-color: rgba(248, 81, 73, 0.15) !important;
+    color: #f85149 !important;
+  }
+
+  .hljs-addition,
+  .hljs-addition .hljs-string {
+    background-color: rgba(46, 160, 67, 0.15) !important;
+    color: #56d364 !important;
+  }
+
+  /* Diff line styling */
+  code.diff .hljs-deletion {
+    display: block;
+    width: 100%;
+    margin: 0 -20px;
+    padding: 0 20px;
+  }
+
+  code.diff .hljs-addition {
+    display: block;
+    width: 100%;
+    margin: 0 -20px;
+    padding: 0 20px;
+  }
+
+  /* Diff symbols */
+  .hljs-deletion::before {
+    content: '- ';
+    color: #f85149;
+  }
+
+  .hljs-addition::before {
+    content: '+ ';
+    color: #56d364;
   }
 </style>
