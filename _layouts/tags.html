@@ -9,8 +9,267 @@ sidebar: tag-list
   {%- include functions.html func='get_tags' -%}
   {% assign tags = return %}
 
+  <!-- Tag Cloud Visualization -->
+  <div class="tag-cloud-container">
+    <div class="tag-cloud-wrapper">
+      <div class="tag-cloud">
+        {% assign max_count = 0 %}
+        {% for tag in tags %}
+          {% assign count = site.posts | where: "tags", tag | size %}
+          {% if count > max_count %}
+            {% assign max_count = count %}
+          {% endif %}
+        {% endfor %}
+
+        {% for tag in tags %}
+          {% assign count = site.posts | where: "tags", tag | size %}
+          {% assign weight = count | times: 100 | divided_by: max_count %}
+          <a href="#{{ tag }}"
+             class="tag-node"
+             data-weight="{{ weight }}"
+             data-count="{{ count }}"
+             style="--weight: {{ weight }};">
+            {{ tag }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Tag List -->
   {% assign keys = tags %}
   {% assign field = 'tags' %}
   {%- include views/segments.html -%}
 
 {%- endif -%}
+
+<style>
+  /* Tag Cloud Container */
+  .tag-cloud-container {
+    margin: 40px 0 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tag-cloud-wrapper {
+    position: relative;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Fade out effect at edges */
+  .tag-cloud-wrapper::before,
+  .tag-cloud-wrapper::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 40px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .tag-cloud-wrapper::before {
+    top: 0;
+    background: linear-gradient(to bottom, rgba(245, 247, 250, 0.95), transparent);
+  }
+
+  .tag-cloud-wrapper::after {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(245, 247, 250, 0.95), transparent);
+  }
+
+  .tag-cloud-wrapper.fade-top::before {
+    opacity: 1;
+  }
+
+  .tag-cloud-wrapper.fade-bottom::after {
+    opacity: 1;
+  }
+
+  /* Tag Cloud */
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    position: relative;
+  }
+
+  /* Tag Nodes */
+  .tag-node {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: calc(8px + var(--weight) * 0.1px) calc(16px + var(--weight) * 0.2px);
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(30, 136, 229, calc(0.3 + var(--weight) * 0.007));
+    border-radius: 25px;
+    color: #1e88e5;
+    text-decoration: none;
+    font-size: calc(0.85rem + var(--weight) * 0.003rem);
+    font-weight: calc(400 + var(--weight) * 3);
+    opacity: calc(0.6 + var(--weight) * 0.004);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .tag-node::after {
+    content: attr(data-count);
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #1e88e5;
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+  }
+
+  .tag-node:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 6px 12px rgba(30, 136, 229, 0.3);
+    background: #1e88e5;
+    color: white;
+    border-color: #1e88e5;
+    opacity: 1 !important;
+    z-index: 10;
+  }
+
+  .tag-node:hover::after {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Dark theme */
+  html[data-theme="dark"] .tag-cloud-wrapper {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+  }
+
+  html[data-theme="dark"] .tag-cloud-wrapper::before {
+    background: linear-gradient(to bottom, rgba(42, 42, 42, 0.95), transparent);
+  }
+
+  html[data-theme="dark"] .tag-cloud-wrapper::after {
+    background: linear-gradient(to top, rgba(42, 42, 42, 0.95), transparent);
+  }
+
+  html[data-theme="dark"] .tag-node {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(100, 181, 246, calc(0.3 + var(--weight) * 0.007));
+    color: #64b5f6;
+  }
+
+  html[data-theme="dark"] .tag-node:hover {
+    background: #64b5f6;
+    color: #1e1e1e;
+    border-color: #64b5f6;
+  }
+
+  html[data-theme="dark"] .tag-node::after {
+    background: #64b5f6;
+    color: #1e1e1e;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+    .tag-cloud-container {
+      margin: 20px 0 40px;
+    }
+
+    .tag-cloud-wrapper {
+      max-height: 300px;
+      padding: 20px 15px;
+    }
+
+    .tag-node {
+      font-size: calc(0.75rem + var(--weight) * 0.002rem);
+      padding: calc(6px + var(--weight) * 0.08px) calc(12px + var(--weight) * 0.15px);
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const wrapper = document.querySelector('.tag-cloud-wrapper');
+
+    if (!wrapper) return;
+
+    // Smooth scroll to tag section
+    const tagNodes = document.querySelectorAll('.tag-node');
+    tagNodes.forEach(node => {
+      node.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+
+        if (targetElement) {
+          const offset = 100; // Header offset
+          const elementPosition = targetElement.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    // Fade effect on scroll
+    function updateFadeEffect() {
+      const scrollTop = wrapper.scrollTop;
+      const scrollHeight = wrapper.scrollHeight;
+      const clientHeight = wrapper.clientHeight;
+      const scrollBottom = scrollHeight - scrollTop - clientHeight;
+
+      // Add fade classes based on scroll position
+      if (scrollTop > 20) {
+        wrapper.classList.add('fade-top');
+      } else {
+        wrapper.classList.remove('fade-top');
+      }
+
+      if (scrollBottom > 20) {
+        wrapper.classList.add('fade-bottom');
+      } else {
+        wrapper.classList.remove('fade-bottom');
+      }
+    }
+
+    // Initial check
+    updateFadeEffect();
+
+    // Update on scroll
+    wrapper.addEventListener('scroll', updateFadeEffect);
+
+    // Animate tags on load
+    const tags = document.querySelectorAll('.tag-node');
+    tags.forEach((tag, index) => {
+      tag.style.opacity = '0';
+      tag.style.transform = 'scale(0.8)';
+
+      setTimeout(() => {
+        tag.style.transition = 'all 0.5s ease';
+        tag.style.opacity = `calc(0.6 + ${tag.dataset.weight} * 0.004)`;
+        tag.style.transform = 'scale(1)';
+      }, index * 30);
+    });
+  });
+</script>
