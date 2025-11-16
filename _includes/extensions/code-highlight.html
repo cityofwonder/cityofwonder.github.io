@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/atom-one-dark.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
 <!-- and it's easy to individually load additional languages -->
 <script charset="UTF-8"
@@ -110,13 +110,21 @@ document.addEventListener('DOMContentLoaded', function(event) {
   pre {
     position: relative;
     border-radius: 8px;
-    background-color: #1e1e1e !important;
+    background-color: #282c34 !important;
     padding: 45px 20px 20px 20px !important;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
     margin: 1.5em 0;
   }
 
   pre > code {
+    padding: 0 !important;
+    color: #abb2bf !important;
+    background-color: transparent !important;
+  }
+
+  /* Syntax highlighting adjustments */
+  pre code.hljs {
+    background-color: transparent !important;
     padding: 0 !important;
   }
 
@@ -208,7 +216,11 @@ document.addEventListener('DOMContentLoaded', function(event) {
 
   /* Dark theme adjustments */
   html[data-theme="dark"] pre {
-    background-color: #0d1117 !important;
+    background-color: #1e2127 !important;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  html[data-theme="dark"] pre > code {
+    color: #abb2bf !important;
   }
 </style>

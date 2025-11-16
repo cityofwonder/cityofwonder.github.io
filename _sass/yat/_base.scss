@@ -146,13 +146,17 @@ blockquote {
 pre,
 code {
   @include relative-font-size(0.9375);
-  color: $text-color;
+}
+
+pre code {
+  color: #abb2bf;
 }
 
 *:not(pre) > code {
   padding: 3px 6px;
   border-radius: 3px;
   background-color: #eee;
+  color: #e06c75;
   margin: 0 5px;
 }
 
