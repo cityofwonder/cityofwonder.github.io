@@ -55,9 +55,46 @@ document.addEventListener('DOMContentLoaded', function(event) {
     }
   }
 
+  function addCopyButton(block) {
+    var pre = block.parentElement;
+
+    // Create copy button
+    var copyBtn = document.createElement('button');
+    copyBtn.className = 'code-copy-btn';
+    copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    copyBtn.title = 'Copy code';
+
+    copyBtn.addEventListener('click', function() {
+      var code = block.textContent;
+      navigator.clipboard.writeText(code).then(function() {
+        copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        copyBtn.classList.add('copied');
+        setTimeout(function() {
+          copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+
+    pre.appendChild(copyBtn);
+  }
+
+  function addMacButtons(block) {
+    var pre = block.parentElement;
+
+    // Create Mac window buttons container
+    var macButtons = document.createElement('div');
+    macButtons.className = 'mac-buttons';
+    macButtons.innerHTML = '<span class="mac-btn mac-close"></span><span class="mac-btn mac-minimize"></span><span class="mac-btn mac-maximize"></span>';
+
+    pre.insertBefore(macButtons, pre.firstChild);
+  }
+
   function handle(block) {
     addLangData(block);
-    addBadge(block)
+    addBadge(block);
+    addCopyButton(block);
+    addMacButtons(block);
     hljs.highlightBlock(block);
   }
 
@@ -69,23 +106,109 @@ document.addEventListener('DOMContentLoaded', function(event) {
 </script>
 
 <style>
+  /* Mac style code block */
+  pre {
+    position: relative;
+    border-radius: 8px;
+    background-color: #1e1e1e !important;
+    padding: 45px 20px 20px 20px !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+    margin: 1.5em 0;
+  }
+
+  pre > code {
+    padding: 0 !important;
+  }
+
+  /* Mac window buttons */
+  .mac-buttons {
+    position: absolute;
+    top: 12px;
+    left: 15px;
+    display: flex;
+    gap: 8px;
+    z-index: 1;
+  }
+
+  .mac-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .mac-close {
+    background-color: #ff5f56;
+  }
+
+  .mac-minimize {
+    background-color: #ffbd2e;
+  }
+
+  .mac-maximize {
+    background-color: #27c93f;
+  }
+
+  /* Copy button */
+  .code-copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    padding: 6px 10px;
+    font-size: 12px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 2;
+  }
+
+  .code-copy-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .code-copy-btn.copied {
+    background: rgba(39, 201, 63, 0.2);
+    border-color: rgba(39, 201, 63, 0.4);
+  }
+
+  .code-copy-btn svg {
+    display: block;
+  }
+
   /* code language badge */
   pre.badge::before {
     content: attr(data-lang);
     color: {{badge_color}};
     background-color: {{badge_background_color}};
-    padding: 0 .5em;
-    border-radius: 0 2px;
+    padding: 3px 8px;
+    border-radius: 4px;
     text-transform: {{badge_text_transform}};
     text-align: center;
     min-width: 32px;
     display: inline-block;
     position: absolute;
-    right: 0;
+    top: 10px;
+    right: 60px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 2;
   }
 
   /* fix wrong badge display for firefox browser */
   code > table pre::before {
     display: none;
+  }
+
+  /* Dark theme adjustments */
+  html[data-theme="dark"] pre {
+    background-color: #0d1117 !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 </style>

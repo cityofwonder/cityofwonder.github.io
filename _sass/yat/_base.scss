@@ -159,11 +159,9 @@ code {
 pre {
   overflow-x: auto;
   position: relative;
-  background-color: #f0f0f0;
 
   > code {
     display: inline-block;
-    padding: 20px!important;
     background-color: transparent;
     border: 0;
   }
