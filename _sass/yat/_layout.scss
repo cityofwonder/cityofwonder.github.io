@@ -178,9 +178,23 @@ html {
 
     .page-link {
       display: block;
-      padding: 5px 10px;
+      padding: 8px 10px;
       color: rgba($header-text-color, 80%);
       margin: 0 25px;
+      transition: all 0.2s ease-in-out;
+
+      &:first-child {
+        padding-top: 12px;
+      }
+
+      &:last-child {
+        padding-bottom: 12px;
+      }
+
+      &:hover {
+        font-weight: bold;
+        color: $header-text-color;
+      }
     }
   }
 }
