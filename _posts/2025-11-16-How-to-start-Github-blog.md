@@ -137,16 +137,16 @@ nothing to commit, working tree clean*`
     
     /home/user/cityofwonder.github.io/_includes/head.html, 10 line
     
-    ```html
-    ~~/home/user/cityofwonder.github.io/_includes/head.html:10 -   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">~~
-    /home/user/cityofwonder.github.io/_includes/head.html:10 -   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    ```diff
+    -/home/user/cityofwonder.github.io/_includes/head.html:10 -   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">~~
+    +/home/user/cityofwonder.github.io/_includes/head.html:10 -   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     ```
     
     /home/user/cityofwonder.github.io/_sass/yat.scss, 12 line
     
-    ```html
-    ~~/home/user/cityofwonder.github.io/_sass/yat.scss:12 - $base-font-family: Helvetica Neue, Helvetica, Arial, sans-serif, !default;~~
-    /home/user/cityofwonder.github.io/_sass/yat.scss:12 - $base-font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif !default;
+    ```diff
+    - /home/user/cityofwonder.github.io/_sass/yat.scss:12 - $base-font-family: Helvetica Neue, Helvetica, Arial, sans-serif, !default;~~
+    + /home/user/cityofwonder.github.io/_sass/yat.scss:12 - $base-font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif !default;
     ```
     
     /home/user/cityofwonder.github.io/_config.yml, 172 line~
