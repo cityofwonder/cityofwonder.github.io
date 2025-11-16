@@ -229,40 +229,30 @@ document.addEventListener('DOMContentLoaded', function(event) {
 
   /* Diff syntax highlighting */
   .hljs-deletion,
-  .hljs-deletion .hljs-string {
+  .hljs-deletion .hljs-string,
+  .diff .hljs-deletion,
+  code.diff .hljs-deletion,
+  code.language-diff .hljs-deletion,
+  .hljs.diff .hljs-deletion {
     background-color: rgba(248, 81, 73, 0.2) !important;
     color: #f85149 !important;
+    display: block;
+    width: 100%;
+    margin: 0 -20px;
+    padding: 0 20px;
   }
 
   .hljs-addition,
-  .hljs-addition .hljs-string {
+  .hljs-addition .hljs-string,
+  .diff .hljs-addition,
+  code.diff .hljs-addition,
+  code.language-diff .hljs-addition,
+  .hljs.diff .hljs-addition {
     background-color: rgba(46, 160, 67, 0.2) !important;
     color: #56d364 !important;
-  }
-
-  /* Diff line styling */
-  code.diff .hljs-deletion {
     display: block;
     width: 100%;
     margin: 0 -20px;
     padding: 0 20px;
-  }
-
-  code.diff .hljs-addition {
-    display: block;
-    width: 100%;
-    margin: 0 -20px;
-    padding: 0 20px;
-  }
-
-  /* Diff symbols */
-  .hljs-deletion::before {
-    content: '- ';
-    color: #f85149;
-  }
-
-  .hljs-addition::before {
-    content: '+ ';
-    color: #56d364;
   }
 </style>
