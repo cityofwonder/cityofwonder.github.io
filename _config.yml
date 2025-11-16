@@ -24,9 +24,10 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Your awesome title
-email: your-email@domain.com
-author: GitHub User
+title: CoW's blog
+email: jshrbejxugwhqkaoa8@korea.ac.kr
+author: cityofwonder
+github_username: cityofwonder
 
 # Copyright setting
 # You can use any html code, currently below placeholders are available:
@@ -42,13 +43,12 @@ author: GitHub User
 #
 copyright: "Unpublished Work (cleft) 2017-{currentYear} {author}"
 
-description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+description: >-
+  2023.03~ Korea Univ. in Seoul, South Korea
+  2022.03~2023.03 BoB 11th
 
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. https://example.com
+url: "https://cityofwonder.github.io"
 favicon: "" # the favicon for your site
 
 # Yat date format
@@ -73,7 +73,7 @@ yat:
 # sitemap: false
 
 # If you want to change site language, you can set lang option
-# lang: "en"  # default lang is en
+lang: "ko"  # default lang is en
 
 # Translate languges
 # langs refer to https://cloud.google.com/translate/docs/languages
@@ -152,12 +152,12 @@ yat:
 
 # If you want to link only specific pages in your header, uncomment
 # this and add the path to the pages in order as they should show up
-# header_pages:
-#   - index.html
-#   - archives.html
-#   - categories.html
-#   - tags.html
-#   - about.md
+header_pages:
+  - index.html
+  - categories.html
+  - tags.html
+  - archives.html
+  - about.html
 
 # Page default value
 # defaults:
@@ -191,7 +191,7 @@ yat:
 #   text_size: 350          # Words default size
 
 # Pagination setting
-# paginate: 5
+paginate: 5
 
 # Photo previewer settings (PhotoSwipe 5)
 # the options please refer to: https://photoswipe.com/options/
@@ -222,7 +222,7 @@ yat:
 
 # Gitment comments
 # gitment:
-#   username: "Your GitHub username"
+#   username: cityofwonder
 #   repo: "The repo to store comments"
 #   client_id: "Your client ID"
 #   client_secret: "Your client secret"
