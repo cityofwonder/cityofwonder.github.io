@@ -95,13 +95,9 @@ sidebar: tag-list
 
   /* Tag Cloud */
   .tag-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-    align-items: center;
-    min-height: 200px;
     position: relative;
+    min-height: 500px;
+    height: auto;
   }
 
   /* Tag Nodes */
@@ -118,10 +114,11 @@ sidebar: tag-list
     font-size: calc(0.85rem + var(--weight) * 0.003rem);
     font-weight: calc(400 + var(--weight) * 3);
     opacity: calc(0.6 + var(--weight) * 0.004);
-    transition: all 0.3s ease;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    position: relative;
+    position: absolute;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
   }
 
   .tag-node::after {
@@ -194,8 +191,12 @@ sidebar: tag-list
     }
 
     .tag-cloud-wrapper {
-      max-height: 300px;
+      max-height: 350px;
       padding: 20px 15px;
+    }
+
+    .tag-cloud {
+      min-height: 400px;
     }
 
     .tag-node {
@@ -208,8 +209,9 @@ sidebar: tag-list
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const wrapper = document.querySelector('.tag-cloud-wrapper');
+    const cloud = document.querySelector('.tag-cloud');
 
-    if (!wrapper) return;
+    if (!wrapper || !cloud) return;
 
     // Smooth scroll to tag section
     const tagNodes = document.querySelectorAll('.tag-node');
@@ -220,7 +222,7 @@ sidebar: tag-list
         const targetElement = document.querySelector(targetId);
 
         if (targetElement) {
-          const offset = 100; // Header offset
+          const offset = 100;
           const elementPosition = targetElement.getBoundingClientRect().top;
           const offsetPosition = elementPosition + window.pageYOffset - offset;
 
@@ -232,6 +234,96 @@ sidebar: tag-list
       });
     });
 
+    // Scatter layout algorithm
+    function scatterTags() {
+      const tags = Array.from(tagNodes);
+      const containerWidth = cloud.offsetWidth;
+      const positions = [];
+
+      // Sort tags by weight (highest first)
+      const sortedTags = tags.sort((a, b) => {
+        return parseInt(b.dataset.weight) - parseInt(a.dataset.weight);
+      });
+
+      // Calculate positions
+      sortedTags.forEach((tag, index) => {
+        const weight = parseInt(tag.dataset.weight);
+        const rect = tag.getBoundingClientRect();
+        const nodeWidth = rect.width || 100;
+        const nodeHeight = rect.height || 40;
+
+        let x, y;
+        let attempts = 0;
+        const maxAttempts = 50;
+
+        do {
+          // Higher weight = closer to center
+          const centerPull = weight / 100;
+          const randomness = 1 - centerPull * 0.5;
+
+          // Generate random position with center bias
+          const angle = Math.random() * Math.PI * 2;
+          const isMobile = window.innerWidth <= 768;
+          const maxDistance = isMobile ? 150 : 200;
+          const distance = Math.random() * maxDistance * randomness;
+
+          const centerX = containerWidth / 2;
+          const centerY = isMobile ? 200 : 250;
+
+          x = centerX + Math.cos(angle) * distance - nodeWidth / 2;
+          y = centerY + Math.sin(angle) * distance - nodeHeight / 2;
+
+          // Keep within bounds
+          const maxY = isMobile ? 380 : 480;
+          x = Math.max(10, Math.min(x, containerWidth - nodeWidth - 10));
+          y = Math.max(10, Math.min(y, maxY));
+
+          attempts++;
+        } while (isOverlapping(x, y, nodeWidth, nodeHeight, positions) && attempts < maxAttempts);
+
+        positions.push({ x, y, width: nodeWidth, height: nodeHeight });
+
+        // Set initial position (for animation)
+        tag.style.left = `${containerWidth / 2}px`;
+        tag.style.top = '250px';
+        tag.style.opacity = '0';
+        tag.style.transform = 'scale(0)';
+
+        // Animate to final position
+        setTimeout(() => {
+          tag.style.left = `${x}px`;
+          tag.style.top = `${y}px`;
+          tag.style.opacity = `calc(0.6 + ${weight} * 0.004)`;
+          tag.style.transform = 'scale(1)';
+        }, index * 50);
+      });
+
+      // Adjust cloud height based on max Y position
+      const maxY = Math.max(...positions.map(p => p.y + p.height));
+      cloud.style.minHeight = `${maxY + 30}px`;
+    }
+
+    // Check if two rectangles overlap
+    function isOverlapping(x, y, width, height, existingPositions) {
+      const margin = 10;
+      return existingPositions.some(pos => {
+        return !(x + width + margin < pos.x ||
+                 x > pos.x + pos.width + margin ||
+                 y + height + margin < pos.y ||
+                 y > pos.y + pos.height + margin);
+      });
+    }
+
+    // Initial scatter
+    setTimeout(scatterTags, 100);
+
+    // Re-scatter on resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(scatterTags, 300);
+    });
+
     // Fade effect on scroll
     function updateFadeEffect() {
       const scrollTop = wrapper.scrollTop;
@@ -239,7 +331,6 @@ sidebar: tag-list
       const clientHeight = wrapper.clientHeight;
       const scrollBottom = scrollHeight - scrollTop - clientHeight;
 
-      // Add fade classes based on scroll position
       if (scrollTop > 20) {
         wrapper.classList.add('fade-top');
       } else {
@@ -253,23 +344,7 @@ sidebar: tag-list
       }
     }
 
-    // Initial check
     updateFadeEffect();
-
-    // Update on scroll
     wrapper.addEventListener('scroll', updateFadeEffect);
-
-    // Animate tags on load
-    const tags = document.querySelectorAll('.tag-node');
-    tags.forEach((tag, index) => {
-      tag.style.opacity = '0';
-      tag.style.transform = 'scale(0.8)';
-
-      setTimeout(() => {
-        tag.style.transition = 'all 0.5s ease';
-        tag.style.opacity = `calc(0.6 + ${tag.dataset.weight} * 0.004)`;
-        tag.style.transform = 'scale(1)';
-      }, index * 30);
-    });
   });
 </script>
