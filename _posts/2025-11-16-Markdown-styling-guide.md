@@ -133,16 +133,18 @@ banner:
 
 <details>
 <summary>더보기 (기본 예제)</summary>
-<div class="toggle-content">
+<div class="toggle-content" markdown="1">
+
 숨겨진 내용입니다. 클릭하면 펼쳐집니다.
 
 여러 줄의 내용을 작성할 수 있습니다.
+
 </div>
 </details>
 
 <details>
 <summary>코드 예제 보기</summary>
-<div class="toggle-content">
+<div class="toggle-content" markdown="1">
 
 Python 코드 예제:
 
@@ -169,7 +171,7 @@ greet("개발자");
 
 <details>
 <summary>리스트와 함께 사용하기</summary>
-<div class="toggle-content">
+<div class="toggle-content" markdown="1">
 
 접은글 안에 리스트도 넣을 수 있습니다:
 
@@ -190,7 +192,7 @@ greet("개발자");
 
 <details>
 <summary>박스 스타일과 조합하기</summary>
-<div class="toggle-content">
+<div class="toggle-content" markdown="1">
 
 <div class="box-note">
 💡 접은글 안에 박스 스타일도 넣을 수 있습니다!
@@ -205,8 +207,10 @@ greet("개발자");
 ```html
 <details>
 <summary>제목</summary>
-<div class="toggle-content">
+<div class="toggle-content" markdown="1">
+
 숨겨진 내용
+
 </div>
 </details>
 ```
@@ -215,11 +219,18 @@ greet("개발자");
 ```html
 <details open>
 <summary>제목</summary>
-<div class="toggle-content">
+<div class="toggle-content" markdown="1">
+
 처음부터 펼쳐진 내용
+
 </div>
 </details>
 ```
+
+<div class="box-warning">
+⚠️ <strong>중요!</strong><br>
+<code>markdown="1"</code> 속성과 빈 줄이 필수입니다. 이것이 없으면 마크다운 문법(코드블록, 리스트 등)이 작동하지 않습니다.
+</div>
 
 ---
 
@@ -229,7 +240,7 @@ greet("개발자");
 
 <details>
 <summary>프로젝트 설치 가이드</summary>
-<div class="toggle-content">
+<div class="toggle-content" markdown="1">
 
 <div class="box-note">
 💡 <strong>시작하기 전에</strong><br>
@@ -272,13 +283,13 @@ npm run dev
 
 <details>
 <summary>문제 해결 (Troubleshooting)</summary>
-<div class="toggle-content">
+<div class="toggle-content" markdown="1">
 
 ### 자주 발생하는 문제들
 
 <details>
 <summary>설치가 실패하는 경우</summary>
-<div class="toggle-content">
+<div class="toggle-content" markdown="1">
 
 <div class="box-danger">
 🚨 <code>npm install</code> 실패 시:
@@ -293,7 +304,7 @@ npm run dev
 
 <details>
 <summary>포트 충돌이 발생하는 경우</summary>
-<div class="toggle-content">
+<div class="toggle-content" markdown="1">
 
 다른 포트를 사용하려면:
 
@@ -302,6 +313,7 @@ PORT=3001 npm run dev
 ```
 
 또는 `.env` 파일에 추가:
+
 ```
 PORT=3001
 ```
