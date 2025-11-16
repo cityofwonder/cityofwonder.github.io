@@ -179,8 +179,8 @@ banner:
   background: "rgba(0, 0, 0, 0.8)"  # Banner background (Could be a image)
   height: "640px"         # Banner default height
   min_height: null        # Banner minimum height
-  heading_style: "font-family: 'Pretendard', sans-serif; font-weight: 800"     # Pretendard ExtraBold for heading
-  subheading_style: "font-family: 'Pretendard', sans-serif; font-weight: 800"  # Pretendard ExtraBold for subheading
+  heading_style: 'font-family: "Pretendard", sans-serif; font-weight: 800'     # Pretendard ExtraBold for heading
+  subheading_style: 'font-family: "Pretendard", sans-serif; font-weight: 800'  # Pretendard ExtraBold for subheading
 
 # Excerpt settings
 # excerpt:
