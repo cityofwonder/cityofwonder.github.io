@@ -134,19 +134,19 @@ nothing to commit, working tree clean*`
 다음은 내가 수행한 몇가지 커스텀이다.
 
 1. en, kr, jp 폰트 프리텐다드로 통일 / 각 post의 헤드라이너만 Pretendard Extrabold로 수정
-    
-    /home/user/cityofwonder.github.io/_includes/head.html, 10 line
-    
+
+    `_includes/head.html` 파일 수정:
+
     ```diff
-    -/home/user/cityofwonder.github.io/_includes/head.html:10 -   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">~~
-    +/home/user/cityofwonder.github.io/_includes/head.html:10 -   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    - <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+    + <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     ```
-    
-    /home/user/cityofwonder.github.io/_sass/yat.scss, 12 line
-    
+
+    `_sass/yat.scss` 파일 수정:
+
     ```diff
-    - /home/user/cityofwonder.github.io/_sass/yat.scss:12 - $base-font-family: Helvetica Neue, Helvetica, Arial, sans-serif, !default;~~
-    + /home/user/cityofwonder.github.io/_sass/yat.scss:12 - $base-font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif !default;
+    - $base-font-family: Helvetica Neue, Helvetica, Arial, sans-serif, !default;
+    + $base-font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif !default;
     ```
     
     /home/user/cityofwonder.github.io/_config.yml, 172 line~
