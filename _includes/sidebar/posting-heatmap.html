@@ -13,15 +13,6 @@
     <div class="heatmap-container">
       <div class="heatmap-months" id="heatmap-months"></div>
       <div class="heatmap-grid" id="heatmap-grid"></div>
-      <div class="heatmap-legend">
-        <span class="legend-label">Less</span>
-        <span class="legend-box level-0"></span>
-        <span class="legend-box level-1"></span>
-        <span class="legend-box level-2"></span>
-        <span class="legend-box level-3"></span>
-        <span class="legend-box level-4"></span>
-        <span class="legend-label">More</span>
-      </div>
     </div>
   </div>
 </div>
@@ -127,27 +118,6 @@
   background-color: #216e39;
 }
 
-.heatmap-legend {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 2px;
-  margin-top: 6px;
-  font-size: 0.6rem;
-  color: #666;
-}
-
-.legend-box {
-  width: 6px;
-  height: 6px;
-  border-radius: 1px;
-}
-
-.legend-label {
-  font-size: 0.55rem;
-  margin: 0 1px;
-}
-
 /* Dark Theme */
 html[data-theme="dark"] .posting-heatmap-widget {
   background: #2a2a2a;
@@ -163,9 +133,7 @@ html[data-theme="dark"] .posting-heatmap-widget .widget-content {
   border-color: #444;
 }
 
-html[data-theme="dark"] .heatmap-months,
-html[data-theme="dark"] .heatmap-legend,
-html[data-theme="dark"] .legend-label {
+html[data-theme="dark"] .heatmap-months {
   color: #aaa;
 }
 
@@ -224,7 +192,7 @@ html[data-theme="dark"] .heatmap-cell.level-4 {
     const maxPosts = Math.max(...Object.values(postCountByDate), 1);
 
     // 월 헤더 추적
-    let currentMonth = '';
+    let currentMonth = -1;
     let monthSpans = [];
 
     // 히트맵 셀 생성
@@ -249,12 +217,13 @@ html[data-theme="dark"] .heatmap-cell.level-4 {
 
       cells.push(cell);
 
-      // 월 헤더 추적 (각 월의 첫 주만 표시)
-      const monthName = currentDate.toLocaleDateString('ko-KR', { month: 'short' });
-      if (currentDate.getDay() === 0 || currentDate === startDate) {
-        if (currentMonth !== monthName) {
+      // 월 헤더 추적 (일요일마다 체크)
+      if (currentDate.getDay() === 0 || currentDate.getTime() === startDate.getTime()) {
+        const monthNum = currentDate.getMonth();
+        if (currentMonth !== monthNum) {
+          const monthName = currentDate.toLocaleDateString('en-US', { month: 'short' });
           monthSpans.push({ name: monthName, week: weekIndex });
-          currentMonth = monthName;
+          currentMonth = monthNum;
         }
       }
 
@@ -267,8 +236,16 @@ html[data-theme="dark"] .heatmap-cell.level-4 {
       }
     }
 
+    // 마지막 주 인덱스 저장
+    const totalWeeks = weekIndex;
+
     // 셀 추가
     cells.forEach(cell => grid.appendChild(cell));
+
+    // 월 헤더를 위한 grid 레이아웃 설정
+    monthsContainer.style.display = 'grid';
+    monthsContainer.style.gridTemplateColumns = `repeat(${totalWeeks}, 8px)`;
+    monthsContainer.style.gap = '2px';
 
     // 월 헤더 추가
     monthSpans.forEach(({ name, week }, index) => {
@@ -277,10 +254,10 @@ html[data-theme="dark"] .heatmap-cell.level-4 {
       monthLabel.textContent = name;
 
       // 다음 월까지의 주 수 계산
-      const nextWeek = index < monthSpans.length - 1 ? monthSpans[index + 1].week : weekIndex;
+      const nextWeek = index < monthSpans.length - 1 ? monthSpans[index + 1].week : totalWeeks;
       const spanWeeks = nextWeek - week;
 
-      monthLabel.style.gridColumn = `${week + 1} / span ${Math.max(spanWeeks, 1)}`;
+      monthLabel.style.gridColumn = `${week + 1} / span ${spanWeeks}`;
       monthsContainer.appendChild(monthLabel);
     });
   }
