@@ -258,6 +258,31 @@ html[data-theme="dark"] .expand-btn:hover {
   background: rgba(100, 181, 246, 0.1);
 }
 
+/* NEW Badge Styling */
+.page-segments .post-badge {
+  background-color: #1e88e5;
+  color: #fff;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 3px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.page-segments .post-badge.badge-new {
+  display: inline-block;
+}
+
+.page-segments a:visited .post-badge.badge-new {
+  display: none;
+}
+
+html[data-theme="dark"] .page-segments .post-badge {
+  background-color: #64b5f6;
+  color: #1e1e1e;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .mac-header {
