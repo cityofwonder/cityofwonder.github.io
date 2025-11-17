@@ -131,14 +131,20 @@ html {
   .page-link {
     line-height: $base-line-height;
     color: $header-text-color;
-    transition: 0.1s ease-in-out;
+    transition: all 0.2s ease-in-out;
+    font-weight: normal;
+    padding: 4px 8px;
+    border-radius: 4px;
 
     // Gaps between nav items, but not on the last one
     &:not(:last-child) {
-      margin-right: 24px;
-      &:hover {
-        text-decoration: underline;
-      }
+      margin-right: 16px;
+    }
+
+    &:hover {
+      font-weight: bold;
+      color: darken($header-text-color, 20%);
+      background-color: rgba($header-text-color, 0.08);
     }
   }
 
