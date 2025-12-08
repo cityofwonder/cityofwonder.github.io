@@ -1,0 +1,78 @@
+---
+layout: post
+title: "[etc 02.] Cykor CTF 2025 Recap"
+subtitle: 
+categories: ["📂/etc"]
+tags: ["CTF", "Recap", "web", "pwn", "misc", "blockchain"]
+banner:
+  image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1920"
+  opacity: 0.8
+  background: "rgba(0, 0, 0, 0.7)"
+---
+## **📍 개요**
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/c8b09c0f-75d2-4e66-9141-1c16097d7127" width="300"></td>
+    <td><img src="https://github.com/user-attachments/assets/c59bf03c-ae05-4360-a980-374ec82d1e99" width="300"></td>
+  </tr>
+</table>
+
+갑자기 팀을 꾸려 나가게 됐다. 무려 첫번째 다인 squad 출전! 제대로 해본 CTF도 이제 두번째다.
+
+![이렇게 팀이 커질 줄 누가 알았겠냐고](https://github.com/user-attachments/assets/6c5a09e7-3d3d-474d-ab36-927c2bfc4a42)
+
+어쩌다 11명이 된 이 인력거 팟은.. 내가 "버스는 못 태워드리고 같이 인력거 끌어요~" 라고 한 말에서 출발했다. 
+
+정말 즐겜만 하자고 생각했는데 새벽에 막 플래그 딸랑말랑 끝날 시간은 가까워져 가니 초조하기도 하고, 욕심도 나고.. 그래도 다음엔 더 잘할 수 있겠다 싶었다!<span class="text-italic text-gray">(작고 귀여운 점수지만 다연이 잘했다고 두둔해준 굿.. 팀원.. 굿.. 지인.. 감동의 물결임)</span>
+![img.png](https://github.com/user-attachments/assets/f11e47f6-2d74-4c63-a7f3-9fa408ce802d)
+
+그런 의미에서 적는.. 다음엔 더 잘하기 위한 recap
+
+## **✏️ Write Up**
+
+solve 갯수가 작지만... 귀엽게 봐주자.
+write up은 각 항목에 링크를 달아놨다!
+
+1. 대회 중에 solve 성공한 문제
+   1. [web] asterrisk
+   2. [misc] baby dino
+2. 거의 solve인거 같은데 못 마친 문제
+   1. [pwn] dbfs
+   2. [web] dbchat
+3. 손은 댔는데 진행률이 미미한 문제
+   1. [rev] ex-cute
+   2. [crypto] ELWE
+   3. [blockchain] random game
+4. 다른 사람이 solve했지만 다시 풀어보고 싶은 문제
+   1. [rev] nononono
+   2. [pwn] GRAM
+   3. [rev] Flag-Checker
+      1. 🧷 [공식 write-up이 있다.][https://blog.cykor.kr/2025/10/Crew-CTF-2025-Flag-Checker](https://blog.cykor.kr/2025/10/Crew-CTF-2025-Flag-Checker)
+5. 디코 아카이빙에서 파묘
+   1. [web]selen1um
+   2. [web]safe embed
+
+생각보다 정말 손을 많이 댄 것 같다. 타율 2할이면 야구계에선 2군정도... 갈수있으니깐..ㅎㅎ
+
+새삼 학교를 잘 왔다. 출제자들이 동기 내지 선배라니? 직접 물어볼 수 있다니? 너무 행복하고 감사한 하루!!
+
+## **✏️ 기타 잡설**
+
+가장 잘 한 일은 원격 디버깅에 조금 더 친해진 것..
+🧷 [과거 로되리안에 호되게 당했던 나 1][https://dreamhack.io/forum/qna/4683](https://dreamhack.io/forum/qna/4683)
+🧷 [과거 로되리안에 호되게 당했던 나 2][https://dreamhack.io/forum/qna/4756](https://dreamhack.io/forum/qna/4756)
+
+이거 땜에 포너블과 한참 거리를 뒀었다. (patchelf, pwninit을 알고도 너무 거부감이 들어..) 그래서 한동안 Docker에서 socat을 열고, python script로 pid를 찾아 root권한의 WSL에서 gdb-pwndbg -p <PID>로 붙였다.
+🧷 [로되리안의 해결방법 1][https://0nehundred4ndt3n.tistory.com/7](https://0nehundred4ndt3n.tistory.com/7)
+🧷 [로되리안의 해결방법 2][https://blog.sechack.kr/136](https://blog.sechack.kr/136)
+
+근데 최근 업데이트 된 docker의 정책에 의해서 위 방법이 어려워진 것 같다. 정확힌 모르겠는데 PID 조회는 되고 seccomp 옵션을 줘도 디버거가 안붙게 바뀌었다가, 이 CTF 하는 동안엔 PID가 아예 조회가 되지 않아서 보니 namespace가 달라서 전혀 조회가 안되는 것이라고 들었다. <span class="text-italic text-gray">(안타깝게도 나는 시스템 구조에 대한 이해는 전혀 없다..)</span>
+
+그래서 다른 포너들은 어떻게 로되리안을 해결하는진 모르겠다만, 한동안 손을 떼고 외면하고있었는데 이번엔 해낸것! 별거 아니지만 gdbserver와 socat을 이용하는 고전고전한 방법을 따랐다. 역시 나보다 똑똑한 선배님들의 툴을 쓰면 안될게 없다.
+
+그리고 두번째로 잘한 건.. <span class="highlight-yellow text-blue text-bold">나 pwn 이외에 다른 문제에 손대본거 이번 CTF이 처음!!</span> 특히 web과 blockchain을 만지면서 와 이런게 있다고?? ㅇㅁㅇ... 의 연속이었다. 해킹의 지평은 너무나도 넓고 넓고 넓다.. 그만 넓어도 될 거 같기도 하면서 평생 공부하며 살 수 있다는 것은 감사한 일이다.
+
+조금 아쉬운 것은, 어떡하면 바이너리를 체계적으로, 필요한 정보만 읽을지 내재화된 순서가 전혀 없단 것이다. 수학문제를 풀대 항상 맨 뒤에서부터 읽어서 구하는게 결국 뭔지를 알고 갈피를 잡으라고 과외돌이들한테 얘기하곤 하는데, 결국 그런 노하우가 생기려면 풀이량이 받쳐줘야한다.
+![img1.png](https://github.com/user-attachments/assets/c641f993-fe9f-4d4d-9fb4-752a4995a60a)
+
+여하간 방학동안 또 많은 씨텝을 나가봐야지. 실력이 금방 늘 수 있는 좋은 기회인거 같다.
