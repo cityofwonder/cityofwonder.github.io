@@ -57,7 +57,9 @@ C:.
 </div>
 </details>
 
-## 1. 👀 static analysis
+---
+
+## <span class="highlight-blue">1. 👀 static analysis</span>
 
 첫 시작은 index.js를 분석하는 것이다.
 <details>
@@ -91,8 +93,15 @@ C:.
 
     2. <span class =  "text-bold text-orange">종속성</span> <br>
         한편, <span class="text-red text-bold">index.js는 쉘 명령어를 통해 mini-run.js를, mini-run.js는 core.js를 호출</span>하고 있다.
-        ![index.js](https://github.com/user-attachments/assets/d0e9d4a7-98ce-4813-bc66-6379507d452c)
-        ![mini-run.js](https://github.com/user-attachments/assets/5a60b247-eeed-4a27-adfa-d7583b3ed965)
+        <figure style="text-align: center;">
+            <img src="/assets/images/2025-12-09/20251208_192716.png" alt="index.js">
+            <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">index.js</figcaption>
+        </figure>
+        <figure style="text-align: center;">
+            <img src="/assets/images/2025-12-09/20251208_195840.png" alt="mini-run.js">
+            <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">mini-run.js</figcaption>
+        </figure>
+        
 
 </div>
 </details>
@@ -100,12 +109,24 @@ C:.
 index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의 분석 과정</span>은 다음과 같다.
 1. <span class="highlight-yellow">**Backwards tracing: 시스템을 장악할 수 있는 함수 (sink) 위주로 검색하기**</span><br>
    검색 키워드: <code>spawn</code>, <code>exec</code>, <code>eval</code>, <code>system</code>, <code>query</code>
-   ![index.js - shell 실행 spawn 함수](ttps://github.com/user-attachments/assets/11c056df-8d46-4094-bb60-e56ee904da0d)
-   이 가운데에서도 spawn 함수만 indexing 된다. sh를 실행하는데, 그 변수가 되는 shell은 input으로부터 오는 것을 알 수 있다.
+   <figure style="text-align: center;">
+        <img src="/assets/images/2025-12-09/20251208_202151.png" alt="index.js - shell 실행 spawn 함수">
+        <figcaption style="font-size: 0.9em; color:
+        gray; margin-top: 5px;">index.js - shell 실행 spawn 함수</figcaption>
+    </figure>
+   이 가운데에서도 spawn 함수만 indexing 된다. 해당 함수는 sh를 실행하는데, 그 변수가 되는 shell은 **input**으로부터 오는 것을 알 수 있다.
             
 2. <span class="highlight-yellow">**shell을 만들 때 쓰이는 input을 거꾸로 따라가기**</span><br>
-    ![input은 runWithEchoPipeline의 arg1](https://github.com/user-attachments/assets/50de46e4-02ed-44c2-94df-bc52c0c9dc83)
-    ![runWithEchoPipeline의 호출 지점](https://github.com/user-attachments/assets/e961b295-5944-4685-8e89-d317611df61f)
+    <figure style="text-align: center;">
+        <img src="/assets/images/2025-12-09/20251208_203330.png" alt="input은 runWithEchoPipeline의 arg1">
+        <figcaption style="font-size: 0.9em; color:
+        gray; margin-top: 5px;">input은 runWithEchoPipeline의 arg1</figcaption>
+    </figure>
+    <figure style="text-align: center;">
+        <img src="/assets/images/2025-12-09/20251208_203620.png" alt="runWithEchoPipeline의 호출 지점">
+        <figcaption style="font-size: 0.9em; color:
+        gray; margin-top: 5px;">runWithEchoPipeline의 호출 지점</figcaption>
+    </figure>
     shell을 만드는 input은 정의를 따라가보면 runWithEchoPipeline의 arg1이고, runWithEchoPipeline의 모든 참조를 따라가보면 위 사진과 같이 두 지점에서 호출하고 있는 것을 확인할 수 있다. 순서대로 다음과 같다.
     <div class="box-note" markdown="1">
 
@@ -140,8 +161,12 @@ index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의
         }
     });
     ```
+    <figure style="text-align: center;">
+        <img src="/assets/images/2025-12-09/20251209_150730.png" alt="submit handler vs judge-all handler">
+        <figcaption style="font-size: 0.9em; color:
+        gray; margin-top: 5px;">submit handler vs judge-all handler</figcaption>
+    </figure>
     따라서 아래와 같은 경우 submit handler가 취약할 수 있음을 이해할 수 있다.
-    ![submit handler vs judge-all handler](https://github.com/user-attachments/assets/61fa5974-85f1-4494-96b3-893287b5dc47)
     
 3. <span class="highlight-yellow">**submit handler에서 통과하는 shell이 하는 동작 관찰하기**</span><br>
     <code>const shell = `echo ${input} | node ../bin/mini-run.js --b64code '${b64code}'`;</code>에 '\n*'를 넘기게 되면,
@@ -152,7 +177,7 @@ index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의
     ```
 
     가 동작하게 된다. 쉘에서 줄바꿈은 "앞의 명령어를 끝내고, 다음 명령어를 시작해라"라는 뜻으로 세미콜론과 같은 역할을 하므로, 와일드카드(*)가 동작하는 두번째 명령어가 중요하다.
-    ![리눅스 쉘에서 와일드 카드의 동작](https://github.com/user-attachments/assets/35980045-6da9-4c9d-82b6-d71d29c85959)
+    ![리눅스 쉘에서 와일드 카드의 동작](/assets/images/2025-12-09/스크린샷 2025-12-08 211608.png)
     예를 들어 echo * 결과가 아래와 같다면 순서대로 <code>{실행할 프로그램(명령어)} {args0 args1 ...}</code> 로 인식하게 된다.
 
     ```bash
@@ -172,11 +197,19 @@ index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의
     <div class="box-danger" markdown = "1">
     **submit 발생 > runWithEchoPipeline > <span class = "text-bold text-red">!!</span> > shell 실행** <br>
     으로 이어지는데, 
-    ![runWithEchoPipeline의 흐름](https://github.com/user-attachments/assets/cc50d61e-8bdd-4827-8cc6-ae5caa475659)
+    <figure style="text-align: center;">
+        <img src="/assets/images/2025-12-09/20251209_015125.png" alt="runWithEchoPipeline의 흐름">
+        <figcaption style="font-size: 0.9em; color:
+        gray; margin-top: 5px;">runWithEchoPipeline의 흐름</figcaption>
+    </figure>
     이 때 validateTestInput이 filter 역할을 한다.
     </div>
 
-    ![validateTestInput의 정의](https://github.com/user-attachments/assets/228930e2-e255-4d85-8470-24e5c4cda9a5)
+    <figure style="text-align: center;">
+        <img src="/assets/images/2025-12-09/20251209_015751.png" alt="validateTestInput의 정의">
+        <figcaption style="font-size: 0.9em; color:
+        gray; margin-top: 5px;">validateTestInput의 정의</figcaption>
+    </figure>
     
     ```javascript
     function validateTestInput(inp) {
@@ -211,11 +244,24 @@ index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의
     아스키 57보다 작은 문자들: ! (33), " (34), # (35), $, %, &, ', (, ), * (42), +, ,, -, ., /.
 
 그렇다면 이제 '1-2. shell을 만들 때 쓰이는 input을 거꾸로 따라가기'에서 확인한 submit handler가 input으로 뭘 가져오는 것인지 확인해보자.
-![server/public/*.html에서 submit handler 참조 확인하기](https://github.com/user-attachments/assets/056464b7-c4b4-4fca-8c23-89ae62dc8723)
-![app.html에서 submit handler 호출 확인하기](https://github.com/user-attachments/assets/2a123722-23fc-455c-8132-b9409ab976b4)
+
+<figure style="text-align: center;">
+        <img src="/assets/images/2025-12-09/20251208_215916.png" alt="server/public/*.html에서 submit handler 참조 확인하기">
+        <figcaption style="font-size: 0.9em; color:
+        gray; margin-top: 5px;">server/public/*.html에서 submit handler 참조 확인하기</figcaption>
+</figure>
+
+<figure style="text-align: center;">
+        <img src="/assets/images/2025-12-09/20251208_220322.png" alt="app.html에서 submit handler 호출 확인하기">
+        <figcaption style="font-size: 0.9em; color:
+        gray; margin-top: 5px;">app.html에서 submit handler 호출 확인하기</figcaption>
+</figure>
+
 정확히 어떤 POST 요청에 대해 어떤 값이 날라가는지는 docker setting 후 개발자 도구에서 관찰할 수 있다.
 
-## 2. Setting docker for Debugging
+---
+
+## <span class="highlight-blue">2. Setting docker for Debugging</span>
 
 <span class="text-italic text-gray">~~나는 디버깅 안되면 절대 익스를 못 작성하는데, 딱히 그러지 않고도 잘 솔브 하는 사람을 보면 신기하다..~~</span>
 
@@ -227,11 +273,17 @@ index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의
     docker exec -it asterisk_chall /bin/bash
 ```
 
-![docker setting 완료 후](https://github.com/user-attachments/assets/8ec9606a-562d-4353-9677-c79f7ad19459)
+<figure style="text-align: center;">
+        <img src="/assets/images/2025-12-09/20251208_221952.png" alt="docker setting 완료 후">
+        <figcaption style="font-size: 0.9em; color:
+        gray; margin-top: 5px;">docker setting 완료 후</figcaption>
+</figure>
 
 run까지만 해도 http://localhost:3000 접속은 가능하다. 익스 과정에서 서버 내부 상황을 보고싶다면 exec까지 실행해주면 된다.
 
-## 3. Dynamic Analysis with Docker
+---
+
+## <span class="highlight-blue">3. Dynamic Analysis with Docker</span>
 
 메인 페이지에서 보이는 몇개 버튼을 눌러보면 http://localhost:3000/nnn.html 와 같은 방식으로 접속되는 것을 확인할 수 있다.
 
@@ -255,23 +307,60 @@ run까지만 해도 http://localhost:3000 접속은 가능하다. 익스 과정�
 2. app.html은 로그인을 거쳐야 접근할 수 있는 페이지임
 3. submit endpoint에 접근하기 위해 index.html > login.html >..> app.html을 거쳐야함
 
-!['app.html' 호출 문자열 index](https://github.com/user-attachments/assets/89c4f214-5f97-44ea-98c2-56629bb9f954)
-![login.html에서 'app.html'을 호출하는 지점](https://github.com/user-attachments/assets/6a4f2742-886a-4afe-8cc6-bf9739e25973)
+<figure style="text-align: center;">
+        <img src="/assets/images/2025-12-09/20251209_011011.png" alt="'app.html' 호출 문자열 index">
+        <figcaption style="font-size: 0.9em; color:
+        gray; margin-top: 5px;">'app.html' 호출 문자열 index</figcaption>
+</figure>
+
+<figure style="text-align: center;">
+        <img src="/assets/images/2025-12-09/20251209_011258.png" alt="login.html에서 'app.html'을 호출하는 지점">
+        <figcaption style="font-size: 0.9em; color:
+        gray; margin-top: 5px;">login.html에서 'app.html'을 호출하는 지점</figcaption>
+</figure>
 
 위 두 사진을 참고하면, login.html에서 로그인 성공시 app.html로 이동하게 된다.
 그렇담 확인한 취약점은 app.html에 있기 때문에 아무 계정으로 로그인하고 app.html 페이지로 넘어간다.(계정정보는 server의 /app/server/users에 기록)
 
-![app.html에서 submit handler 호출 확인하기](https://github.com/user-attachments/assets/2a123722-23fc-455c-8132-b9409ab976b4)
+<figure style="text-align: center;">
+    <img src="/assets/images/2025-12-09/20251208_220322.png" alt="app.html에서 submit handler 호출 확인하기">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">app.html에서 submit handler 호출 확인하기</figcaption>
+</figure>
 
 submit handler는 $('#submit')이 눌릴 때 트리거된다.
 따라서 아래와 같이 식별할 수 있다.
-![브라우저 console 탭에서 버튼 식별하기](https://github.com/user-attachments/assets/e16b5bf0-2497-41be-b3e9-58960bccdd4b)
+<figure style="text-align: center;">
+    <img src="/assets/images/2025-12-09/20251209_013053.png" alt="브라우저 console 탭에서 버튼 식별하기">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">브라우저 console 탭에서 버튼 식별하기</figcaption>
+</figure>
 
 그렇담 이제 해당 버튼을 눌렀을 때 어떤 액션이 일어나는지 디버깅 해볼 차례다.
-![브라우저 sources 탭에서 관찰 코드 식별하여 bp 걸고 실행하기](https://github.com/user-attachments/assets/2b736b28-7b75-402f-8413-a699f7c49b7e)
+<figure style="text-align: center;">
+    <img src="/assets/images/2025-12-09/20251209_013246.png" alt="브라우저 sources 탭에서 관찰 코드 식별하여 bp 걸고 실행하기">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">브라우저 sources 탭에서 관찰 코드 식별하여 bp 걸고 실행하기</figcaption>
+</figure>
 
 적당한 값과 함께 $('#submit')버튼을 누르면 bp에 걸리고, 원하는 변수에 마우스온 함으로써 페이지 기준 아래쪽 칸의 값(5678) input 변수로 들어간다는 것을 알 수 있으며, 이는 마저 실행하면서 실제 이벤트가 발생됨에 따라 Network 탭에서도 아래 두번째 사진처럼 확인 가능하다.
-![bp 걸린 후 값 확인하기](ttps://github.com/user-attachments/assets/c978d38b-e270-4bbc-a302-de2aa1e771a9)
-![브라우저 Network 탭에서 값 관찰](https://github.com/user-attachments/assets/6a39059d-89c4-4a2c-a5e8-033baea0fd46)
+<figure style="text-align: center;">
+    <img src="/assets/images/2025-12-09/20251209_013508.png" alt="bp 걸린 후 값 확인하기">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">bp 걸린 후 값 확인하기</figcaption>
+</figure>
 
-## 4. exploit 작성
+<figure style="text-align: center;">
+    <img src="/assets/images/2025-12-09/20251209_013731.png" alt="브라우저 Network 탭에서 값 관찰">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">브라우저 Network 탭에서 값 관찰</figcaption>
+</figure>
+
+
+<div class="box-success" markdown = "1">
+✅ <strong><span class="highlight-green">SUMMARY</span></strong><br>
+
+- <span class="text-red">index.js > mini_run.js > core.js</span>로 실행됨
+- **정적분석**: Req.body를 받아 <span class="text-red">sh의 인자로 넘김</span>. <span class="text-orange">**/submit 엔드포인트**</span>가 중요. 
+  - 이 때 sh의 인자로 넘기기 전에 길이 및 ASCII 범위 제한을 검토하는 validation이 존재하는데, 여기서 <span class="text-orange">충분히 걸러내지 못하면서(js의 강제 형변환) <span class="highlight-yellow">**🚨shell injection🚨**</span></span>이 가능해짐
+- **동적분석**: docker 실행하고 브라우저 접속하면 input이 login 성공 후 접속 가능한 app.html의 좌측 상단에서 두번째 칸, 엔드포인트는 Run 버튼 클릭 시 호출됨을 알 수 있음.
+</div>
+
+---
+
+## <span class="highlight-blue">4. exploit 작성</span>
