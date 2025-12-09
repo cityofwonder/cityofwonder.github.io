@@ -1,22 +1,22 @@
 ﻿$date = Get-Date -Format "yyyy-MM-dd"
 $watchPath = "$(Get-Location)\assets\images\$date"
-
 New-Item -ItemType Directory -Force -Path $watchPath | Out-Null
-
 $watcher = New-Object System.IO.FileSystemWatcher
 $watcher.Path = $watchPath
 $watcher.Filter = "*.*"
 $watcher.EnableRaisingEvents = $true
-
 Write-Host "Watching: $watchPath" -ForegroundColor Cyan
-Write-Host "Copy a file to trigger. Ctrl+C to exit."
-
+Write-Host "Copy a file to trigger. Press Enter for filename as caption. Ctrl+C to exit."
 while ($true) {
     $result = $watcher.WaitForChanged([System.IO.WatcherChangeTypes]::Created, 1000)
     if (-not $result.TimedOut) {
         $name = $result.Name
         Write-Host "`nNew file: $name" -ForegroundColor Yellow
-        $caption = Read-Host "Enter caption"
+        $caption = Read-Host "Enter caption (or press Enter to skip)"
+        
+        if ([string]::IsNullOrWhiteSpace($caption)) {
+            $caption = [System.IO.Path]::GetFileNameWithoutExtension($name)
+        }
         
         $output = @"
 <figure style="text-align: center;">
@@ -25,5 +25,7 @@ while ($true) {
 </figure>
 "@
         Write-Host $output -ForegroundColor Green
+        Set-Clipboard $output
+        Write-Host "(Copied to clipboard)" -ForegroundColor DarkGray
     }
 }
