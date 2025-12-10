@@ -5,12 +5,598 @@ sidebar: category-list
 
 {%- if site.posts.size > 0 -%}
 
-  {%- include functions.html func='log' level='debug' msg='Get value' -%}
-  {%- include functions.html func='get_categories' -%}
-  {% assign categories = return %}
+  <!-- Build category tree data for JavaScript -->
+  <script id="category-data" type="application/json">
+  {
+    "posts": [
+      {% for post in site.posts %}
+        {
+          "title": {{ post.title | jsonify }},
+          "url": "{{ post.url | relative_url }}",
+          "date": "{{ post.date | date: '%Y-%m-%d' }}",
+          "categories": {{ post.categories | jsonify }}
+        }{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    ]
+  }
+  </script>
 
-  {% assign keys = categories %}
-  {% assign field = 'categories' %}
-  {%- include views/segments.html -%}
+  <!-- Filesystem Tree Container -->
+  <div class="filesystem-container">
+    <div class="filesystem-header">
+      <div class="filesystem-buttons">
+        <span class="fs-btn fs-close"></span>
+        <span class="fs-btn fs-minimize"></span>
+        <span class="fs-btn fs-maximize"></span>
+      </div>
+      <div class="filesystem-title">Categories</div>
+      <div class="filesystem-actions">
+        <button class="fs-action-btn" onclick="expandAll()" title="Expand All">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 15l-6-6-6 6"/>
+            <path d="M18 9l-6-6-6 6"/>
+          </svg>
+        </button>
+        <button class="fs-action-btn" onclick="collapseAll()" title="Collapse All">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+            <path d="M6 15l6 6 6-6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="filesystem-content">
+      <div id="filesystem-tree" class="filesystem-tree"></div>
+    </div>
+  </div>
 
 {%- endif -%}
+
+<style>
+/* Filesystem Container */
+.filesystem-container {
+  background: #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  margin: 20px 0 40px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+}
+
+/* Filesystem Header (Terminal-style) */
+.filesystem-header {
+  background: linear-gradient(180deg, #3c3c3c 0%, #323232 100%);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #252525;
+}
+
+.filesystem-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.fs-btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.fs-close { background: #ff5f57; }
+.fs-minimize { background: #febc2e; }
+.fs-maximize { background: #28c840; }
+
+.filesystem-title {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #999;
+}
+
+.filesystem-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.fs-action-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.fs-action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Filesystem Content */
+.filesystem-content {
+  background: #1e1e1e;
+  padding: 16px 12px;
+  min-height: 300px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.filesystem-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.filesystem-content::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.filesystem-content::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+.filesystem-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Tree Structure */
+.filesystem-tree {
+  color: #d4d4d4;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.tree-item {
+  user-select: none;
+}
+
+.tree-folder {
+  margin-bottom: 2px;
+}
+
+.tree-folder-header {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tree-folder-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tree-folder-header.active {
+  background: rgba(30, 136, 229, 0.2);
+}
+
+.tree-chevron {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  color: #888;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.tree-folder.expanded > .tree-folder-header .tree-chevron {
+  transform: rotate(90deg);
+}
+
+.tree-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.tree-icon.folder { color: #dcb67a; }
+.tree-icon.folder-open { color: #e8c97a; }
+.tree-icon.file { color: #519aba; }
+
+.tree-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-count {
+  font-size: 11px;
+  color: #666;
+  margin-left: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.tree-children {
+  margin-left: 20px;
+  border-left: 1px solid #333;
+  padding-left: 8px;
+  display: none;
+}
+
+.tree-folder.expanded > .tree-children {
+  display: block;
+}
+
+/* File Items (Posts) */
+.tree-file {
+  display: flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 1px;
+  transition: background 0.15s;
+}
+
+.tree-file:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tree-file a {
+  color: #9cdcfe;
+  text-decoration: none;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-file a:hover {
+  color: #4fc3f7;
+  text-decoration: underline;
+}
+
+.tree-file-date {
+  font-size: 11px;
+  color: #666;
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+/* Show More Button */
+.show-more-container {
+  padding: 4px 8px;
+}
+
+.show-more-btn {
+  background: transparent;
+  border: 1px dashed #444;
+  color: #888;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.show-more-btn:hover {
+  border-color: #666;
+  color: #aaa;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.hidden-files {
+  display: none;
+}
+
+.hidden-files.visible {
+  display: block;
+}
+
+/* Light Theme */
+html:not([data-theme="dark"]) .filesystem-container {
+  background: #f5f5f5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+html:not([data-theme="dark"]) .filesystem-header {
+  background: linear-gradient(180deg, #e8e8e8 0%, #d8d8d8 100%);
+  border-bottom-color: #ccc;
+}
+
+html:not([data-theme="dark"]) .filesystem-title {
+  color: #666;
+}
+
+html:not([data-theme="dark"]) .fs-action-btn {
+  color: #666;
+}
+
+html:not([data-theme="dark"]) .fs-action-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #333;
+}
+
+html:not([data-theme="dark"]) .filesystem-content {
+  background: #fafafa;
+}
+
+html:not([data-theme="dark"]) .filesystem-content::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+html:not([data-theme="dark"]) .filesystem-content::-webkit-scrollbar-thumb {
+  background: #ccc;
+}
+
+html:not([data-theme="dark"]) .filesystem-tree {
+  color: #333;
+}
+
+html:not([data-theme="dark"]) .tree-folder-header:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+html:not([data-theme="dark"]) .tree-folder-header.active {
+  background: rgba(30, 136, 229, 0.12);
+}
+
+html:not([data-theme="dark"]) .tree-chevron {
+  color: #999;
+}
+
+html:not([data-theme="dark"]) .tree-count {
+  color: #888;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+html:not([data-theme="dark"]) .tree-children {
+  border-left-color: #ddd;
+}
+
+html:not([data-theme="dark"]) .tree-file:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+html:not([data-theme="dark"]) .tree-file a {
+  color: #0066cc;
+}
+
+html:not([data-theme="dark"]) .tree-file a:hover {
+  color: #0088ff;
+}
+
+html:not([data-theme="dark"]) .tree-file-date {
+  color: #999;
+}
+
+html:not([data-theme="dark"]) .show-more-btn {
+  border-color: #ccc;
+  color: #666;
+}
+
+html:not([data-theme="dark"]) .show-more-btn:hover {
+  border-color: #999;
+  color: #333;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .filesystem-container {
+    margin: 10px 0 30px;
+    border-radius: 8px;
+  }
+
+  .filesystem-header {
+    padding: 8px 12px;
+  }
+
+  .filesystem-title {
+    font-size: 12px;
+  }
+
+  .filesystem-content {
+    padding: 12px 8px;
+    max-height: 500px;
+  }
+
+  .filesystem-tree {
+    font-size: 12px;
+  }
+
+  .tree-children {
+    margin-left: 12px;
+    padding-left: 6px;
+  }
+
+  .tree-file-date {
+    display: none;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const data = JSON.parse(document.getElementById('category-data').textContent);
+  const treeContainer = document.getElementById('filesystem-tree');
+
+  // Build tree structure from categories
+  function buildTree(posts) {
+    const tree = {};
+
+    posts.forEach(post => {
+      post.categories.forEach(category => {
+        // Parse category path (e.g., "📂/wargame/pwn-wargame" -> ["📂", "wargame", "pwn-wargame"])
+        const parts = category.split('/').filter(p => p.trim());
+
+        let current = tree;
+        parts.forEach((part, index) => {
+          if (!current[part]) {
+            current[part] = {
+              __posts: [],
+              __children: {}
+            };
+          }
+          // Add post to leaf category
+          if (index === parts.length - 1) {
+            if (!current[part].__posts.find(p => p.url === post.url)) {
+              current[part].__posts.push(post);
+            }
+          }
+          current = current[part].__children;
+        });
+      });
+    });
+
+    return tree;
+  }
+
+  // Icons
+  const icons = {
+    chevron: `<svg class="tree-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>`,
+    folder: `<svg class="tree-icon folder" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`,
+    folderOpen: `<svg class="tree-icon folder-open" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>`,
+    file: `<svg class="tree-icon file" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>`
+  };
+
+  // Render tree recursively
+  function renderTree(node, container, depth = 0) {
+    const sortedKeys = Object.keys(node).sort((a, b) => {
+      // Sort folders first, then alphabetically
+      const aHasChildren = Object.keys(node[a].__children || {}).length > 0;
+      const bHasChildren = Object.keys(node[b].__children || {}).length > 0;
+      if (aHasChildren && !bHasChildren) return -1;
+      if (!aHasChildren && bHasChildren) return 1;
+      return a.localeCompare(b);
+    });
+
+    sortedKeys.forEach(key => {
+      const item = node[key];
+      const hasChildren = Object.keys(item.__children).length > 0;
+      const posts = item.__posts || [];
+      const totalPosts = countAllPosts(item);
+
+      if (hasChildren || posts.length > 0) {
+        const folder = document.createElement('div');
+        folder.className = 'tree-item tree-folder';
+        if (depth === 0) folder.classList.add('expanded');
+
+        const header = document.createElement('div');
+        header.className = 'tree-folder-header';
+        header.innerHTML = `
+          ${icons.chevron}
+          <span class="folder-icon">${icons.folder}</span>
+          <span class="tree-label">${key}</span>
+          <span class="tree-count">${totalPosts}</span>
+        `;
+
+        header.addEventListener('click', function() {
+          folder.classList.toggle('expanded');
+          const folderIcon = header.querySelector('.folder-icon');
+          folderIcon.innerHTML = folder.classList.contains('expanded') ? icons.folderOpen : icons.folder;
+        });
+
+        folder.appendChild(header);
+
+        const children = document.createElement('div');
+        children.className = 'tree-children';
+
+        // Render sub-folders first
+        if (hasChildren) {
+          renderTree(item.__children, children, depth + 1);
+        }
+
+        // Render posts (files)
+        if (posts.length > 0) {
+          const visibleLimit = 3;
+          const visiblePosts = posts.slice(0, visibleLimit);
+          const hiddenPosts = posts.slice(visibleLimit);
+
+          visiblePosts.forEach(post => {
+            children.appendChild(createFileElement(post));
+          });
+
+          if (hiddenPosts.length > 0) {
+            const hiddenContainer = document.createElement('div');
+            hiddenContainer.className = 'hidden-files';
+            hiddenPosts.forEach(post => {
+              hiddenContainer.appendChild(createFileElement(post));
+            });
+
+            const showMoreContainer = document.createElement('div');
+            showMoreContainer.className = 'show-more-container';
+            const showMoreBtn = document.createElement('button');
+            showMoreBtn.className = 'show-more-btn';
+            showMoreBtn.textContent = `+ ${hiddenPosts.length} more files...`;
+            showMoreBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              hiddenContainer.classList.toggle('visible');
+              showMoreBtn.textContent = hiddenContainer.classList.contains('visible')
+                ? '- collapse'
+                : `+ ${hiddenPosts.length} more files...`;
+            });
+
+            showMoreContainer.appendChild(showMoreBtn);
+            children.appendChild(showMoreContainer);
+            children.appendChild(hiddenContainer);
+          }
+        }
+
+        folder.appendChild(children);
+        container.appendChild(folder);
+      }
+    });
+  }
+
+  function createFileElement(post) {
+    const file = document.createElement('div');
+    file.className = 'tree-file';
+    file.innerHTML = `
+      ${icons.file}
+      <a href="${post.url}">${post.title}</a>
+      <span class="tree-file-date">${post.date}</span>
+    `;
+    return file;
+  }
+
+  function countAllPosts(node) {
+    let count = (node.__posts || []).length;
+    Object.values(node.__children || {}).forEach(child => {
+      count += countAllPosts(child);
+    });
+    return count;
+  }
+
+  // Build and render tree
+  const tree = buildTree(data.posts);
+  renderTree(tree, treeContainer);
+
+  // Expand all top-level folders by default
+  document.querySelectorAll('.tree-folder').forEach((folder, index) => {
+    if (folder.parentElement === treeContainer) {
+      folder.classList.add('expanded');
+      const folderIcon = folder.querySelector('.folder-icon');
+      if (folderIcon) folderIcon.innerHTML = icons.folderOpen;
+    }
+  });
+});
+
+function expandAll() {
+  document.querySelectorAll('.tree-folder').forEach(folder => {
+    folder.classList.add('expanded');
+    const folderIcon = folder.querySelector('.folder-icon');
+    if (folderIcon) {
+      folderIcon.innerHTML = `<svg class="tree-icon folder-open" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>`;
+    }
+  });
+}
+
+function collapseAll() {
+  document.querySelectorAll('.tree-folder').forEach(folder => {
+    folder.classList.remove('expanded');
+    const folderIcon = folder.querySelector('.folder-icon');
+    if (folderIcon) {
+      folderIcon.innerHTML = `<svg class="tree-icon folder" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`;
+    }
+  });
+}
+</script>
