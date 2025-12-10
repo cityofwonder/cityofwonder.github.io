@@ -9,32 +9,23 @@ sidebar: tag-list
   {%- include functions.html func='get_tags' -%}
   {% assign tags = return %}
 
-  <!-- Tag Cloud Visualization -->
-  <div class="tag-cloud-container">
-    <div class="tag-cloud-wrapper">
-      <div class="tag-cloud">
-        {% assign max_count = 0 %}
-        {% for tag in tags %}
-          {% assign count = site.posts | where: "tags", tag | size %}
-          {% if count > max_count %}
-            {% assign max_count = count %}
-          {% endif %}
-        {% endfor %}
-
-        {% for tag in tags %}
-          {% assign count = site.posts | where: "tags", tag | size %}
-          {% assign weight = count | times: 100 | divided_by: max_count %}
-          <a href="#{{ tag }}"
-             class="tag-node"
-             data-weight="{{ weight }}"
-             data-count="{{ count }}"
-             style="--weight: {{ weight }};">
-            {{ tag }}
-          </a>
-        {% endfor %}
-      </div>
-    </div>
+  <!-- Tag Graph Visualization -->
+  <div class="tag-graph-container">
+    <svg id="tag-graph"></svg>
+    <div id="tag-tooltip" class="tag-tooltip"></div>
   </div>
+
+  <!-- Post-Tag Data for JavaScript -->
+  <script id="post-tags-data" type="application/json">
+  [
+    {% for post in site.posts %}
+      {
+        "title": {{ post.title | jsonify }},
+        "tags": {{ post.tags | jsonify }}
+      }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+  </script>
 
   <!-- Tag List -->
   {% assign keys = tags %}
@@ -44,307 +35,387 @@ sidebar: tag-list
 {%- endif -%}
 
 <style>
-  /* Tag Cloud Container */
-  .tag-cloud-container {
+  /* Tag Graph Container */
+  .tag-graph-container {
     margin: 40px 0 60px;
     position: relative;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     overflow: hidden;
   }
 
-  .tag-cloud-wrapper {
-    position: relative;
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 30px 20px;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  #tag-graph {
+    width: 100%;
+    height: 450px;
+    display: block;
   }
 
-  /* Fade out effect at edges */
-  .tag-cloud-wrapper::before,
-  .tag-cloud-wrapper::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 40px;
+  /* Graph Links */
+  .graph-link {
+    stroke: #1e88e5;
+    stroke-opacity: 0.4;
+    fill: none;
+    transition: stroke-opacity 0.3s ease;
+  }
+
+  .graph-link.highlighted {
+    stroke-opacity: 0.9;
+  }
+
+  .graph-link.dimmed {
+    stroke-opacity: 0.1;
+  }
+
+  /* Graph Nodes */
+  .graph-node {
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .graph-node circle {
+    fill: #1e88e5;
+    stroke: #fff;
+    stroke-width: 2px;
+    transition: all 0.3s ease;
+  }
+
+  .graph-node:hover circle {
+    fill: #1565c0;
+    stroke-width: 3px;
+    filter: drop-shadow(0 0 8px rgba(30, 136, 229, 0.6));
+  }
+
+  .graph-node.dimmed circle {
+    fill: #b0bec5;
+    opacity: 0.4;
+  }
+
+  .graph-node.highlighted circle {
+    fill: #0d47a1;
+    stroke-width: 3px;
+    filter: drop-shadow(0 0 10px rgba(30, 136, 229, 0.8));
+  }
+
+  /* Node Labels (visible on hover) */
+  .node-label {
+    font-size: 11px;
+    font-weight: 600;
+    fill: #37474f;
     pointer-events: none;
-    z-index: 1;
     opacity: 0;
     transition: opacity 0.3s ease;
+    text-anchor: middle;
   }
 
-  .tag-cloud-wrapper::before {
-    top: 0;
-    background: linear-gradient(to bottom, rgba(245, 247, 250, 0.95), transparent);
-  }
-
-  .tag-cloud-wrapper::after {
-    bottom: 0;
-    background: linear-gradient(to top, rgba(245, 247, 250, 0.95), transparent);
-  }
-
-  .tag-cloud-wrapper.fade-top::before {
+  .graph-node:hover .node-label,
+  .graph-node.highlighted .node-label {
     opacity: 1;
   }
 
-  .tag-cloud-wrapper.fade-bottom::after {
-    opacity: 1;
-  }
-
-  /* Tag Cloud */
-  .tag-cloud {
-    position: relative;
-    min-height: 500px;
-    height: auto;
-  }
-
-  /* Tag Nodes */
-  .tag-node {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: calc(8px + var(--weight) * 0.1px) calc(16px + var(--weight) * 0.2px);
-    background: rgba(255, 255, 255, 0.9);
-    border: 2px solid rgba(30, 136, 229, calc(0.3 + var(--weight) * 0.007));
-    border-radius: 25px;
-    color: #1e88e5;
-    text-decoration: none;
-    font-size: calc(0.85rem + var(--weight) * 0.003rem);
-    font-weight: calc(400 + var(--weight) * 3);
-    opacity: calc(0.6 + var(--weight) * 0.004);
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
+  /* Tooltip */
+  .tag-tooltip {
     position: absolute;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    white-space: nowrap;
-  }
-
-  .tag-node::after {
-    content: attr(data-count);
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #1e88e5;
-    color: white;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 10px;
-    min-width: 18px;
-    text-align: center;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    font-size: 13px;
+    pointer-events: none;
     opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.2s ease;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+    max-width: 200px;
   }
 
-  .tag-node:hover {
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 6px 12px rgba(30, 136, 229, 0.3);
-    background: #1e88e5;
-    color: white;
-    border-color: #1e88e5;
-    opacity: 1 !important;
-    z-index: 10;
-  }
-
-  .tag-node:hover::after {
+  .tag-tooltip.visible {
     opacity: 1;
-    transform: scale(1);
+  }
+
+  .tag-tooltip .tag-name {
+    font-weight: 700;
+    color: #1e88e5;
+    margin-bottom: 4px;
+  }
+
+  .tag-tooltip .tag-count {
+    color: #666;
+    font-size: 12px;
   }
 
   /* Dark theme */
-  html[data-theme="dark"] .tag-cloud-wrapper {
-    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+  html[data-theme="dark"] .tag-graph-container {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   }
 
-  html[data-theme="dark"] .tag-cloud-wrapper::before {
-    background: linear-gradient(to bottom, rgba(42, 42, 42, 0.95), transparent);
+  html[data-theme="dark"] .graph-link {
+    stroke: #64b5f6;
   }
 
-  html[data-theme="dark"] .tag-cloud-wrapper::after {
-    background: linear-gradient(to top, rgba(42, 42, 42, 0.95), transparent);
+  html[data-theme="dark"] .graph-node circle {
+    fill: #64b5f6;
+    stroke: #1a1a2e;
   }
 
-  html[data-theme="dark"] .tag-node {
-    background: rgba(30, 30, 30, 0.9);
-    border-color: rgba(100, 181, 246, calc(0.3 + var(--weight) * 0.007));
+  html[data-theme="dark"] .graph-node:hover circle {
+    fill: #90caf9;
+  }
+
+  html[data-theme="dark"] .graph-node.highlighted circle {
+    fill: #bbdefb;
+  }
+
+  html[data-theme="dark"] .graph-node.dimmed circle {
+    fill: #455a64;
+  }
+
+  html[data-theme="dark"] .node-label {
+    fill: #e0e0e0;
+  }
+
+  html[data-theme="dark"] .tag-tooltip {
+    background: rgba(26, 26, 46, 0.98);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  html[data-theme="dark"] .tag-tooltip .tag-name {
     color: #64b5f6;
   }
 
-  html[data-theme="dark"] .tag-node:hover {
-    background: #64b5f6;
-    color: #1e1e1e;
-    border-color: #64b5f6;
-  }
-
-  html[data-theme="dark"] .tag-node::after {
-    background: #64b5f6;
-    color: #1e1e1e;
+  html[data-theme="dark"] .tag-tooltip .tag-count {
+    color: #b0bec5;
   }
 
   /* Mobile adjustments */
   @media (max-width: 768px) {
-    .tag-cloud-container {
+    .tag-graph-container {
       margin: 20px 0 40px;
     }
 
-    .tag-cloud-wrapper {
-      max-height: 350px;
-      padding: 20px 15px;
+    #tag-graph {
+      height: 350px;
     }
 
-    .tag-cloud {
-      min-height: 400px;
-    }
-
-    .tag-node {
-      font-size: calc(0.75rem + var(--weight) * 0.002rem);
-      padding: calc(6px + var(--weight) * 0.08px) calc(12px + var(--weight) * 0.15px);
+    .node-label {
+      font-size: 9px;
     }
   }
 </style>
 
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const wrapper = document.querySelector('.tag-cloud-wrapper');
-    const cloud = document.querySelector('.tag-cloud');
+    const svg = d3.select('#tag-graph');
+    const tooltip = document.getElementById('tag-tooltip');
+    const container = document.querySelector('.tag-graph-container');
 
-    if (!wrapper || !cloud) return;
+    if (!svg.node() || !container) return;
 
-    // Smooth scroll to tag section
-    const tagNodes = document.querySelectorAll('.tag-node');
-    tagNodes.forEach(node => {
-      node.addEventListener('click', function(e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href');
-        const targetElement = document.querySelector(targetId);
+    // Get post-tags data
+    const postTagsData = JSON.parse(document.getElementById('post-tags-data').textContent);
 
-        if (targetElement) {
-          const offset = 100;
-          const elementPosition = targetElement.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - offset;
+    // Build nodes (unique tags) and edges (co-occurrences)
+    const tagCounts = {};
+    const edgeCounts = {};
 
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-        }
+    postTagsData.forEach(post => {
+      const tags = post.tags || [];
+
+      // Count tag occurrences
+      tags.forEach(tag => {
+        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
       });
+
+      // Count co-occurrences (edges)
+      for (let i = 0; i < tags.length; i++) {
+        for (let j = i + 1; j < tags.length; j++) {
+          const key = [tags[i], tags[j]].sort().join('|||');
+          edgeCounts[key] = (edgeCounts[key] || 0) + 1;
+        }
+      }
     });
 
-    // Scatter layout algorithm
-    function scatterTags() {
-      const tags = Array.from(tagNodes);
-      const containerWidth = cloud.offsetWidth;
-      const positions = [];
+    // Create nodes array
+    const nodes = Object.entries(tagCounts).map(([tag, count]) => ({
+      id: tag,
+      count: count,
+      radius: Math.max(6, Math.min(20, 4 + count * 3))
+    }));
 
-      // Sort tags by weight (highest first)
-      const sortedTags = tags.sort((a, b) => {
-        return parseInt(b.dataset.weight) - parseInt(a.dataset.weight);
+    // Create links array
+    const links = Object.entries(edgeCounts).map(([key, count]) => {
+      const [source, target] = key.split('|||');
+      return {
+        source,
+        target,
+        weight: count
+      };
+    });
+
+    // Find max weight for normalization
+    const maxWeight = Math.max(...links.map(l => l.weight), 1);
+
+    // Setup SVG dimensions
+    const width = container.offsetWidth;
+    const height = parseInt(getComputedStyle(svg.node()).height);
+
+    svg.attr('viewBox', [0, 0, width, height]);
+
+    // Create force simulation
+    const simulation = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links)
+        .id(d => d.id)
+        .distance(d => 80 - d.weight * 10)
+        .strength(d => 0.3 + d.weight * 0.1))
+      .force('charge', d3.forceManyBody()
+        .strength(-120))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('collision', d3.forceCollide()
+        .radius(d => d.radius + 8)
+        .strength(0.9))
+      .force('x', d3.forceX(width / 2).strength(0.05))
+      .force('y', d3.forceY(height / 2).strength(0.05));
+
+    // Create links
+    const link = svg.append('g')
+      .attr('class', 'links')
+      .selectAll('line')
+      .data(links)
+      .join('line')
+      .attr('class', 'graph-link')
+      .attr('stroke-width', d => Math.max(1, d.weight * 2));
+
+    // Create nodes group
+    const node = svg.append('g')
+      .attr('class', 'nodes')
+      .selectAll('g')
+      .data(nodes)
+      .join('g')
+      .attr('class', 'graph-node')
+      .call(d3.drag()
+        .on('start', dragstarted)
+        .on('drag', dragged)
+        .on('end', dragended));
+
+    // Add circles to nodes
+    node.append('circle')
+      .attr('r', d => d.radius);
+
+    // Add labels (hidden by default, shown on hover)
+    node.append('text')
+      .attr('class', 'node-label')
+      .attr('dy', d => -d.radius - 6)
+      .text(d => d.id);
+
+    // Node interactions
+    node.on('mouseenter', function(event, d) {
+      const nodeEl = d3.select(this);
+
+      // Show tooltip
+      tooltip.innerHTML = `
+        <div class="tag-name">${d.id}</div>
+        <div class="tag-count">${d.count} post${d.count > 1 ? 's' : ''}</div>
+      `;
+      tooltip.classList.add('visible');
+
+      // Position tooltip
+      const rect = container.getBoundingClientRect();
+      const x = event.clientX - rect.left + 15;
+      const y = event.clientY - rect.top - 10;
+      tooltip.style.left = `${Math.min(x, width - 150)}px`;
+      tooltip.style.top = `${y}px`;
+
+      // Highlight connected nodes and links
+      const connectedNodes = new Set();
+      connectedNodes.add(d.id);
+
+      link.each(function(l) {
+        if (l.source.id === d.id || l.target.id === d.id) {
+          connectedNodes.add(l.source.id);
+          connectedNodes.add(l.target.id);
+          d3.select(this).classed('highlighted', true).classed('dimmed', false);
+        } else {
+          d3.select(this).classed('dimmed', true).classed('highlighted', false);
+        }
       });
 
-      // Calculate positions
-      sortedTags.forEach((tag, index) => {
-        const weight = parseInt(tag.dataset.weight);
-        const rect = tag.getBoundingClientRect();
-        const nodeWidth = rect.width || 100;
-        const nodeHeight = rect.height || 40;
+      node.each(function(n) {
+        if (connectedNodes.has(n.id)) {
+          d3.select(this).classed('highlighted', true).classed('dimmed', false);
+        } else {
+          d3.select(this).classed('dimmed', true).classed('highlighted', false);
+        }
+      });
+    })
+    .on('mouseleave', function() {
+      tooltip.classList.remove('visible');
 
-        let x, y;
-        let attempts = 0;
-        const maxAttempts = 50;
+      // Reset highlighting
+      link.classed('highlighted', false).classed('dimmed', false);
+      node.classed('highlighted', false).classed('dimmed', false);
+    })
+    .on('click', function(event, d) {
+      event.preventDefault();
+      const targetElement = document.getElementById(d.id);
+      if (targetElement) {
+        const offset = 100;
+        const elementPosition = targetElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    });
 
-        do {
-          // Higher weight = closer to center
-          const centerPull = weight / 100;
-          const randomness = 1 - centerPull * 0.5;
-
-          // Generate random position with center bias
-          const angle = Math.random() * Math.PI * 2;
-          const isMobile = window.innerWidth <= 768;
-          const maxDistance = isMobile ? 150 : 200;
-          const distance = Math.random() * maxDistance * randomness;
-
-          const centerX = containerWidth / 2;
-          const centerY = isMobile ? 200 : 250;
-
-          x = centerX + Math.cos(angle) * distance - nodeWidth / 2;
-          y = centerY + Math.sin(angle) * distance - nodeHeight / 2;
-
-          // Keep within bounds
-          const maxY = isMobile ? 380 : 480;
-          x = Math.max(10, Math.min(x, containerWidth - nodeWidth - 10));
-          y = Math.max(10, Math.min(y, maxY));
-
-          attempts++;
-        } while (isOverlapping(x, y, nodeWidth, nodeHeight, positions) && attempts < maxAttempts);
-
-        positions.push({ x, y, width: nodeWidth, height: nodeHeight });
-
-        // Set initial position (for animation)
-        tag.style.left = `${containerWidth / 2}px`;
-        tag.style.top = '250px';
-        tag.style.opacity = '0';
-        tag.style.transform = 'scale(0)';
-
-        // Animate to final position
-        setTimeout(() => {
-          tag.style.left = `${x}px`;
-          tag.style.top = `${y}px`;
-          tag.style.opacity = `calc(0.6 + ${weight} * 0.004)`;
-          tag.style.transform = 'scale(1)';
-        }, index * 50);
+    // Update positions on tick
+    simulation.on('tick', () => {
+      // Keep nodes within bounds
+      nodes.forEach(d => {
+        d.x = Math.max(d.radius + 10, Math.min(width - d.radius - 10, d.x));
+        d.y = Math.max(d.radius + 10, Math.min(height - d.radius - 10, d.y));
       });
 
-      // Adjust cloud height based on max Y position
-      const maxY = Math.max(...positions.map(p => p.y + p.height));
-      cloud.style.minHeight = `${maxY + 30}px`;
+      link
+        .attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x)
+        .attr('y2', d => d.target.y);
+
+      node.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+
+    // Drag functions
+    function dragstarted(event, d) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
     }
 
-    // Check if two rectangles overlap
-    function isOverlapping(x, y, width, height, existingPositions) {
-      const margin = 10;
-      return existingPositions.some(pos => {
-        return !(x + width + margin < pos.x ||
-                 x > pos.x + pos.width + margin ||
-                 y + height + margin < pos.y ||
-                 y > pos.y + pos.height + margin);
-      });
+    function dragged(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
     }
 
-    // Initial scatter
-    setTimeout(scatterTags, 100);
+    function dragended(event, d) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
 
-    // Re-scatter on resize
+    // Handle resize
     let resizeTimeout;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(scatterTags, 300);
+      resizeTimeout = setTimeout(() => {
+        const newWidth = container.offsetWidth;
+        const newHeight = parseInt(getComputedStyle(svg.node()).height);
+        svg.attr('viewBox', [0, 0, newWidth, newHeight]);
+        simulation.force('center', d3.forceCenter(newWidth / 2, newHeight / 2));
+        simulation.force('x', d3.forceX(newWidth / 2).strength(0.05));
+        simulation.force('y', d3.forceY(newHeight / 2).strength(0.05));
+        simulation.alpha(0.3).restart();
+      }, 300);
     });
-
-    // Fade effect on scroll
-    function updateFadeEffect() {
-      const scrollTop = wrapper.scrollTop;
-      const scrollHeight = wrapper.scrollHeight;
-      const clientHeight = wrapper.clientHeight;
-      const scrollBottom = scrollHeight - scrollTop - clientHeight;
-
-      if (scrollTop > 20) {
-        wrapper.classList.add('fade-top');
-      } else {
-        wrapper.classList.remove('fade-top');
-      }
-
-      if (scrollBottom > 20) {
-        wrapper.classList.add('fade-bottom');
-      } else {
-        wrapper.classList.remove('fade-bottom');
-      }
-    }
-
-    updateFadeEffect();
-    wrapper.addEventListener('scroll', updateFadeEffect);
   });
 </script>
