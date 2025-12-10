@@ -5,9 +5,9 @@ subtitle: ""
 categories: ["📂/wargame/web-wargame", "📂/CTF/CykorCTF2025"]
 tags: ["web", "wargame", "globbing attack", "input validaion bypass"]
 banner:
-  image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1920"
-  opacity: 0.8
-  background: "rgba(0, 0, 0, 0.7)"
+  image: "/assets/images/2025-12-09/20251209_150730.png"
+  opacity: 0.5
+  background: "rgba(0, 0, 0, 1)"
 ---
 
 <details>
@@ -67,7 +67,7 @@ C:.
 
 ---
 
-## <span class="highlight-blue">1. 👀 static analysis</span>
+## <span class="highlight-blue">1. 👀 primitive - static analysis</span>
 
 첫 시작은 index.js를 분석하는 것이다.
 <details>

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[etc 00.] 마크다운 스타일 정리"
+title: "[etc 01.] 마크다운 스타일 정리"
 subtitle: "커스텀한 스타일링에 대한 활용법 기록"
 categories: ["📂/etc"]
 tags: ["blogging", "how_to", "markdown"]
