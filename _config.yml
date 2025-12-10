@@ -63,7 +63,8 @@ yat:
 # header_transparent: true
 
 # If you want to change the content width, you can set to another value
-# content_width: "920px"
+# Default is 920px, widened to 1500px (about 1.6x)
+content_width: "1500px"
 
 # Google analytics - GA4
 # google_analytics: [Measurement ID]
@@ -234,13 +235,12 @@ paginate: 5
 # Utterances comments
 # See https://utteranc.es/
 # set follow_site_theme true to make utterances' theme follow the site's
-
-# utterances:
-#   repo: "owner/repo"
-#   issue_term: "title"
-#   label: "utterances comment"
-#   theme: "github-light"
-#   follow_site_theme: true
+utterances:
+  repo: "cityofwonder/cityofwonder.github.io"
+  issue_term: "pathname"
+  label: "comments"
+  theme: "github-light"
+  follow_site_theme: true
 
 # Build settings
 # highlighter: none
