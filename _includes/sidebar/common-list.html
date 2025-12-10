@@ -6,20 +6,421 @@
   {%- assign field = include.field -%}
 {%- endif -%}
 
-<div class="common-list">
-  <ul>
-    <li>
-      <a href="{{ '/index.html' | relative_url }}">
-        All<span>{{ site.posts.size }}</span>
+<!-- Cute Notepad Widget -->
+<div class="notepad-widget">
+  <div class="notepad-header">
+    <div class="notepad-rings">
+      <span class="ring"></span>
+      <span class="ring"></span>
+      <span class="ring"></span>
+      <span class="ring"></span>
+      <span class="ring"></span>
+    </div>
+    <div class="notepad-title">Posts</div>
+  </div>
+  <div class="notepad-content">
+    <!-- All Posts -->
+    <div class="notepad-section">
+      <a href="{{ '/index.html' | relative_url }}" class="notepad-item all-posts">
+        <span class="item-icon">📚</span>
+        <span class="item-label">All</span>
+        <span class="item-count">{{ site.posts.size }}</span>
       </a>
-    </li>
+    </div>
 
-    {% for key in  keys %}
-      <li>
-        <a href="{{ url }}#h-{{ key }}">
-          {{ key }} <span>{{ site.posts | where: field, key | size }}</span>
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
+    <!-- Recently Added -->
+    <div class="notepad-section">
+      <div class="section-header">
+        <span class="section-icon">✨</span>
+        <span class="section-title">Recently Added</span>
+      </div>
+      <ul class="recent-list">
+        {% for post in site.posts limit:5 %}
+        <li class="recent-item">
+          <a href="{{ post.url | relative_url }}">
+            <span class="recent-title">{{ post.title | truncate: 30 }}</span>
+            <span class="recent-date">{{ post.date | date: "%m/%d" }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Hot Topics (Placeholder for future) -->
+    <div class="notepad-section">
+      <div class="section-header">
+        <span class="section-icon">🔥</span>
+        <span class="section-title">Hot Topics</span>
+      </div>
+      <ul class="hot-list">
+        {% assign hot_posts = site.posts | sort: 'date' | reverse | slice: 0, 3 %}
+        {% for post in hot_posts %}
+        <li class="hot-item">
+          <a href="{{ post.url | relative_url }}">
+            <span class="hot-rank">#{{ forloop.index }}</span>
+            <span class="hot-title">{{ post.title | truncate: 25 }}</span>
+          </a>
+        </li>
+        {% endfor %}
+        <li class="hot-placeholder">
+          <span class="placeholder-text">💬 Comments coming soon...</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="notepad-footer">
+    <div class="notepad-doodle">~ ♪ ~</div>
+  </div>
 </div>
+
+<style>
+/* Cute Notepad Widget */
+.notepad-widget {
+  background: linear-gradient(180deg, #fffef5 0%, #fff9e6 100%);
+  border-radius: 12px;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  margin-bottom: 20px;
+  border: 1px solid #e8e0c8;
+  position: relative;
+}
+
+/* Notepad Header with Rings */
+.notepad-header {
+  background: linear-gradient(180deg, #ffb6c1 0%, #ffa0b0 100%);
+  padding: 12px 16px 8px;
+  position: relative;
+  border-bottom: 2px solid #ff8fa0;
+}
+
+.notepad-rings {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.notepad-rings .ring {
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(180deg, #f0f0f0 0%, #d0d0d0 100%);
+  border-radius: 50%;
+  border: 2px solid #999;
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.5),
+    0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+.notepad-title {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  letter-spacing: 1px;
+}
+
+/* Notepad Content */
+.notepad-content {
+  padding: 16px;
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 23px,
+    #e8dcc8 24px
+  );
+  background-size: 100% 24px;
+  background-position: 0 8px;
+}
+
+/* Notepad Sections */
+.notepad-section {
+  margin-bottom: 16px;
+}
+
+.notepad-section:last-child {
+  margin-bottom: 0;
+}
+
+/* All Posts Link */
+.notepad-item.all-posts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 182, 193, 0.2);
+  border-radius: 8px;
+  text-decoration: none;
+  color: #555;
+  transition: all 0.2s ease;
+  border: 1px dashed #ffb6c1;
+}
+
+.notepad-item.all-posts:hover {
+  background: rgba(255, 182, 193, 0.4);
+  transform: translateX(4px);
+}
+
+.notepad-item .item-icon {
+  font-size: 16px;
+}
+
+.notepad-item .item-label {
+  flex: 1;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.notepad-item .item-count {
+  background: #ff8fa0;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* Section Headers */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px dotted #ccc;
+}
+
+.section-icon {
+  font-size: 14px;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Recent List */
+.recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.recent-item {
+  margin-bottom: 4px;
+}
+
+.recent-item a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  text-decoration: none;
+  color: #555;
+  font-size: 12px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.recent-item a:hover {
+  background: rgba(100, 181, 246, 0.15);
+  color: #1976d2;
+}
+
+.recent-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-date {
+  font-size: 10px;
+  color: #999;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+/* Hot Topics List */
+.hot-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hot-item {
+  margin-bottom: 4px;
+}
+
+.hot-item a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  text-decoration: none;
+  color: #555;
+  font-size: 12px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.hot-item a:hover {
+  background: rgba(255, 152, 0, 0.15);
+  color: #e65100;
+}
+
+.hot-rank {
+  font-size: 10px;
+  font-weight: 700;
+  color: #ff8fa0;
+  min-width: 20px;
+}
+
+.hot-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hot-placeholder {
+  padding: 8px;
+  text-align: center;
+}
+
+.placeholder-text {
+  font-size: 11px;
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Notepad Footer */
+.notepad-footer {
+  padding: 8px;
+  text-align: center;
+  border-top: 1px dashed #e0d8c0;
+}
+
+.notepad-doodle {
+  font-size: 12px;
+  color: #ccc;
+}
+
+/* Dark Theme */
+html[data-theme="dark"] .notepad-widget {
+  background: linear-gradient(180deg, #2a2a2a 0%, #222 100%);
+  border-color: #444;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme="dark"] .notepad-header {
+  background: linear-gradient(180deg, #5c4d7d 0%, #4a3d6d 100%);
+  border-bottom-color: #3d3060;
+}
+
+html[data-theme="dark"] .notepad-rings .ring {
+  background: linear-gradient(180deg, #555 0%, #333 100%);
+  border-color: #666;
+}
+
+html[data-theme="dark"] .notepad-content {
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 23px,
+    #333 24px
+  );
+  background-size: 100% 24px;
+  background-position: 0 8px;
+}
+
+html[data-theme="dark"] .notepad-item.all-posts {
+  background: rgba(92, 77, 125, 0.2);
+  border-color: #5c4d7d;
+  color: #ddd;
+}
+
+html[data-theme="dark"] .notepad-item.all-posts:hover {
+  background: rgba(92, 77, 125, 0.4);
+}
+
+html[data-theme="dark"] .notepad-item .item-count {
+  background: #5c4d7d;
+}
+
+html[data-theme="dark"] .section-header {
+  border-bottom-color: #444;
+}
+
+html[data-theme="dark"] .section-title {
+  color: #aaa;
+}
+
+html[data-theme="dark"] .recent-item a,
+html[data-theme="dark"] .hot-item a {
+  color: #ccc;
+}
+
+html[data-theme="dark"] .recent-item a:hover {
+  background: rgba(100, 181, 246, 0.2);
+  color: #64b5f6;
+}
+
+html[data-theme="dark"] .hot-item a:hover {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ffb74d;
+}
+
+html[data-theme="dark"] .recent-date {
+  color: #777;
+}
+
+html[data-theme="dark"] .hot-rank {
+  color: #9c8ec1;
+}
+
+html[data-theme="dark"] .placeholder-text {
+  color: #666;
+}
+
+html[data-theme="dark"] .notepad-footer {
+  border-top-color: #444;
+}
+
+html[data-theme="dark"] .notepad-doodle {
+  color: #555;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .notepad-widget {
+    margin-bottom: 16px;
+  }
+
+  .notepad-header {
+    padding: 10px 12px 6px;
+  }
+
+  .notepad-rings {
+    gap: 16px;
+  }
+
+  .notepad-rings .ring {
+    width: 10px;
+    height: 10px;
+  }
+
+  .notepad-content {
+    padding: 12px;
+  }
+
+  .recent-item a,
+  .hot-item a {
+    padding: 5px 6px;
+    font-size: 11px;
+  }
+}
+</style>
