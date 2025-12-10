@@ -74,25 +74,23 @@
 </div>
 
 <style>
-/* Cute Notepad Widget */
+/* Cute Notepad Widget - Grayscale with Accent */
 .notepad-widget {
-  background: linear-gradient(180deg, #fffef5 0%, #fff9e6 100%);
+  background: #fafafa;
   border-radius: 12px;
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   margin-bottom: 20px;
-  border: 1px solid #e8e0c8;
+  border: 1px solid #e0e0e0;
   position: relative;
 }
 
 /* Notepad Header with Rings */
 .notepad-header {
-  background: linear-gradient(180deg, #ffb6c1 0%, #ffa0b0 100%);
+  background: linear-gradient(180deg, #555 0%, #444 100%);
   padding: 12px 16px 8px;
   position: relative;
-  border-bottom: 2px solid #ff8fa0;
+  border-bottom: 2px solid #333;
 }
 
 .notepad-rings {
@@ -105,11 +103,11 @@
 .notepad-rings .ring {
   width: 12px;
   height: 12px;
-  background: linear-gradient(180deg, #f0f0f0 0%, #d0d0d0 100%);
+  background: linear-gradient(180deg, #888 0%, #666 100%);
   border-radius: 50%;
   border: 2px solid #999;
   box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2),
     0 2px 3px rgba(0, 0, 0, 0.2);
 }
 
@@ -118,7 +116,6 @@
   font-size: 14px;
   font-weight: 700;
   color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   letter-spacing: 1px;
 }
 
@@ -128,7 +125,7 @@
   background: repeating-linear-gradient(
     transparent,
     transparent 23px,
-    #e8dcc8 24px
+    #eee 24px
   );
   background-size: 100% 24px;
   background-position: 0 8px;
@@ -149,16 +146,16 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: rgba(255, 182, 193, 0.2);
+  background: rgba(229, 57, 53, 0.08);
   border-radius: 8px;
   text-decoration: none;
-  color: #555;
+  color: #444;
   transition: all 0.2s ease;
-  border: 1px dashed #ffb6c1;
+  border: 1px dashed #e53935;
 }
 
 .notepad-item.all-posts:hover {
-  background: rgba(255, 182, 193, 0.4);
+  background: rgba(229, 57, 53, 0.15);
   transform: translateX(4px);
 }
 
@@ -173,7 +170,7 @@
 }
 
 .notepad-item .item-count {
-  background: #ff8fa0;
+  background: #e53935;
   color: white;
   font-size: 11px;
   font-weight: 700;
@@ -227,8 +224,8 @@
 }
 
 .recent-item a:hover {
-  background: rgba(100, 181, 246, 0.15);
-  color: #1976d2;
+  background: rgba(0, 0, 0, 0.05);
+  color: #e53935;
 }
 
 .recent-title {
@@ -269,14 +266,14 @@
 }
 
 .hot-item a:hover {
-  background: rgba(255, 152, 0, 0.15);
-  color: #e65100;
+  background: rgba(0, 0, 0, 0.05);
+  color: #e53935;
 }
 
 .hot-rank {
   font-size: 10px;
   font-weight: 700;
-  color: #ff8fa0;
+  color: #e53935;
   min-width: 20px;
 }
 
@@ -302,7 +299,7 @@
 .notepad-footer {
   padding: 8px;
   text-align: center;
-  border-top: 1px dashed #e0d8c0;
+  border-top: 1px dashed #ddd;
 }
 
 .notepad-doodle {
@@ -312,14 +309,14 @@
 
 /* Dark Theme */
 html[data-theme="dark"] .notepad-widget {
-  background: linear-gradient(180deg, #2a2a2a 0%, #222 100%);
-  border-color: #444;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: #1e1e1e;
+  border-color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 html[data-theme="dark"] .notepad-header {
-  background: linear-gradient(180deg, #5c4d7d 0%, #4a3d6d 100%);
-  border-bottom-color: #3d3060;
+  background: linear-gradient(180deg, #333 0%, #222 100%);
+  border-bottom-color: #444;
 }
 
 html[data-theme="dark"] .notepad-rings .ring {
@@ -331,24 +328,24 @@ html[data-theme="dark"] .notepad-content {
   background: repeating-linear-gradient(
     transparent,
     transparent 23px,
-    #333 24px
+    #2a2a2a 24px
   );
   background-size: 100% 24px;
   background-position: 0 8px;
 }
 
 html[data-theme="dark"] .notepad-item.all-posts {
-  background: rgba(92, 77, 125, 0.2);
-  border-color: #5c4d7d;
+  background: rgba(229, 57, 53, 0.1);
+  border-color: #c62828;
   color: #ddd;
 }
 
 html[data-theme="dark"] .notepad-item.all-posts:hover {
-  background: rgba(92, 77, 125, 0.4);
+  background: rgba(229, 57, 53, 0.2);
 }
 
 html[data-theme="dark"] .notepad-item .item-count {
-  background: #5c4d7d;
+  background: #c62828;
 }
 
 html[data-theme="dark"] .section-header {
@@ -364,14 +361,10 @@ html[data-theme="dark"] .hot-item a {
   color: #ccc;
 }
 
-html[data-theme="dark"] .recent-item a:hover {
-  background: rgba(100, 181, 246, 0.2);
-  color: #64b5f6;
-}
-
+html[data-theme="dark"] .recent-item a:hover,
 html[data-theme="dark"] .hot-item a:hover {
-  background: rgba(255, 152, 0, 0.2);
-  color: #ffb74d;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ef5350;
 }
 
 html[data-theme="dark"] .recent-date {
@@ -379,7 +372,7 @@ html[data-theme="dark"] .recent-date {
 }
 
 html[data-theme="dark"] .hot-rank {
-  color: #9c8ec1;
+  color: #ef5350;
 }
 
 html[data-theme="dark"] .placeholder-text {
@@ -387,11 +380,11 @@ html[data-theme="dark"] .placeholder-text {
 }
 
 html[data-theme="dark"] .notepad-footer {
-  border-top-color: #444;
+  border-top-color: #333;
 }
 
 html[data-theme="dark"] .notepad-doodle {
-  color: #555;
+  color: #444;
 }
 
 /* Mobile Responsive */
