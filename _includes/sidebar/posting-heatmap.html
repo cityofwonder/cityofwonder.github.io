@@ -5,169 +5,192 @@
   {%- assign posting_dates = posting_dates | push: post_date -%}
 {%- endfor -%}
 
-<div class="posting-heatmap-widget">
-  <div class="widget-header">
-    <h3>포스팅 활동</h3>
-  </div>
-  <div class="widget-content">
-    <div class="heatmap-container">
+<!-- Cute Sticky Note - Posting Activity -->
+<div class="sticky-note-widget activity-sticky">
+  <div class="sticky-tape"></div>
+  <div class="sticky-content">
+    <div class="sticky-title">
+      <span class="sticky-icon">📝</span>
+      <span>Activity</span>
+    </div>
+    <div class="heatmap-wrapper">
       <div class="heatmap-months" id="heatmap-months"></div>
       <div class="heatmap-grid" id="heatmap-grid"></div>
     </div>
+    <div class="activity-legend">
+      <span class="legend-label">Less</span>
+      <div class="legend-boxes">
+        <span class="legend-box level-0"></span>
+        <span class="legend-box level-1"></span>
+        <span class="legend-box level-2"></span>
+        <span class="legend-box level-3"></span>
+        <span class="legend-box level-4"></span>
+      </div>
+      <span class="legend-label">More</span>
+    </div>
   </div>
+  <div class="sticky-corner activity-corner"></div>
 </div>
 
 <style>
-.posting-heatmap-widget {
-  background: #f5f5f5;
+/* Activity Sticky Note */
+.sticky-note-widget.activity-sticky .sticky-content {
+  background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+}
+
+.sticky-note-widget.activity-sticky .sticky-corner.activity-corner {
+  border-color: transparent transparent #8bc48e transparent;
+}
+
+.sticky-note-widget.activity-sticky .sticky-title {
+  color: #2e5a2f;
+  border-bottom-color: rgba(46, 90, 47, 0.2);
+}
+
+/* Heatmap Wrapper */
+.heatmap-wrapper {
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e0e0e0;
-  min-width: 200px;
-  max-width: 100%;
-}
-
-.posting-heatmap-widget .widget-header {
-  margin-bottom: 10px;
-}
-
-.posting-heatmap-widget .widget-header h3 {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-.posting-heatmap-widget .widget-content {
-  background: #fff;
-  padding: 10px 8px;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-}
-
-.heatmap-container {
-  overflow-x: hidden;
-  overflow-y: hidden;
+  padding: 10px;
+  border: 1px dashed rgba(46, 90, 47, 0.2);
+  overflow: hidden;
 }
 
 .heatmap-months {
   display: flex;
   gap: 0;
   margin-bottom: 3px;
-  margin-left: 0;
-  font-size: 0.55rem;
-  color: #666;
-  height: 10px;
+  font-size: 9px;
+  color: #3e6e40;
+  height: 12px;
 }
 
 .heatmap-month {
-  font-size: 0.55rem;
+  font-size: 9px;
+  font-weight: 500;
 }
 
 .heatmap-grid {
   display: grid;
-  grid-template-rows: repeat(7, 6px);
+  grid-template-rows: repeat(7, 8px);
   grid-auto-flow: column;
   gap: 2px;
-  margin-left: 0;
-}
-
-.heatmap-day-label {
-  font-size: 0.55rem;
-  color: #666;
-  text-align: right;
-  padding-right: 3px;
-  line-height: 6px;
-  grid-column: 1;
 }
 
 .heatmap-cell {
-  width: 6px;
-  height: 6px;
-  background-color: #ebedf0;
-  border-radius: 1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .heatmap-cell:hover {
-  transform: scale(1.8);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transform: scale(1.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   z-index: 10;
 }
 
-.heatmap-cell.level-0 {
-  background-color: #ebedf0;
+.heatmap-cell.level-0 { background-color: rgba(255, 255, 255, 0.6); }
+.heatmap-cell.level-1 { background-color: #81c784; }
+.heatmap-cell.level-2 { background-color: #4caf50; }
+.heatmap-cell.level-3 { background-color: #388e3c; }
+.heatmap-cell.level-4 { background-color: #1b5e20; }
+
+/* Activity Legend */
+.activity-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 9px;
+  color: #3e6e40;
 }
 
-.heatmap-cell.level-1 {
-  background-color: #9be9a8;
+.legend-boxes {
+  display: flex;
+  gap: 2px;
 }
 
-.heatmap-cell.level-2 {
-  background-color: #40c463;
+.legend-box {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
 }
 
-.heatmap-cell.level-3 {
-  background-color: #30a14e;
-}
-
-.heatmap-cell.level-4 {
-  background-color: #216e39;
-}
+.legend-box.level-0 { background-color: rgba(255, 255, 255, 0.6); }
+.legend-box.level-1 { background-color: #81c784; }
+.legend-box.level-2 { background-color: #4caf50; }
+.legend-box.level-3 { background-color: #388e3c; }
+.legend-box.level-4 { background-color: #1b5e20; }
 
 /* Dark Theme */
-html[data-theme="dark"] .posting-heatmap-widget {
-  background: #2a2a2a;
-  border-color: #444;
+html[data-theme="dark"] .sticky-note-widget.activity-sticky .sticky-content {
+  background: linear-gradient(135deg, #2d4a2e 0%, #1e3a1f 100%);
 }
 
-html[data-theme="dark"] .posting-heatmap-widget .widget-header h3 {
-  color: #e0e0e0;
+html[data-theme="dark"] .sticky-note-widget.activity-sticky .sticky-corner.activity-corner {
+  border-color: transparent transparent #152515 transparent;
 }
 
-html[data-theme="dark"] .posting-heatmap-widget .widget-content {
-  background: #1e1e1e;
-  border-color: #444;
+html[data-theme="dark"] .sticky-note-widget.activity-sticky .sticky-title {
+  color: #a5d6a7;
+  border-bottom-color: rgba(165, 214, 167, 0.2);
 }
 
-html[data-theme="dark"] .heatmap-months {
-  color: #aaa;
+html[data-theme="dark"] .heatmap-wrapper {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(165, 214, 167, 0.2);
 }
 
-html[data-theme="dark"] .heatmap-cell.level-0 {
-  background-color: #161b22;
+html[data-theme="dark"] .heatmap-months,
+html[data-theme="dark"] .activity-legend {
+  color: #81c784;
 }
 
-html[data-theme="dark"] .heatmap-cell.level-1 {
-  background-color: #0e4429;
+html[data-theme="dark"] .heatmap-cell.level-0,
+html[data-theme="dark"] .legend-box.level-0 {
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
-html[data-theme="dark"] .heatmap-cell.level-2 {
-  background-color: #006d32;
-}
+html[data-theme="dark"] .heatmap-cell.level-1,
+html[data-theme="dark"] .legend-box.level-1 { background-color: #0e4429; }
 
-html[data-theme="dark"] .heatmap-cell.level-3 {
-  background-color: #26a641;
-}
+html[data-theme="dark"] .heatmap-cell.level-2,
+html[data-theme="dark"] .legend-box.level-2 { background-color: #006d32; }
 
-html[data-theme="dark"] .heatmap-cell.level-4 {
-  background-color: #39d353;
+html[data-theme="dark"] .heatmap-cell.level-3,
+html[data-theme="dark"] .legend-box.level-3 { background-color: #26a641; }
+
+html[data-theme="dark"] .heatmap-cell.level-4,
+html[data-theme="dark"] .legend-box.level-4 { background-color: #39d353; }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .heatmap-cell {
+    width: 6px;
+    height: 6px;
+  }
+
+  .heatmap-grid {
+    grid-template-rows: repeat(7, 6px);
+  }
+
+  .heatmap-months {
+    font-size: 8px;
+  }
 }
 </style>
 
 <script>
 (function() {
-  // Jekyll에서 생성한 포스팅 날짜 데이터
   const postingDates = [
     {%- for date in posting_dates -%}
       "{{ date }}"{%- unless forloop.last -%},{%- endunless -%}
     {%- endfor -%}
   ];
 
-  // 날짜별 포스팅 수 계산
   const postCountByDate = {};
   postingDates.forEach(date => {
     postCountByDate[date] = (postCountByDate[date] || 0) + 1;
@@ -179,23 +202,17 @@ html[data-theme="dark"] .heatmap-cell.level-4 {
 
     if (!grid || !monthsContainer) return;
 
-    // 최근 180일 계산 (약 6개월)
     const today = new Date();
     const startPeriod = new Date(today);
     startPeriod.setDate(today.getDate() - 179);
 
-    // 시작일을 일요일로 맞추기
     const startDate = new Date(startPeriod);
     startDate.setDate(startDate.getDate() - startDate.getDay());
 
-    // 최대 포스팅 수 찾기
     const maxPosts = Math.max(...Object.values(postCountByDate), 1);
 
-    // 월 헤더 추적
     let currentMonth = -1;
     let monthSpans = [];
-
-    // 히트맵 셀 생성
     const cells = [];
     let currentDate = new Date(startDate);
     let weekIndex = 0;
@@ -204,7 +221,6 @@ html[data-theme="dark"] .heatmap-cell.level-4 {
       const dateStr = currentDate.toISOString().split('T')[0];
       const postCount = postCountByDate[dateStr] || 0;
 
-      // 레벨 계산 (0-4)
       let level = 0;
       if (postCount > 0) {
         level = Math.min(4, Math.ceil((postCount / maxPosts) * 4));
@@ -217,7 +233,6 @@ html[data-theme="dark"] .heatmap-cell.level-4 {
 
       cells.push(cell);
 
-      // 월 헤더 추적 (일요일마다 체크)
       if (currentDate.getDay() === 0 || currentDate.getTime() === startDate.getTime()) {
         const monthNum = currentDate.getMonth();
         if (currentMonth !== monthNum) {
@@ -227,33 +242,26 @@ html[data-theme="dark"] .heatmap-cell.level-4 {
         }
       }
 
-      // 다음 날로 이동
       currentDate.setDate(currentDate.getDate() + 1);
 
-      // 일요일이면 다음 주로
       if (currentDate.getDay() === 0) {
         weekIndex++;
       }
     }
 
-    // 마지막 주 인덱스 저장
     const totalWeeks = weekIndex;
 
-    // 셀 추가
     cells.forEach(cell => grid.appendChild(cell));
 
-    // 월 헤더를 위한 grid 레이아웃 설정
     monthsContainer.style.display = 'grid';
-    monthsContainer.style.gridTemplateColumns = `repeat(${totalWeeks}, 8px)`;
+    monthsContainer.style.gridTemplateColumns = `repeat(${totalWeeks}, 10px)`;
     monthsContainer.style.gap = '2px';
 
-    // 월 헤더 추가
     monthSpans.forEach(({ name, week }, index) => {
       const monthLabel = document.createElement('span');
       monthLabel.className = 'heatmap-month';
       monthLabel.textContent = name;
 
-      // 다음 월까지의 주 수 계산
       const nextWeek = index < monthSpans.length - 1 ? monthSpans[index + 1].week : totalWeeks;
       const spanWeeks = nextWeek - week;
 
@@ -262,7 +270,6 @@ html[data-theme="dark"] .heatmap-cell.level-4 {
     });
   }
 
-  // DOM 로드 후 실행
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', generateHeatmap);
   } else {
