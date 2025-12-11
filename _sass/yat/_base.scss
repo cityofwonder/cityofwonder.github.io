@@ -211,6 +211,35 @@ li {
   }
 }
 
+// Reset tree-view styles for sidebar notepad widget
+.notepad-widget {
+  ul, ol {
+    border-left: none !important;
+    margin-left: 0;
+    padding-left: 0;
+
+    &:hover > li::marker {
+      color: inherit;
+    }
+  }
+
+  li {
+    padding: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+    transition: none;
+
+    &:hover {
+      background-color: transparent;
+    }
+
+    &::marker {
+      color: inherit;
+      transition: none;
+    }
+  }
+}
+
 
 
 /**
