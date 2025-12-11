@@ -21,50 +21,115 @@ sidebar: tag-list
     {% for post in site.posts %}
       {
         "title": {{ post.title | jsonify }},
+        "url": "{{ post.url | relative_url }}",
+        "date": "{{ post.date | date: '%Y-%m-%d' }}",
         "tags": {{ post.tags | jsonify }}
       }{% unless forloop.last %},{% endunless %}
     {% endfor %}
   ]
   </script>
 
-  <!-- Tag List -->
-  {% assign keys = tags %}
-  {% assign field = 'tags' %}
-  {%- include views/segments.html -%}
+  <!-- Tags Window Container -->
+  <div class="tags-window-container">
+    <div class="tags-window-header">
+      <div class="tags-window-buttons">
+        <span class="tw-btn tw-close"></span>
+        <span class="tw-btn tw-minimize"></span>
+        <span class="tw-btn tw-maximize"></span>
+      </div>
+      <div class="tags-window-title">All Posts by Tags</div>
+      <div class="tags-window-actions">
+        <button class="tw-action-btn active" data-view="all" title="All Posts">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+          </svg>
+        </button>
+        <button class="tw-action-btn" data-view="tags" title="By Tags">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tag Filter Pills -->
+    <div class="tags-filter-bar">
+      <button class="tag-pill active" data-tag="all">
+        <span class="pill-icon">📚</span>
+        <span class="pill-label">All</span>
+        <span class="pill-count">{{ site.posts.size }}</span>
+      </button>
+      {% for tag in tags %}
+        {% assign tag_posts = site.posts | where: 'tags', tag %}
+        <button class="tag-pill" data-tag="{{ tag }}">
+          <span class="pill-label">{{ tag }}</span>
+          <span class="pill-count">{{ tag_posts.size }}</span>
+        </button>
+      {% endfor %}
+    </div>
+
+    <!-- Posts Grid -->
+    <div class="tags-window-content">
+      <div class="posts-grid" id="posts-grid">
+        {% for post in site.posts %}
+        <div class="post-card" data-tags="{{ post.tags | join: ',' }}">
+          <a href="{{ post.url | relative_url }}" class="post-card-link">
+            <div class="post-card-header">
+              <span class="post-card-date">{{ post.date | date: "%m/%d" }}</span>
+              <span class="post-card-year">{{ post.date | date: "%Y" }}</span>
+            </div>
+            <div class="post-card-title">{{ post.title | escape }}</div>
+            <div class="post-card-tags">
+              {% for tag in post.tags limit:2 %}
+              <span class="mini-tag">{{ tag }}</span>
+              {% endfor %}
+              {% if post.tags.size > 2 %}
+              <span class="mini-tag more">+{{ post.tags.size | minus: 2 }}</span>
+              {% endif %}
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 
 {%- endif -%}
 
 <style>
   /* Tag Graph Container */
   .tag-graph-container {
-    margin: 40px 0 60px;
+    margin: 40px 0 30px;
     position: relative;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background: #fafafa;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     overflow: hidden;
+    border: 1px solid #e0e0e0;
   }
 
   #tag-graph {
     width: 100%;
-    height: 450px;
+    height: 400px;
     display: block;
   }
 
   /* Graph Links */
   .graph-link {
-    stroke: #1e88e5;
-    stroke-opacity: 0.4;
+    stroke: #e53935;
+    stroke-opacity: 0.3;
     fill: none;
     transition: stroke-opacity 0.3s ease;
   }
 
   .graph-link.highlighted {
-    stroke-opacity: 0.9;
+    stroke-opacity: 0.8;
   }
 
   .graph-link.dimmed {
-    stroke-opacity: 0.1;
+    stroke-opacity: 0.08;
   }
 
   /* Graph Nodes */
@@ -74,34 +139,34 @@ sidebar: tag-list
   }
 
   .graph-node circle {
-    fill: #1e88e5;
+    fill: #666;
     stroke: #fff;
     stroke-width: 2px;
     transition: all 0.3s ease;
   }
 
   .graph-node:hover circle {
-    fill: #1565c0;
+    fill: #e53935;
     stroke-width: 3px;
-    filter: drop-shadow(0 0 8px rgba(30, 136, 229, 0.6));
+    filter: drop-shadow(0 0 8px rgba(229, 57, 53, 0.5));
   }
 
   .graph-node.dimmed circle {
-    fill: #b0bec5;
+    fill: #ccc;
     opacity: 0.4;
   }
 
   .graph-node.highlighted circle {
-    fill: #0d47a1;
+    fill: #c62828;
     stroke-width: 3px;
-    filter: drop-shadow(0 0 10px rgba(30, 136, 229, 0.8));
+    filter: drop-shadow(0 0 10px rgba(229, 57, 53, 0.6));
   }
 
-  /* Node Labels (visible on hover) */
+  /* Node Labels */
   .node-label {
     font-size: 11px;
     font-weight: 600;
-    fill: #37474f;
+    fill: #444;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -126,6 +191,7 @@ sidebar: tag-list
     transition: opacity 0.2s ease;
     z-index: 100;
     max-width: 200px;
+    border: 1px solid #eee;
   }
 
   .tag-tooltip.visible {
@@ -134,7 +200,7 @@ sidebar: tag-list
 
   .tag-tooltip .tag-name {
     font-weight: 700;
-    color: #1e88e5;
+    color: #e53935;
     margin-bottom: 4px;
   }
 
@@ -143,61 +209,423 @@ sidebar: tag-list
     font-size: 12px;
   }
 
-  /* Dark theme */
+  /* ===== Tags Window Container ===== */
+  .tags-window-container {
+    background: #fafafa;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin: 0 0 40px;
+    border: 1px solid #e0e0e0;
+  }
+
+  /* Window Header - Mac Style */
+  .tags-window-header {
+    background: linear-gradient(180deg, #555 0%, #444 100%);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #333;
+  }
+
+  .tags-window-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .tw-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 0.5px solid rgba(0, 0, 0, 0.15);
+  }
+
+  .tw-close { background: #ff5f57; }
+  .tw-minimize { background: #febc2e; }
+  .tw-maximize { background: #28c840; }
+
+  .tags-window-title {
+    flex: 1;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+
+  .tags-window-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .tw-action-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tw-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  .tw-action-btn.active {
+    background: rgba(229, 57, 53, 0.3);
+    color: #fff;
+  }
+
+  /* Tag Filter Bar */
+  .tags-filter-bar {
+    padding: 16px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .tag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tag-pill:hover {
+    border-color: #e53935;
+    color: #e53935;
+    transform: translateY(-1px);
+  }
+
+  .tag-pill.active {
+    background: #e53935;
+    border-color: #e53935;
+    color: white;
+  }
+
+  .tag-pill .pill-icon {
+    font-size: 14px;
+  }
+
+  .tag-pill .pill-count {
+    background: rgba(0, 0, 0, 0.08);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .tag-pill.active .pill-count {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  /* Posts Grid - 2 Column Layout */
+  .tags-window-content {
+    padding: 20px;
+    background: #fafafa;
+    min-height: 300px;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  /* Post Card */
+  .post-card {
+    transition: all 0.25s ease;
+  }
+
+  .post-card.hidden {
+    display: none;
+  }
+
+  .post-card-link {
+    display: block;
+    padding: 12px 16px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.25s ease;
+  }
+
+  .post-card-link:hover {
+    background: rgba(229, 57, 53, 0.05);
+    border-color: #e53935;
+    transform: translateX(6px);
+    box-shadow: 0 2px 8px rgba(229, 57, 53, 0.1);
+  }
+
+  .post-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .post-card-date {
+    font-size: 12px;
+    font-weight: 600;
+    color: #e53935;
+  }
+
+  .post-card-year {
+    font-size: 10px;
+    color: #aaa;
+  }
+
+  .post-card-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .post-card-link:hover .post-card-title {
+    color: #c62828;
+  }
+
+  .post-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .mini-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    color: #777;
+  }
+
+  .mini-tag.more {
+    background: #e0e0e0;
+    color: #555;
+  }
+
+  /* Scrollbar */
+  .tags-window-content::-webkit-scrollbar,
+  .tags-filter-bar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .tags-window-content::-webkit-scrollbar-track,
+  .tags-filter-bar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .tags-window-content::-webkit-scrollbar-thumb,
+  .tags-filter-bar::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+  }
+
+  .tags-window-content::-webkit-scrollbar-thumb:hover,
+  .tags-filter-bar::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+  }
+
+  /* ===== Dark Theme ===== */
   html[data-theme="dark"] .tag-graph-container {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: #1e1e1e;
+    border-color: #333;
   }
 
   html[data-theme="dark"] .graph-link {
-    stroke: #64b5f6;
+    stroke: #ef5350;
   }
 
   html[data-theme="dark"] .graph-node circle {
-    fill: #64b5f6;
-    stroke: #1a1a2e;
+    fill: #888;
+    stroke: #1e1e1e;
   }
 
   html[data-theme="dark"] .graph-node:hover circle {
-    fill: #90caf9;
+    fill: #ef5350;
   }
 
   html[data-theme="dark"] .graph-node.highlighted circle {
-    fill: #bbdefb;
+    fill: #ff7043;
   }
 
   html[data-theme="dark"] .graph-node.dimmed circle {
-    fill: #455a64;
+    fill: #444;
   }
 
   html[data-theme="dark"] .node-label {
-    fill: #e0e0e0;
+    fill: #ddd;
   }
 
   html[data-theme="dark"] .tag-tooltip {
-    background: rgba(26, 26, 46, 0.98);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    background: rgba(30, 30, 30, 0.98);
+    border-color: #444;
   }
 
   html[data-theme="dark"] .tag-tooltip .tag-name {
-    color: #64b5f6;
+    color: #ef5350;
   }
 
   html[data-theme="dark"] .tag-tooltip .tag-count {
-    color: #b0bec5;
+    color: #aaa;
   }
 
-  /* Mobile adjustments */
+  html[data-theme="dark"] .tags-window-container {
+    background: #1e1e1e;
+    border-color: #333;
+  }
+
+  html[data-theme="dark"] .tags-window-header {
+    background: linear-gradient(180deg, #333 0%, #222 100%);
+    border-bottom-color: #444;
+  }
+
+  html[data-theme="dark"] .tags-filter-bar {
+    background: #252525;
+    border-bottom-color: #333;
+  }
+
+  html[data-theme="dark"] .tag-pill {
+    background: #333;
+    border-color: #444;
+    color: #ccc;
+  }
+
+  html[data-theme="dark"] .tag-pill:hover {
+    border-color: #ef5350;
+    color: #ef5350;
+  }
+
+  html[data-theme="dark"] .tag-pill.active {
+    background: #c62828;
+    border-color: #c62828;
+  }
+
+  html[data-theme="dark"] .tag-pill .pill-count {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  html[data-theme="dark"] .tags-window-content {
+    background: #1e1e1e;
+  }
+
+  html[data-theme="dark"] .post-card-link {
+    background: #252525;
+    border-color: #333;
+  }
+
+  html[data-theme="dark"] .post-card-link:hover {
+    background: rgba(229, 57, 53, 0.1);
+    border-color: #c62828;
+  }
+
+  html[data-theme="dark"] .post-card-date {
+    color: #ef5350;
+  }
+
+  html[data-theme="dark"] .post-card-year {
+    color: #666;
+  }
+
+  html[data-theme="dark"] .post-card-title {
+    color: #ddd;
+  }
+
+  html[data-theme="dark"] .post-card-link:hover .post-card-title {
+    color: #ff7043;
+  }
+
+  html[data-theme="dark"] .mini-tag {
+    background: #333;
+    color: #999;
+  }
+
+  html[data-theme="dark"] .mini-tag.more {
+    background: #444;
+    color: #aaa;
+  }
+
+  html[data-theme="dark"] .tags-window-content::-webkit-scrollbar-thumb,
+  html[data-theme="dark"] .tags-filter-bar::-webkit-scrollbar-thumb {
+    background: #444;
+  }
+
+  /* ===== Mobile Responsive ===== */
   @media (max-width: 768px) {
     .tag-graph-container {
-      margin: 20px 0 40px;
+      margin: 20px 0;
     }
 
     #tag-graph {
-      height: 350px;
+      height: 300px;
     }
 
     .node-label {
       font-size: 9px;
+    }
+
+    .tags-window-header {
+      padding: 8px 12px;
+    }
+
+    .tags-window-title {
+      font-size: 12px;
+    }
+
+    .tags-filter-bar {
+      padding: 12px;
+      gap: 6px;
+      max-height: 100px;
+    }
+
+    .tag-pill {
+      padding: 4px 10px;
+      font-size: 11px;
+    }
+
+    .tags-window-content {
+      padding: 12px;
+      max-height: 500px;
+    }
+
+    .posts-grid {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .post-card-link {
+      padding: 10px 12px;
+    }
+
+    .post-card-title {
+      font-size: 12px;
+      -webkit-line-clamp: 1;
     }
   }
 </style>
@@ -205,6 +633,35 @@ sidebar: tag-list
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // ===== Tag Filter Functionality =====
+    const tagPills = document.querySelectorAll('.tag-pill');
+    const postCards = document.querySelectorAll('.post-card');
+
+    function filterByTag(selectedTag) {
+      // Update active pill
+      tagPills.forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.tag === selectedTag);
+      });
+
+      // Filter posts
+      postCards.forEach(card => {
+        const cardTags = card.dataset.tags.split(',');
+        if (selectedTag === 'all' || cardTags.includes(selectedTag)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+
+    // Add click handlers to pills
+    tagPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        filterByTag(pill.dataset.tag);
+      });
+    });
+
+    // ===== Tag Graph =====
     const svg = d3.select('#tag-graph');
     const tooltip = document.getElementById('tag-tooltip');
     const container = document.querySelector('.tag-graph-container');
@@ -251,9 +708,6 @@ sidebar: tag-list
         weight: count
       };
     });
-
-    // Find max weight for normalization
-    const maxWeight = Math.max(...links.map(l => l.weight), 1);
 
     // Setup SVG dimensions
     const width = container.offsetWidth;
@@ -309,8 +763,6 @@ sidebar: tag-list
 
     // Node interactions
     node.on('mouseenter', function(event, d) {
-      const nodeEl = d3.select(this);
-
       // Show tooltip
       tooltip.innerHTML = `
         <div class="tag-name">${d.id}</div>
@@ -349,28 +801,22 @@ sidebar: tag-list
     })
     .on('mouseleave', function() {
       tooltip.classList.remove('visible');
-
-      // Reset highlighting
       link.classed('highlighted', false).classed('dimmed', false);
       node.classed('highlighted', false).classed('dimmed', false);
     })
     .on('click', function(event, d) {
       event.preventDefault();
-      const targetElement = document.getElementById(d.id);
-      if (targetElement) {
-        const offset = 100;
-        const elementPosition = targetElement.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - offset;
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
+      // Filter by clicked tag
+      filterByTag(d.id);
+      // Scroll to post list
+      const windowContainer = document.querySelector('.tags-window-container');
+      if (windowContainer) {
+        windowContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
 
     // Update positions on tick
     simulation.on('tick', () => {
-      // Keep nodes within bounds
       nodes.forEach(d => {
         d.x = Math.max(d.radius + 10, Math.min(width - d.radius - 10, d.x));
         d.y = Math.max(d.radius + 10, Math.min(height - d.radius - 10, d.y));
