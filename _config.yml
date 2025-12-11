@@ -249,9 +249,9 @@ paginate: 5
 # 3. Get your repo_id and category_id from https://giscus.app/
 giscus:
   repo: "cityofwonder/cityofwonder.github.io"
-  repo_id: ""  # Get from https://giscus.app/
-  category: "Announcements"
-  category_id: ""  # Get from https://giscus.app/
+  repo_id: "R_kgDOQWjasw"
+  category: "Q&A"
+  category_id: "DIC_kwDOQWjas84CzpPL"
   mapping: "pathname"
   reactions_enabled: "1"
   emit_metadata: "0"
