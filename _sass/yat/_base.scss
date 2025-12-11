@@ -321,35 +321,77 @@ table {
  * Text Highlighting and Color Utilities
  */
 
-/* Highlighter styles */
+/* Highlighter styles - transparent background covering full text height */
 .highlight-yellow {
-  background: linear-gradient(to top, #fff176 50%, transparent 50%);
-  padding: 0 2px;
+  background-color: rgba(255, 241, 118, 0.4);
+  padding: 2px 4px;
+  border-radius: 3px;
 }
 
 .highlight-green {
-  background: linear-gradient(to top, #81c784 50%, transparent 50%);
-  padding: 0 2px;
+  background-color: rgba(129, 199, 132, 0.4);
+  padding: 2px 4px;
+  border-radius: 3px;
 }
 
 .highlight-blue {
-  background: linear-gradient(to top, #64b5f6 50%, transparent 50%);
-  padding: 0 2px;
+  background-color: rgba(100, 181, 246, 0.4);
+  padding: 2px 4px;
+  border-radius: 3px;
 }
 
 .highlight-pink {
-  background: linear-gradient(to top, #f48fb1 50%, transparent 50%);
-  padding: 0 2px;
+  background-color: rgba(244, 143, 177, 0.4);
+  padding: 2px 4px;
+  border-radius: 3px;
 }
 
 .highlight-orange {
-  background: linear-gradient(to top, #ffb74d 50%, transparent 50%);
-  padding: 0 2px;
+  background-color: rgba(255, 183, 77, 0.4);
+  padding: 2px 4px;
+  border-radius: 3px;
 }
 
 .highlight-purple {
-  background: linear-gradient(to top, #ba68c8 50%, transparent 50%);
-  padding: 0 2px;
+  background-color: rgba(186, 104, 200, 0.4);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.highlight-red {
+  background-color: rgba(239, 83, 80, 0.4);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.highlight-cyan {
+  background-color: rgba(77, 208, 225, 0.4);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.highlight-lime {
+  background-color: rgba(212, 225, 87, 0.4);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.highlight-gray {
+  background-color: rgba(158, 158, 158, 0.35);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.highlight-teal {
+  background-color: rgba(77, 182, 172, 0.4);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.highlight-indigo {
+  background-color: rgba(121, 134, 203, 0.4);
+  padding: 2px 4px;
+  border-radius: 3px;
 }
 
 /* Text color styles */
