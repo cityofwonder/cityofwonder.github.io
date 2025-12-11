@@ -127,16 +127,15 @@ li {
 
   // List items
   li {
-    padding-left: 0.3em;
-    margin-bottom: 0.35em;
+    padding: 0.15em 0.4em;
+    margin-bottom: 0.25em;
     position: relative;
+    border-radius: 3px;
+    transition: background-color 0.2s ease-in-out;
 
     // Individual item hover
     &:hover {
       background-color: rgba(128, 128, 128, 0.08);
-      border-radius: 3px;
-      margin-left: -0.3em;
-      padding-left: 0.6em;
     }
   }
 
@@ -177,11 +176,11 @@ li {
   // Marker styling
   li::marker {
     color: rgba(100, 100, 100, 0.8);
-    transition: color 0.15s ease;
+    transition: color 0.25s ease-in-out;
   }
 }
 
-// Dark mode adjustments
+// Dark mode adjustments for lists
 [data-theme="dark"] {
   .post-content,
   .page-content {
@@ -192,8 +191,13 @@ li {
       border-left-color: rgba(180, 180, 180, 0.35);
     }
 
+    li {
+      transition: background-color 0.2s ease-in-out;
+    }
+
     li::marker {
       color: rgba(180, 180, 180, 0.8);
+      transition: color 0.25s ease-in-out;
     }
 
     li:hover {
@@ -588,27 +592,51 @@ table {
 /* Dark theme adjustments */
 html[data-theme="dark"] {
   .highlight-yellow {
-    background: linear-gradient(to top, rgba(255, 241, 118, 0.4) 50%, transparent 50%);
+    background-color: rgba(255, 241, 118, 0.35);
   }
 
   .highlight-green {
-    background: linear-gradient(to top, rgba(129, 199, 132, 0.4) 50%, transparent 50%);
+    background-color: rgba(129, 199, 132, 0.35);
   }
 
   .highlight-blue {
-    background: linear-gradient(to top, rgba(100, 181, 246, 0.4) 50%, transparent 50%);
+    background-color: rgba(100, 181, 246, 0.35);
   }
 
   .highlight-pink {
-    background: linear-gradient(to top, rgba(244, 143, 177, 0.4) 50%, transparent 50%);
+    background-color: rgba(244, 143, 177, 0.35);
   }
 
   .highlight-orange {
-    background: linear-gradient(to top, rgba(255, 183, 77, 0.4) 50%, transparent 50%);
+    background-color: rgba(255, 183, 77, 0.35);
   }
 
   .highlight-purple {
-    background: linear-gradient(to top, rgba(186, 104, 200, 0.4) 50%, transparent 50%);
+    background-color: rgba(186, 104, 200, 0.35);
+  }
+
+  .highlight-red {
+    background-color: rgba(239, 83, 80, 0.35);
+  }
+
+  .highlight-cyan {
+    background-color: rgba(77, 208, 225, 0.35);
+  }
+
+  .highlight-lime {
+    background-color: rgba(212, 225, 87, 0.35);
+  }
+
+  .highlight-gray {
+    background-color: rgba(158, 158, 158, 0.3);
+  }
+
+  .highlight-teal {
+    background-color: rgba(77, 182, 172, 0.35);
+  }
+
+  .highlight-indigo {
+    background-color: rgba(121, 134, 203, 0.35);
   }
 
   .box-note {
