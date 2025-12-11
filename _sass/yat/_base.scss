@@ -214,6 +214,7 @@ li {
 // Reset tree-view styles for sidebar notepad widget
 .notepad-widget {
   ul, ol {
+    list-style: none !important;
     border-left: none !important;
     margin-left: 0;
     padding-left: 0;
@@ -234,8 +235,7 @@ li {
     }
 
     &::marker {
-      color: inherit;
-      transition: none;
+      display: none;
     }
   }
 }
