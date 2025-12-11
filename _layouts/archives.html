@@ -34,10 +34,9 @@ sidebar: archive-list
         <span class="pill-count">{{ site.posts.size }}</span>
       </button>
       {% for year in years %}
-        {% assign year_posts = site.posts | where_exp: "post", "post.date | date: '%Y' == year" %}
         <button class="year-pill" data-year="{{ year }}">
           <span class="pill-label">{{ year }}</span>
-          <span class="pill-count">{{ year_posts.size }}</span>
+          <span class="pill-count" data-year-count="{{ year }}">0</span>
         </button>
       {% endfor %}
     </div>
@@ -416,6 +415,19 @@ sidebar: archive-list
 document.addEventListener('DOMContentLoaded', function() {
   const yearPills = document.querySelectorAll('.year-pill');
   const archiveCards = document.querySelectorAll('.archive-card');
+
+  // Calculate year counts from cards
+  const yearCounts = {};
+  archiveCards.forEach(card => {
+    const year = card.dataset.year;
+    yearCounts[year] = (yearCounts[year] || 0) + 1;
+  });
+
+  // Update pill counts
+  document.querySelectorAll('[data-year-count]').forEach(countEl => {
+    const year = countEl.dataset.yearCount;
+    countEl.textContent = yearCounts[year] || 0;
+  });
 
   function filterByYear(selectedYear) {
     // Update active pill
