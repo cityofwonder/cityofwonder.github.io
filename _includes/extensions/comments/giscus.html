@@ -1,0 +1,105 @@
+{%- comment -%}
+Giscus Comments with Theme Support
+Configure in _config.yml:
+giscus:
+  repo: "username/repo"
+  repo_id: "R_xxxxx"
+  category: "Announcements"
+  category_id: "DIC_xxxxx"
+  mapping: "pathname"
+  reactions_enabled: "1"
+  emit_metadata: "0"
+  input_position: "bottom"
+  lang: "ko"
+{%- endcomment -%}
+
+<div id="giscus-container"></div>
+
+<script>
+(function() {
+  // Get current theme
+  function getGiscusTheme() {
+    const dataTheme = document.documentElement.getAttribute('data-theme');
+    return dataTheme === 'dark' ? 'dark' : 'light';
+  }
+
+  // Create Giscus script
+  function loadGiscus() {
+    const container = document.getElementById('giscus-container');
+    if (!container) return;
+
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', '{{ site.giscus.repo }}');
+    script.setAttribute('data-repo-id', '{{ site.giscus.repo_id }}');
+    script.setAttribute('data-category', '{{ site.giscus.category | default: "Announcements" }}');
+    script.setAttribute('data-category-id', '{{ site.giscus.category_id }}');
+    script.setAttribute('data-mapping', '{{ site.giscus.mapping | default: "pathname" }}');
+    script.setAttribute('data-strict', '{{ site.giscus.strict | default: "0" }}');
+    script.setAttribute('data-reactions-enabled', '{{ site.giscus.reactions_enabled | default: "1" }}');
+    script.setAttribute('data-emit-metadata', '{{ site.giscus.emit_metadata | default: "0" }}');
+    script.setAttribute('data-input-position', '{{ site.giscus.input_position | default: "bottom" }}');
+    script.setAttribute('data-theme', getGiscusTheme());
+    script.setAttribute('data-lang', '{{ site.giscus.lang | default: site.lang | default: "en" }}');
+    script.setAttribute('crossorigin', 'anonymous');
+    script.async = true;
+
+    container.appendChild(script);
+  }
+
+  // Update Giscus theme when site theme changes
+  function setGiscusTheme() {
+    const iframe = document.querySelector('iframe.giscus-frame');
+    if (iframe) {
+      const theme = getGiscusTheme();
+      iframe.contentWindow.postMessage(
+        { giscus: { setConfig: { theme: theme } } },
+        'https://giscus.app'
+      );
+    }
+  }
+
+  // Listen for theme changes via custom event
+  document.addEventListener('theme-changed', setGiscusTheme);
+
+  // Also observe data-theme attribute changes
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+        setGiscusTheme();
+      }
+    }
+  });
+  observer.observe(document.documentElement, { attributes: true });
+
+  // Load Giscus
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadGiscus);
+  } else {
+    loadGiscus();
+  }
+})();
+</script>
+
+<style>
+/* Giscus Container Styling */
+#giscus-container {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e5e5;
+}
+
+html[data-theme="dark"] #giscus-container {
+  border-top-color: #333;
+}
+
+/* Giscus Frame Styling */
+.giscus {
+  max-width: 100%;
+}
+
+.giscus-frame {
+  width: 100%;
+  border: none;
+}
+</style>
