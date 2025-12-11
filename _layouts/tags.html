@@ -10,9 +10,19 @@ sidebar: tag-list
   {% assign tags = return %}
 
   <!-- Tag Graph Visualization -->
-  <div class="tag-graph-container">
-    <svg id="tag-graph"></svg>
-    <div id="tag-tooltip" class="tag-tooltip"></div>
+  <div class="page-card">
+    <div class="page-card-header">
+      <div class="card-buttons">
+        <span class="card-btn btn-close"></span>
+        <span class="card-btn btn-minimize"></span>
+        <span class="card-btn btn-maximize"></span>
+      </div>
+      <div class="card-title">Tag Relations</div>
+    </div>
+    <div class="graph-content">
+      <svg id="tag-graph"></svg>
+      <div id="tag-tooltip" class="tag-tooltip"></div>
+    </div>
   </div>
 
   <!-- Post-Tag Data for JavaScript -->
@@ -29,41 +39,26 @@ sidebar: tag-list
   ]
   </script>
 
-  <!-- Tags Window Container -->
-  <div class="tags-window-container">
-    <div class="tags-window-header">
-      <div class="tags-window-buttons">
-        <span class="tw-btn tw-close"></span>
-        <span class="tw-btn tw-minimize"></span>
-        <span class="tw-btn tw-maximize"></span>
+  <!-- Tags Post List -->
+  <div class="page-card">
+    <div class="page-card-header">
+      <div class="card-buttons">
+        <span class="card-btn btn-close"></span>
+        <span class="card-btn btn-minimize"></span>
+        <span class="card-btn btn-maximize"></span>
       </div>
-      <div class="tags-window-title">All Posts by Tags</div>
-      <div class="tags-window-actions">
-        <button class="tw-action-btn active" data-view="all" title="All Posts">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-            <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-          </svg>
-        </button>
-        <button class="tw-action-btn" data-view="tags" title="By Tags">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
-            <line x1="7" y1="7" x2="7.01" y2="7"/>
-          </svg>
-        </button>
-      </div>
+      <div class="card-title">All Posts</div>
+      <div class="card-count">{{ site.posts.size }}</div>
     </div>
 
     <!-- Tag Filter Pills -->
-    <div class="tags-filter-bar">
-      <button class="tag-pill active" data-tag="all">
-        <span class="pill-icon">📚</span>
+    <div class="filter-bar">
+      <button class="filter-pill active" data-tag="all">
         <span class="pill-label">All</span>
-        <span class="pill-count">{{ site.posts.size }}</span>
       </button>
       {% for tag in tags %}
         {% assign tag_posts = site.posts | where: 'tags', tag %}
-        <button class="tag-pill" data-tag="{{ tag }}">
+        <button class="filter-pill" data-tag="{{ tag }}">
           <span class="pill-label">{{ tag }}</span>
           <span class="pill-count">{{ tag_posts.size }}</span>
         </button>
@@ -71,24 +66,13 @@ sidebar: tag-list
     </div>
 
     <!-- Posts Grid -->
-    <div class="tags-window-content">
-      <div class="posts-grid" id="posts-grid">
+    <div class="card-content">
+      <div class="posts-grid">
         {% for post in site.posts %}
-        <div class="post-card" data-tags="{{ post.tags | join: ',' }}">
-          <a href="{{ post.url | relative_url }}" class="post-card-link">
-            <div class="post-card-header">
-              <span class="post-card-date">{{ post.date | date: "%m/%d" }}</span>
-              <span class="post-card-year">{{ post.date | date: "%Y" }}</span>
-            </div>
-            <div class="post-card-title">{{ post.title | escape }}</div>
-            <div class="post-card-tags">
-              {% for tag in post.tags limit:2 %}
-              <span class="mini-tag">{{ tag }}</span>
-              {% endfor %}
-              {% if post.tags.size > 2 %}
-              <span class="mini-tag more">+{{ post.tags.size | minus: 2 }}</span>
-              {% endif %}
-            </div>
+        <div class="post-item" data-tags="{{ post.tags | join: ',' }}">
+          <a href="{{ post.url | relative_url }}" class="post-link">
+            <span class="post-date">{{ post.date | date: "%m/%d" }}</span>
+            <span class="post-title">{{ post.title | escape }}</span>
           </a>
         </div>
         {% endfor %}
@@ -99,77 +83,115 @@ sidebar: tag-list
 {%- endif -%}
 
 <style>
-  /* Tag Graph Container */
-  .tag-graph-container {
-    margin: 40px 0 30px;
+  /* ===== Unified Page Card Style ===== */
+  .page-card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e5e5e5;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .page-card-header {
+    background: linear-gradient(180deg, #fafafa 0%, #f0f0f0 100%);
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .card-buttons {
+    display: flex;
+    gap: 6px;
+  }
+
+  .card-btn {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .btn-close { background: #ff5f57; }
+  .btn-minimize { background: #febc2e; }
+  .btn-maximize { background: #28c840; }
+
+  .card-title {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+  }
+
+  .card-count {
+    font-size: 11px;
+    color: #999;
+    background: #eee;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  /* ===== Graph Content ===== */
+  .graph-content {
     position: relative;
     background: #fafafa;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    border: 1px solid #e0e0e0;
   }
 
   #tag-graph {
     width: 100%;
-    height: 400px;
+    height: 350px;
     display: block;
   }
 
-  /* Graph Links */
   .graph-link {
-    stroke: #e53935;
+    stroke: #999;
     stroke-opacity: 0.3;
     fill: none;
-    transition: stroke-opacity 0.3s ease;
+    transition: stroke-opacity 0.2s ease;
   }
 
   .graph-link.highlighted {
-    stroke-opacity: 0.8;
+    stroke: #555;
+    stroke-opacity: 0.7;
   }
 
   .graph-link.dimmed {
-    stroke-opacity: 0.08;
+    stroke-opacity: 0.1;
   }
 
-  /* Graph Nodes */
   .graph-node {
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
 
   .graph-node circle {
-    fill: #666;
+    fill: #888;
     stroke: #fff;
     stroke-width: 2px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
 
   .graph-node:hover circle {
-    fill: #e53935;
-    stroke-width: 3px;
-    filter: drop-shadow(0 0 8px rgba(229, 57, 53, 0.5));
+    fill: #555;
   }
 
   .graph-node.dimmed circle {
     fill: #ccc;
-    opacity: 0.4;
+    opacity: 0.5;
   }
 
   .graph-node.highlighted circle {
-    fill: #c62828;
-    stroke-width: 3px;
-    filter: drop-shadow(0 0 10px rgba(229, 57, 53, 0.6));
+    fill: #333;
   }
 
-  /* Node Labels */
   .node-label {
-    font-size: 11px;
-    font-weight: 600;
-    fill: #444;
+    font-size: 10px;
+    font-weight: 500;
+    fill: #555;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.2s ease;
     text-anchor: middle;
   }
 
@@ -178,20 +200,18 @@ sidebar: tag-list
     opacity: 1;
   }
 
-  /* Tooltip */
   .tag-tooltip {
     position: absolute;
-    padding: 10px 14px;
-    background: rgba(255, 255, 255, 0.98);
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    font-size: 13px;
+    padding: 8px 12px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    font-size: 12px;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.15s ease;
     z-index: 100;
-    max-width: 200px;
-    border: 1px solid #eee;
+    border: 1px solid #e5e5e5;
   }
 
   .tag-tooltip.visible {
@@ -199,433 +219,277 @@ sidebar: tag-list
   }
 
   .tag-tooltip .tag-name {
-    font-weight: 700;
-    color: #e53935;
-    margin-bottom: 4px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
   }
 
   .tag-tooltip .tag-count {
-    color: #666;
-    font-size: 12px;
-  }
-
-  /* ===== Tags Window Container ===== */
-  .tags-window-container {
-    background: #fafafa;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    margin: 0 0 40px;
-    border: 1px solid #e0e0e0;
-  }
-
-  /* Window Header - Mac Style */
-  .tags-window-header {
-    background: linear-gradient(180deg, #555 0%, #444 100%);
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    border-bottom: 2px solid #333;
-  }
-
-  .tags-window-buttons {
-    display: flex;
-    gap: 8px;
-  }
-
-  .tw-btn {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    display: inline-block;
-    border: 0.5px solid rgba(0, 0, 0, 0.15);
-  }
-
-  .tw-close { background: #ff5f57; }
-  .tw-minimize { background: #febc2e; }
-  .tw-maximize { background: #28c840; }
-
-  .tags-window-title {
-    flex: 1;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    letter-spacing: 0.5px;
-  }
-
-  .tags-window-actions {
-    display: flex;
-    gap: 4px;
-  }
-
-  .tw-action-btn {
-    background: transparent;
-    border: none;
     color: #888;
-    padding: 4px 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
+    font-size: 11px;
   }
 
-  .tw-action-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-  }
-
-  .tw-action-btn.active {
-    background: rgba(229, 57, 53, 0.3);
-    color: #fff;
-  }
-
-  /* Tag Filter Bar */
-  .tags-filter-bar {
-    padding: 16px;
-    background: #f5f5f5;
-    border-bottom: 1px solid #e0e0e0;
+  /* ===== Filter Bar ===== */
+  .filter-bar {
+    padding: 12px 14px;
+    background: #fafafa;
+    border-bottom: 1px solid #e5e5e5;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    max-height: 120px;
-    overflow-y: auto;
+    gap: 6px;
   }
 
-  .tag-pill {
+  .filter-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
+    gap: 4px;
+    padding: 4px 10px;
     background: #fff;
     border: 1px solid #ddd;
-    border-radius: 20px;
-    font-size: 12px;
-    color: #555;
+    border-radius: 14px;
+    font-size: 11px;
+    color: #666;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
   }
 
-  .tag-pill:hover {
-    border-color: #e53935;
-    color: #e53935;
-    transform: translateY(-1px);
+  .filter-pill:hover {
+    border-color: #999;
+    color: #333;
   }
 
-  .tag-pill.active {
-    background: #e53935;
-    border-color: #e53935;
-    color: white;
+  .filter-pill.active {
+    background: #555;
+    border-color: #555;
+    color: #fff;
   }
 
-  .tag-pill .pill-icon {
-    font-size: 14px;
-  }
-
-  .tag-pill .pill-count {
-    background: rgba(0, 0, 0, 0.08);
-    padding: 2px 6px;
-    border-radius: 10px;
+  .filter-pill .pill-count {
     font-size: 10px;
-    font-weight: 600;
+    opacity: 0.7;
   }
 
-  .tag-pill.active .pill-count {
-    background: rgba(255, 255, 255, 0.25);
+  .filter-pill.active .pill-count {
+    opacity: 0.8;
   }
 
-  /* Posts Grid - 2 Column Layout */
-  .tags-window-content {
-    padding: 20px;
-    background: #fafafa;
-    min-height: 300px;
-    max-height: 600px;
+  /* ===== Card Content ===== */
+  .card-content {
+    padding: 14px;
+    background: #fff;
+    max-height: 500px;
     overflow-y: auto;
   }
 
   .posts-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 8px;
   }
 
-  /* Post Card */
-  .post-card {
-    transition: all 0.25s ease;
+  .post-item {
+    transition: all 0.15s ease;
   }
 
-  .post-card.hidden {
+  .post-item.hidden {
     display: none;
   }
 
-  .post-card-link {
-    display: block;
-    padding: 12px 16px;
-    background: #fff;
-    border-radius: 8px;
-    border: 1px solid #eee;
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.25s ease;
-  }
-
-  .post-card-link:hover {
-    background: rgba(229, 57, 53, 0.05);
-    border-color: #e53935;
-    transform: translateX(6px);
-    box-shadow: 0 2px 8px rgba(229, 57, 53, 0.1);
-  }
-
-  .post-card-header {
+  .post-link {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    gap: 10px;
+    padding: 8px 10px;
+    background: #fafafa;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.15s ease;
   }
 
-  .post-card-date {
-    font-size: 12px;
-    font-weight: 600;
-    color: #e53935;
+  .post-link:hover {
+    background: #f0f0f0;
+    transform: translateX(3px);
   }
 
-  .post-card-year {
-    font-size: 10px;
-    color: #aaa;
-  }
-
-  .post-card-title {
-    font-size: 13px;
+  .post-date {
+    font-size: 11px;
     font-weight: 500;
+    color: #888;
+    flex-shrink: 0;
+  }
+
+  .post-title {
+    font-size: 12px;
     color: #333;
-    line-height: 1.4;
-    margin-bottom: 8px;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
   }
 
-  .post-card-link:hover .post-card-title {
-    color: #c62828;
+  .post-link:hover .post-title {
+    color: #111;
   }
 
-  .post-card-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
+  /* ===== Scrollbar ===== */
+  .card-content::-webkit-scrollbar,
+  .filter-bar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
   }
 
-  .mini-tag {
-    font-size: 10px;
-    padding: 2px 6px;
-    background: #f0f0f0;
-    border-radius: 4px;
-    color: #777;
-  }
-
-  .mini-tag.more {
-    background: #e0e0e0;
-    color: #555;
-  }
-
-  /* Scrollbar */
-  .tags-window-content::-webkit-scrollbar,
-  .tags-filter-bar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  .tags-window-content::-webkit-scrollbar-track,
-  .tags-filter-bar::-webkit-scrollbar-track {
+  .card-content::-webkit-scrollbar-track,
+  .filter-bar::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  .tags-window-content::-webkit-scrollbar-thumb,
-  .tags-filter-bar::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 3px;
-  }
-
-  .tags-window-content::-webkit-scrollbar-thumb:hover,
-  .tags-filter-bar::-webkit-scrollbar-thumb:hover {
-    background: #aaa;
+  .card-content::-webkit-scrollbar-thumb,
+  .filter-bar::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 2px;
   }
 
   /* ===== Dark Theme ===== */
-  html[data-theme="dark"] .tag-graph-container {
+  html[data-theme="dark"] .page-card {
     background: #1e1e1e;
     border-color: #333;
   }
 
+  html[data-theme="dark"] .page-card-header {
+    background: linear-gradient(180deg, #2a2a2a 0%, #222 100%);
+    border-bottom-color: #333;
+  }
+
+  html[data-theme="dark"] .card-title {
+    color: #aaa;
+  }
+
+  html[data-theme="dark"] .card-count {
+    background: #333;
+    color: #888;
+  }
+
+  html[data-theme="dark"] .graph-content {
+    background: #1a1a1a;
+  }
+
   html[data-theme="dark"] .graph-link {
-    stroke: #ef5350;
+    stroke: #666;
+  }
+
+  html[data-theme="dark"] .graph-link.highlighted {
+    stroke: #999;
   }
 
   html[data-theme="dark"] .graph-node circle {
-    fill: #888;
+    fill: #777;
     stroke: #1e1e1e;
   }
 
   html[data-theme="dark"] .graph-node:hover circle {
-    fill: #ef5350;
+    fill: #aaa;
   }
 
   html[data-theme="dark"] .graph-node.highlighted circle {
-    fill: #ff7043;
-  }
-
-  html[data-theme="dark"] .graph-node.dimmed circle {
-    fill: #444;
+    fill: #ccc;
   }
 
   html[data-theme="dark"] .node-label {
-    fill: #ddd;
+    fill: #ccc;
   }
 
   html[data-theme="dark"] .tag-tooltip {
-    background: rgba(30, 30, 30, 0.98);
+    background: #2a2a2a;
     border-color: #444;
   }
 
   html[data-theme="dark"] .tag-tooltip .tag-name {
-    color: #ef5350;
-  }
-
-  html[data-theme="dark"] .tag-tooltip .tag-count {
-    color: #aaa;
-  }
-
-  html[data-theme="dark"] .tags-window-container {
-    background: #1e1e1e;
-    border-color: #333;
-  }
-
-  html[data-theme="dark"] .tags-window-header {
-    background: linear-gradient(180deg, #333 0%, #222 100%);
-    border-bottom-color: #444;
-  }
-
-  html[data-theme="dark"] .tags-filter-bar {
-    background: #252525;
-    border-bottom-color: #333;
-  }
-
-  html[data-theme="dark"] .tag-pill {
-    background: #333;
-    border-color: #444;
-    color: #ccc;
-  }
-
-  html[data-theme="dark"] .tag-pill:hover {
-    border-color: #ef5350;
-    color: #ef5350;
-  }
-
-  html[data-theme="dark"] .tag-pill.active {
-    background: #c62828;
-    border-color: #c62828;
-  }
-
-  html[data-theme="dark"] .tag-pill .pill-count {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  html[data-theme="dark"] .tags-window-content {
-    background: #1e1e1e;
-  }
-
-  html[data-theme="dark"] .post-card-link {
-    background: #252525;
-    border-color: #333;
-  }
-
-  html[data-theme="dark"] .post-card-link:hover {
-    background: rgba(229, 57, 53, 0.1);
-    border-color: #c62828;
-  }
-
-  html[data-theme="dark"] .post-card-date {
-    color: #ef5350;
-  }
-
-  html[data-theme="dark"] .post-card-year {
-    color: #666;
-  }
-
-  html[data-theme="dark"] .post-card-title {
     color: #ddd;
   }
 
-  html[data-theme="dark"] .post-card-link:hover .post-card-title {
-    color: #ff7043;
+  html[data-theme="dark"] .tag-tooltip .tag-count {
+    color: #888;
   }
 
-  html[data-theme="dark"] .mini-tag {
-    background: #333;
-    color: #999;
+  html[data-theme="dark"] .filter-bar {
+    background: #1a1a1a;
+    border-bottom-color: #333;
   }
 
-  html[data-theme="dark"] .mini-tag.more {
-    background: #444;
+  html[data-theme="dark"] .filter-pill {
+    background: #2a2a2a;
+    border-color: #444;
     color: #aaa;
   }
 
-  html[data-theme="dark"] .tags-window-content::-webkit-scrollbar-thumb,
-  html[data-theme="dark"] .tags-filter-bar::-webkit-scrollbar-thumb {
+  html[data-theme="dark"] .filter-pill:hover {
+    border-color: #666;
+    color: #ddd;
+  }
+
+  html[data-theme="dark"] .filter-pill.active {
+    background: #555;
+    border-color: #555;
+    color: #fff;
+  }
+
+  html[data-theme="dark"] .card-content {
+    background: #1e1e1e;
+  }
+
+  html[data-theme="dark"] .post-link {
+    background: #252525;
+  }
+
+  html[data-theme="dark"] .post-link:hover {
+    background: #2a2a2a;
+  }
+
+  html[data-theme="dark"] .post-date {
+    color: #777;
+  }
+
+  html[data-theme="dark"] .post-title {
+    color: #ccc;
+  }
+
+  html[data-theme="dark"] .post-link:hover .post-title {
+    color: #fff;
+  }
+
+  html[data-theme="dark"] .card-content::-webkit-scrollbar-thumb {
     background: #444;
   }
 
-  /* ===== Mobile Responsive ===== */
+  /* ===== Mobile ===== */
   @media (max-width: 768px) {
-    .tag-graph-container {
-      margin: 20px 0;
+    .page-card {
+      margin-bottom: 16px;
     }
 
     #tag-graph {
-      height: 300px;
+      height: 280px;
     }
 
-    .node-label {
-      font-size: 9px;
+    .filter-bar {
+      padding: 10px 12px;
     }
 
-    .tags-window-header {
-      padding: 8px 12px;
-    }
-
-    .tags-window-title {
-      font-size: 12px;
-    }
-
-    .tags-filter-bar {
-      padding: 12px;
-      gap: 6px;
-      max-height: 100px;
-    }
-
-    .tag-pill {
-      padding: 4px 10px;
-      font-size: 11px;
-    }
-
-    .tags-window-content {
-      padding: 12px;
-      max-height: 500px;
+    .card-content {
+      padding: 10px;
+      max-height: 400px;
     }
 
     .posts-grid {
       grid-template-columns: 1fr;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .post-card-link {
-      padding: 10px 12px;
+    .post-link {
+      padding: 6px 8px;
     }
 
-    .post-card-title {
-      font-size: 12px;
-      -webkit-line-clamp: 1;
+    .post-title {
+      font-size: 11px;
     }
   }
 </style>
@@ -633,57 +497,46 @@ sidebar: tag-list
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // ===== Tag Filter Functionality =====
-    const tagPills = document.querySelectorAll('.tag-pill');
-    const postCards = document.querySelectorAll('.post-card');
+    // ===== Tag Filter =====
+    const filterPills = document.querySelectorAll('.filter-pill');
+    const postItems = document.querySelectorAll('.post-item');
 
     function filterByTag(selectedTag) {
-      // Update active pill
-      tagPills.forEach(pill => {
+      filterPills.forEach(pill => {
         pill.classList.toggle('active', pill.dataset.tag === selectedTag);
       });
 
-      // Filter posts
-      postCards.forEach(card => {
-        const cardTags = card.dataset.tags.split(',');
-        if (selectedTag === 'all' || cardTags.includes(selectedTag)) {
-          card.classList.remove('hidden');
+      postItems.forEach(item => {
+        const itemTags = item.dataset.tags.split(',');
+        if (selectedTag === 'all' || itemTags.includes(selectedTag)) {
+          item.classList.remove('hidden');
         } else {
-          card.classList.add('hidden');
+          item.classList.add('hidden');
         }
       });
     }
 
-    // Add click handlers to pills
-    tagPills.forEach(pill => {
-      pill.addEventListener('click', () => {
-        filterByTag(pill.dataset.tag);
-      });
+    filterPills.forEach(pill => {
+      pill.addEventListener('click', () => filterByTag(pill.dataset.tag));
     });
 
     // ===== Tag Graph =====
     const svg = d3.select('#tag-graph');
     const tooltip = document.getElementById('tag-tooltip');
-    const container = document.querySelector('.tag-graph-container');
+    const container = document.querySelector('.graph-content');
 
     if (!svg.node() || !container) return;
 
-    // Get post-tags data
     const postTagsData = JSON.parse(document.getElementById('post-tags-data').textContent);
 
-    // Build nodes (unique tags) and edges (co-occurrences)
     const tagCounts = {};
     const edgeCounts = {};
 
     postTagsData.forEach(post => {
       const tags = post.tags || [];
-
-      // Count tag occurrences
       tags.forEach(tag => {
         tagCounts[tag] = (tagCounts[tag] || 0) + 1;
       });
-
-      // Count co-occurrences (edges)
       for (let i = 0; i < tags.length; i++) {
         for (let j = i + 1; j < tags.length; j++) {
           const key = [tags[i], tags[j]].sort().join('|||');
@@ -692,111 +545,59 @@ sidebar: tag-list
       }
     });
 
-    // Create nodes array
     const nodes = Object.entries(tagCounts).map(([tag, count]) => ({
       id: tag,
       count: count,
-      radius: Math.max(6, Math.min(20, 4 + count * 3))
+      radius: Math.max(5, Math.min(16, 3 + count * 2.5))
     }));
 
-    // Create links array
     const links = Object.entries(edgeCounts).map(([key, count]) => {
       const [source, target] = key.split('|||');
-      return {
-        source,
-        target,
-        weight: count
-      };
+      return { source, target, weight: count };
     });
 
-    // Setup SVG dimensions
     const width = container.offsetWidth;
     const height = parseInt(getComputedStyle(svg.node()).height);
 
     svg.attr('viewBox', [0, 0, width, height]);
 
-    // Create force simulation
     const simulation = d3.forceSimulation(nodes)
-      .force('link', d3.forceLink(links)
-        .id(d => d.id)
-        .distance(d => 80 - d.weight * 10)
-        .strength(d => 0.3 + d.weight * 0.1))
-      .force('charge', d3.forceManyBody()
-        .strength(-120))
+      .force('link', d3.forceLink(links).id(d => d.id).distance(70).strength(0.4))
+      .force('charge', d3.forceManyBody().strength(-100))
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide()
-        .radius(d => d.radius + 8)
-        .strength(0.9))
-      .force('x', d3.forceX(width / 2).strength(0.05))
-      .force('y', d3.forceY(height / 2).strength(0.05));
+      .force('collision', d3.forceCollide().radius(d => d.radius + 6).strength(0.8));
 
-    // Create links
-    const link = svg.append('g')
-      .attr('class', 'links')
-      .selectAll('line')
-      .data(links)
-      .join('line')
-      .attr('class', 'graph-link')
-      .attr('stroke-width', d => Math.max(1, d.weight * 2));
+    const link = svg.append('g').selectAll('line')
+      .data(links).join('line').attr('class', 'graph-link')
+      .attr('stroke-width', d => Math.max(1, d.weight * 1.5));
 
-    // Create nodes group
-    const node = svg.append('g')
-      .attr('class', 'nodes')
-      .selectAll('g')
-      .data(nodes)
-      .join('g')
-      .attr('class', 'graph-node')
-      .call(d3.drag()
-        .on('start', dragstarted)
-        .on('drag', dragged)
-        .on('end', dragended));
+    const node = svg.append('g').selectAll('g')
+      .data(nodes).join('g').attr('class', 'graph-node')
+      .call(d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended));
 
-    // Add circles to nodes
-    node.append('circle')
-      .attr('r', d => d.radius);
+    node.append('circle').attr('r', d => d.radius);
+    node.append('text').attr('class', 'node-label').attr('dy', d => -d.radius - 4).text(d => d.id);
 
-    // Add labels (hidden by default, shown on hover)
-    node.append('text')
-      .attr('class', 'node-label')
-      .attr('dy', d => -d.radius - 6)
-      .text(d => d.id);
-
-    // Node interactions
     node.on('mouseenter', function(event, d) {
-      // Show tooltip
-      tooltip.innerHTML = `
-        <div class="tag-name">${d.id}</div>
-        <div class="tag-count">${d.count} post${d.count > 1 ? 's' : ''}</div>
-      `;
+      tooltip.innerHTML = `<div class="tag-name">${d.id}</div><div class="tag-count">${d.count} posts</div>`;
       tooltip.classList.add('visible');
-
-      // Position tooltip
       const rect = container.getBoundingClientRect();
-      const x = event.clientX - rect.left + 15;
-      const y = event.clientY - rect.top - 10;
-      tooltip.style.left = `${Math.min(x, width - 150)}px`;
-      tooltip.style.top = `${y}px`;
+      tooltip.style.left = `${event.clientX - rect.left + 10}px`;
+      tooltip.style.top = `${event.clientY - rect.top - 10}px`;
 
-      // Highlight connected nodes and links
-      const connectedNodes = new Set();
-      connectedNodes.add(d.id);
-
+      const connected = new Set([d.id]);
       link.each(function(l) {
         if (l.source.id === d.id || l.target.id === d.id) {
-          connectedNodes.add(l.source.id);
-          connectedNodes.add(l.target.id);
+          connected.add(l.source.id);
+          connected.add(l.target.id);
           d3.select(this).classed('highlighted', true).classed('dimmed', false);
         } else {
           d3.select(this).classed('dimmed', true).classed('highlighted', false);
         }
       });
-
       node.each(function(n) {
-        if (connectedNodes.has(n.id)) {
-          d3.select(this).classed('highlighted', true).classed('dimmed', false);
-        } else {
-          d3.select(this).classed('dimmed', true).classed('highlighted', false);
-        }
+        d3.select(this).classed(connected.has(n.id) ? 'highlighted' : 'dimmed', true);
+        if (connected.has(n.id)) d3.select(this).classed('dimmed', false);
       });
     })
     .on('mouseleave', function() {
@@ -806,62 +607,27 @@ sidebar: tag-list
     })
     .on('click', function(event, d) {
       event.preventDefault();
-      // Filter by clicked tag
       filterByTag(d.id);
-      // Scroll to post list
-      const windowContainer = document.querySelector('.tags-window-container');
-      if (windowContainer) {
-        windowContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
     });
 
-    // Update positions on tick
     simulation.on('tick', () => {
       nodes.forEach(d => {
-        d.x = Math.max(d.radius + 10, Math.min(width - d.radius - 10, d.x));
-        d.y = Math.max(d.radius + 10, Math.min(height - d.radius - 10, d.y));
+        d.x = Math.max(d.radius + 5, Math.min(width - d.radius - 5, d.x));
+        d.y = Math.max(d.radius + 5, Math.min(height - d.radius - 5, d.y));
       });
-
-      link
-        .attr('x1', d => d.source.x)
-        .attr('y1', d => d.source.y)
-        .attr('x2', d => d.target.x)
-        .attr('y2', d => d.target.y);
-
+      link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+          .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
       node.attr('transform', d => `translate(${d.x},${d.y})`);
     });
 
-    // Drag functions
     function dragstarted(event, d) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
-      d.fx = d.x;
-      d.fy = d.y;
+      d.fx = d.x; d.fy = d.y;
     }
-
-    function dragged(event, d) {
-      d.fx = event.x;
-      d.fy = event.y;
-    }
-
+    function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
     function dragended(event, d) {
       if (!event.active) simulation.alphaTarget(0);
-      d.fx = null;
-      d.fy = null;
+      d.fx = null; d.fy = null;
     }
-
-    // Handle resize
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        const newWidth = container.offsetWidth;
-        const newHeight = parseInt(getComputedStyle(svg.node()).height);
-        svg.attr('viewBox', [0, 0, newWidth, newHeight]);
-        simulation.force('center', d3.forceCenter(newWidth / 2, newHeight / 2));
-        simulation.force('x', d3.forceX(newWidth / 2).strength(0.05));
-        simulation.force('y', d3.forceY(newHeight / 2).strength(0.05));
-        simulation.alpha(0.3).restart();
-      }, 300);
-    });
   });
 </script>
