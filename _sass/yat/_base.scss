@@ -100,61 +100,43 @@ li {
 .post-content,
 .page-content {
   // Base list styles
-  ul, ol {
-    position: relative;
-    margin-left: 2em;
-    padding-left: 0;
+  > ul,
+  > ol {
+    margin-left: 1.5em;
+    padding-left: 1em;
+    border-left: 1px dotted rgba(128, 128, 128, 0.5);
+  }
 
-    // Tree guide line (vertical dotted line on the left)
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0.4em;
-      top: 0.3em;
-      bottom: 0.5em;
-      border-left: 1px dotted rgba(128, 128, 128, 0.4);
-    }
+  ul, ol {
+    list-style-position: outside;
 
     // Hover state - highlight all same-depth markers
     &:hover > li::marker {
       color: var(--brand-color, #0066cc);
-      font-weight: bold;
     }
+  }
+
+  // All nested lists
+  li > ul,
+  li > ol {
+    margin-top: 0.3em;
+    margin-left: 0.5em;
+    padding-left: 1em;
+    border-left: 1px dotted rgba(128, 128, 128, 0.5);
   }
 
   // List items
-  ul > li,
-  ol > li {
+  li {
+    padding-left: 0.3em;
+    margin-bottom: 0.35em;
     position: relative;
-    padding-left: 0.5em;
-    margin-bottom: 0.4em;
-    transition: background-color 0.15s ease;
-
-    // Horizontal connector to marker
-    &::before {
-      content: '';
-      position: absolute;
-      left: -1.1em;
-      top: 0.65em;
-      width: 0.8em;
-      border-top: 1px dotted rgba(128, 128, 128, 0.4);
-    }
 
     // Individual item hover
     &:hover {
-      background-color: rgba(128, 128, 128, 0.06);
+      background-color: rgba(128, 128, 128, 0.08);
       border-radius: 3px;
-    }
-  }
-
-  // Nested lists - increase indentation and adjust guide lines
-  li > ul,
-  li > ol {
-    margin-top: 0.4em;
-    margin-left: 1.5em;
-
-    &::before {
-      left: 0.4em;
+      margin-left: -0.3em;
+      padding-left: 0.6em;
     }
   }
 
@@ -194,20 +176,8 @@ li {
 
   // Marker styling
   li::marker {
-    color: rgba(100, 100, 100, 0.7);
-    transition: color 0.15s ease, font-weight 0.15s ease;
-  }
-
-  // Remove tree line from last item's bottom
-  ul > li:last-child::after,
-  ol > li:last-child::after {
-    content: '';
-    position: absolute;
-    left: -1.6em;
-    top: 0.65em;
-    bottom: 0;
-    width: 3px;
-    background-color: var(--background-color, #fff);
+    color: rgba(100, 100, 100, 0.8);
+    transition: color 0.15s ease;
   }
 }
 
@@ -215,28 +185,19 @@ li {
 [data-theme="dark"] {
   .post-content,
   .page-content {
-    ul::before,
-    ol::before {
-      border-left-color: rgba(180, 180, 180, 0.3);
-    }
-
-    ul > li::before,
-    ol > li::before {
-      border-top-color: rgba(180, 180, 180, 0.3);
+    > ul,
+    > ol,
+    li > ul,
+    li > ol {
+      border-left-color: rgba(180, 180, 180, 0.35);
     }
 
     li::marker {
-      color: rgba(180, 180, 180, 0.7);
+      color: rgba(180, 180, 180, 0.8);
     }
 
-    ul > li:last-child::after,
-    ol > li:last-child::after {
-      background-color: var(--background-color, #1a1a1a);
-    }
-
-    ul > li:hover,
-    ol > li:hover {
-      background-color: rgba(255, 255, 255, 0.05);
+    li:hover {
+      background-color: rgba(255, 255, 255, 0.06);
     }
 
     ul:hover > li::marker,
