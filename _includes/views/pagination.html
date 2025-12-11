@@ -150,6 +150,47 @@ html[data-theme="dark"] .pagination .post-tags .post-tag:hover {
   color: #fff;
 }
 
+/* NEW Badge - Override Orange to Gray */
+.pagination .post-badge {
+  background-color: #555 !important;
+  color: #fff !important;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 10px;
+}
+
+.pagination .post-badge.badge-top {
+  background-color: #333 !important;
+}
+
+/* Paginator Links - Override Brand Color */
+.pagination .paginator a {
+  color: #555;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.pagination .paginator a:hover {
+  color: #333;
+}
+
+/* Dark Theme - Badge & Paginator */
+html[data-theme="dark"] .pagination .post-badge {
+  background-color: #666 !important;
+}
+
+html[data-theme="dark"] .pagination .post-badge.badge-top {
+  background-color: #555 !important;
+}
+
+html[data-theme="dark"] .pagination .paginator a {
+  color: #aaa;
+}
+
+html[data-theme="dark"] .pagination .paginator a:hover {
+  color: #fff;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .pagination .post-item {

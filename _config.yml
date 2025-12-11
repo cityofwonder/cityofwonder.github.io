@@ -41,7 +41,7 @@ github_username: cityofwonder
 #   "Copyright (c) 2017-{currentYear} <a href="https://example.com">{author}</a>"
 #   "Copyright © 2017-2021 Foobar"
 #
-copyright: "Unpublished Work (cleft) 2017-{currentYear} {author}"
+copyright: "(cleft) 2022-{currentYear} {author}"
 
 description: >-
   2023.03~ Korea Univ. in Seoul, South Korea
