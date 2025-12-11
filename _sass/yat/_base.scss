@@ -93,6 +93,159 @@ li {
   }
 }
 
+/**
+ * Enhanced List Styles with Tree-View Lines
+ * Applied to post and page content
+ */
+.post-content,
+.page-content {
+  // Base list styles
+  ul, ol {
+    position: relative;
+    margin-left: 2em;
+    padding-left: 0;
+
+    // Tree guide line (vertical dotted line on the left)
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0.4em;
+      top: 0.3em;
+      bottom: 0.5em;
+      border-left: 1px dotted rgba(128, 128, 128, 0.4);
+    }
+
+    // Hover state - highlight all same-depth markers
+    &:hover > li::marker {
+      color: var(--brand-color, #0066cc);
+      font-weight: bold;
+    }
+  }
+
+  // List items
+  ul > li,
+  ol > li {
+    position: relative;
+    padding-left: 0.5em;
+    margin-bottom: 0.4em;
+    transition: background-color 0.15s ease;
+
+    // Horizontal connector to marker
+    &::before {
+      content: '';
+      position: absolute;
+      left: -1.1em;
+      top: 0.65em;
+      width: 0.8em;
+      border-top: 1px dotted rgba(128, 128, 128, 0.4);
+    }
+
+    // Individual item hover
+    &:hover {
+      background-color: rgba(128, 128, 128, 0.06);
+      border-radius: 3px;
+    }
+  }
+
+  // Nested lists - increase indentation and adjust guide lines
+  li > ul,
+  li > ol {
+    margin-top: 0.4em;
+    margin-left: 1.5em;
+
+    &::before {
+      left: 0.4em;
+    }
+  }
+
+  // Unordered list specific styles
+  ul {
+    list-style-type: disc;
+
+    ul {
+      list-style-type: circle;
+
+      ul {
+        list-style-type: square;
+
+        ul {
+          list-style-type: disc;
+        }
+      }
+    }
+  }
+
+  // Ordered list specific styles - different numbering per depth
+  ol {
+    list-style-type: decimal;
+
+    ol {
+      list-style-type: lower-alpha;
+
+      ol {
+        list-style-type: lower-roman;
+
+        ol {
+          list-style-type: decimal;
+        }
+      }
+    }
+  }
+
+  // Marker styling
+  li::marker {
+    color: rgba(100, 100, 100, 0.7);
+    transition: color 0.15s ease, font-weight 0.15s ease;
+  }
+
+  // Remove tree line from last item's bottom
+  ul > li:last-child::after,
+  ol > li:last-child::after {
+    content: '';
+    position: absolute;
+    left: -1.6em;
+    top: 0.65em;
+    bottom: 0;
+    width: 3px;
+    background-color: var(--background-color, #fff);
+  }
+}
+
+// Dark mode adjustments
+[data-theme="dark"] {
+  .post-content,
+  .page-content {
+    ul::before,
+    ol::before {
+      border-left-color: rgba(180, 180, 180, 0.3);
+    }
+
+    ul > li::before,
+    ol > li::before {
+      border-top-color: rgba(180, 180, 180, 0.3);
+    }
+
+    li::marker {
+      color: rgba(180, 180, 180, 0.7);
+    }
+
+    ul > li:last-child::after,
+    ol > li:last-child::after {
+      background-color: var(--background-color, #1a1a1a);
+    }
+
+    ul > li:hover,
+    ol > li:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    ul:hover > li::marker,
+    ol:hover > li::marker {
+      color: var(--brand-color, #6db3f2);
+    }
+  }
+}
+
 
 
 /**
