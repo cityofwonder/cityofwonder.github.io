@@ -10,9 +10,434 @@ sidebar: archive-list
   {% assign filter = '%Y' %}
   {% include functions.html func='get_datetimes' %}
   {% assign datetimes = return %}
+  {% assign years = datetimes | reverse %}
 
-  {% assign keys = datetimes | reverse %}
-  {% assign field = 'date' %}
-  {% include views/segments.html %}
+  <!-- Archives Window Container -->
+  <div class="archives-window-container">
+    <div class="archives-window-header">
+      <div class="archives-window-buttons">
+        <span class="aw-btn aw-close"></span>
+        <span class="aw-btn aw-minimize"></span>
+        <span class="aw-btn aw-maximize"></span>
+      </div>
+      <div class="archives-window-title">Archives</div>
+      <div class="archives-window-stats">
+        <span class="stats-total">{{ site.posts.size }} posts</span>
+      </div>
+    </div>
+
+    <!-- Year Filter Pills -->
+    <div class="archives-filter-bar">
+      <button class="year-pill active" data-year="all">
+        <span class="pill-icon">📚</span>
+        <span class="pill-label">All</span>
+        <span class="pill-count">{{ site.posts.size }}</span>
+      </button>
+      {% for year in years %}
+        {% assign year_posts = site.posts | where_exp: "post", "post.date | date: '%Y' == year" %}
+        <button class="year-pill" data-year="{{ year }}">
+          <span class="pill-label">{{ year }}</span>
+          <span class="pill-count">{{ year_posts.size }}</span>
+        </button>
+      {% endfor %}
+    </div>
+
+    <!-- Posts Grid -->
+    <div class="archives-window-content">
+      <div class="archives-grid" id="archives-grid">
+        {% for post in site.posts %}
+        <div class="archive-card" data-year="{{ post.date | date: '%Y' }}">
+          <a href="{{ post.url | relative_url }}" class="archive-card-link">
+            <div class="archive-card-header">
+              <span class="archive-card-date">{{ post.date | date: "%m/%d" }}</span>
+              <span class="archive-card-year">{{ post.date | date: "%Y" }}</span>
+            </div>
+            <div class="archive-card-title">{{ post.title | escape }}</div>
+            {% if post.categories.size > 0 %}
+            <div class="archive-card-category">
+              <span class="mini-category">{{ post.categories | first }}</span>
+            </div>
+            {% endif %}
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 
 {%- endif -%}
+
+<style>
+  /* ===== Archives Window Container ===== */
+  .archives-window-container {
+    background: #fafafa;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin: 20px 0 40px;
+    border: 1px solid #e0e0e0;
+  }
+
+  /* Window Header - Mac Style */
+  .archives-window-header {
+    background: linear-gradient(180deg, #555 0%, #444 100%);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #333;
+  }
+
+  .archives-window-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .aw-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 0.5px solid rgba(0, 0, 0, 0.15);
+  }
+
+  .aw-close { background: #ff5f57; }
+  .aw-minimize { background: #febc2e; }
+  .aw-maximize { background: #28c840; }
+
+  .archives-window-title {
+    flex: 1;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+
+  .archives-window-stats {
+    display: flex;
+    align-items: center;
+  }
+
+  .stats-total {
+    font-size: 11px;
+    color: #aaa;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  /* Year Filter Bar */
+  .archives-filter-bar {
+    padding: 16px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .year-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .year-pill:hover {
+    border-color: #e53935;
+    color: #e53935;
+    transform: translateY(-1px);
+  }
+
+  .year-pill.active {
+    background: #e53935;
+    border-color: #e53935;
+    color: white;
+  }
+
+  .year-pill .pill-icon {
+    font-size: 14px;
+  }
+
+  .year-pill .pill-count {
+    background: rgba(0, 0, 0, 0.08);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .year-pill.active .pill-count {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  /* Posts Grid - 2 Column Layout */
+  .archives-window-content {
+    padding: 20px;
+    background: #fafafa;
+    min-height: 300px;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .archives-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  /* Archive Card */
+  .archive-card {
+    transition: all 0.25s ease;
+  }
+
+  .archive-card.hidden {
+    display: none;
+  }
+
+  .archive-card-link {
+    display: block;
+    padding: 12px 16px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.25s ease;
+  }
+
+  .archive-card-link:hover {
+    background: rgba(229, 57, 53, 0.05);
+    border-color: #e53935;
+    transform: translateX(6px);
+    box-shadow: 0 2px 8px rgba(229, 57, 53, 0.1);
+  }
+
+  .archive-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .archive-card-date {
+    font-size: 12px;
+    font-weight: 600;
+    color: #e53935;
+  }
+
+  .archive-card-year {
+    font-size: 10px;
+    color: #aaa;
+  }
+
+  .archive-card-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .archive-card-link:hover .archive-card-title {
+    color: #c62828;
+  }
+
+  .archive-card-category {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .mini-category {
+    font-size: 10px;
+    padding: 2px 6px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    color: #777;
+  }
+
+  /* Scrollbar */
+  .archives-window-content::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .archives-window-content::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .archives-window-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+  }
+
+  .archives-window-content::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+  }
+
+  /* ===== Dark Theme ===== */
+  html[data-theme="dark"] .archives-window-container {
+    background: #1e1e1e;
+    border-color: #333;
+  }
+
+  html[data-theme="dark"] .archives-window-header {
+    background: linear-gradient(180deg, #333 0%, #222 100%);
+    border-bottom-color: #444;
+  }
+
+  html[data-theme="dark"] .stats-total {
+    color: #888;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  html[data-theme="dark"] .archives-filter-bar {
+    background: #252525;
+    border-bottom-color: #333;
+  }
+
+  html[data-theme="dark"] .year-pill {
+    background: #333;
+    border-color: #444;
+    color: #ccc;
+  }
+
+  html[data-theme="dark"] .year-pill:hover {
+    border-color: #ef5350;
+    color: #ef5350;
+  }
+
+  html[data-theme="dark"] .year-pill.active {
+    background: #c62828;
+    border-color: #c62828;
+  }
+
+  html[data-theme="dark"] .year-pill .pill-count {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  html[data-theme="dark"] .archives-window-content {
+    background: #1e1e1e;
+  }
+
+  html[data-theme="dark"] .archive-card-link {
+    background: #252525;
+    border-color: #333;
+  }
+
+  html[data-theme="dark"] .archive-card-link:hover {
+    background: rgba(229, 57, 53, 0.1);
+    border-color: #c62828;
+  }
+
+  html[data-theme="dark"] .archive-card-date {
+    color: #ef5350;
+  }
+
+  html[data-theme="dark"] .archive-card-year {
+    color: #666;
+  }
+
+  html[data-theme="dark"] .archive-card-title {
+    color: #ddd;
+  }
+
+  html[data-theme="dark"] .archive-card-link:hover .archive-card-title {
+    color: #ff7043;
+  }
+
+  html[data-theme="dark"] .mini-category {
+    background: #333;
+    color: #999;
+  }
+
+  html[data-theme="dark"] .archives-window-content::-webkit-scrollbar-thumb {
+    background: #444;
+  }
+
+  /* ===== Mobile Responsive ===== */
+  @media (max-width: 768px) {
+    .archives-window-container {
+      margin: 10px 0 30px;
+    }
+
+    .archives-window-header {
+      padding: 8px 12px;
+    }
+
+    .archives-window-title {
+      font-size: 12px;
+    }
+
+    .archives-filter-bar {
+      padding: 12px;
+      gap: 6px;
+    }
+
+    .year-pill {
+      padding: 4px 10px;
+      font-size: 11px;
+    }
+
+    .archives-window-content {
+      padding: 12px;
+      max-height: 500px;
+    }
+
+    .archives-grid {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .archive-card-link {
+      padding: 10px 12px;
+    }
+
+    .archive-card-title {
+      font-size: 12px;
+      -webkit-line-clamp: 1;
+    }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const yearPills = document.querySelectorAll('.year-pill');
+  const archiveCards = document.querySelectorAll('.archive-card');
+
+  function filterByYear(selectedYear) {
+    // Update active pill
+    yearPills.forEach(pill => {
+      pill.classList.toggle('active', pill.dataset.year === selectedYear);
+    });
+
+    // Filter posts
+    archiveCards.forEach(card => {
+      if (selectedYear === 'all' || card.dataset.year === selectedYear) {
+        card.classList.remove('hidden');
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+  }
+
+  // Add click handlers to pills
+  yearPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      filterByYear(pill.dataset.year);
+    });
+  });
+});
+</script>
