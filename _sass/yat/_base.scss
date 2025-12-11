@@ -64,7 +64,33 @@ img {
   vertical-align: middle;
 }
 
+// Enhanced image styles for post/page content
+.post-content,
+.page-content {
+  img {
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 0.75em 0;
+  }
 
+  figure {
+    margin: 0.75em 0;
+
+    img {
+      margin: 0;
+    }
+  }
+}
+
+// Dark mode image shadow adjustment
+[data-theme="dark"] {
+  .post-content,
+  .page-content {
+    img {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+  }
+}
 
 /**
  * Figures
