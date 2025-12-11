@@ -517,8 +517,33 @@ sidebar: tag-list
     }
 
     filterPills.forEach(pill => {
-      pill.addEventListener('click', () => filterByTag(pill.dataset.tag));
+      pill.addEventListener('click', () => {
+        filterByTag(pill.dataset.tag);
+        // Update URL hash without scrolling
+        history.replaceState(null, '', pill.dataset.tag === 'all' ? window.location.pathname : '#' + pill.dataset.tag);
+      });
     });
+
+    // Check URL hash on load and filter accordingly
+    function handleHashChange() {
+      const hash = window.location.hash.slice(1); // Remove #
+      if (hash && hash !== '') {
+        const decodedTag = decodeURIComponent(hash);
+        // Check if the tag exists
+        const tagPill = document.querySelector(`.filter-pill[data-tag="${decodedTag}"]`);
+        if (tagPill) {
+          filterByTag(decodedTag);
+          // Scroll to post list after a short delay
+          setTimeout(() => {
+            document.querySelector('.page-card:last-of-type')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        }
+      }
+    }
+
+    // Handle initial hash and hash changes
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
 
     // ===== Tag Graph =====
     const svg = d3.select('#tag-graph');
