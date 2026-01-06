@@ -3,7 +3,7 @@ layout: post
 title: "[모의사이버전실습 01.] CAN Bus 공격 탐지 모델 개발"
 subtitle: "Rule-based + LightGBM 하이브리드 IDS"
 categories: ["📂/school"]
-tags: ["machine_learning", "CAN_bus", "IDS", "kaggle"]
+tags: ["machine_learning", "CAN_bus", "IDS", "kaggle", "LightGBM", "anomaly_detection", "automotive_security", "feature_engineering"]
 banner:
   image: "/assets/images/2026-01-06/header-dt.png"
   opacity: 0.4
