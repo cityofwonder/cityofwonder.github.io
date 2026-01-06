@@ -573,7 +573,7 @@ sidebar: tag-list
     const nodes = Object.entries(tagCounts).map(([tag, count]) => ({
       id: tag,
       count: count,
-      radius: Math.max(5, Math.min(16, 3 + count * 2.5))
+      radius: Math.max(8, Math.min(22, 5 + count * 3))
     }));
 
     const links = Object.entries(edgeCounts).map(([key, count]) => {
@@ -587,10 +587,11 @@ sidebar: tag-list
     svg.attr('viewBox', [0, 0, width, height]);
 
     const simulation = d3.forceSimulation(nodes)
-      .force('link', d3.forceLink(links).id(d => d.id).distance(70).strength(0.4))
-      .force('charge', d3.forceManyBody().strength(-100))
-      .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(d => d.radius + 6).strength(0.8));
+      .force('link', d3.forceLink(links).id(d => d.id).distance(60).strength(0.5))
+      .force('charge', d3.forceManyBody().strength(-80))
+      .force('x', d3.forceX(width / 2).strength(0.15))
+      .force('y', d3.forceY(height / 2).strength(0.15))
+      .force('collision', d3.forceCollide().radius(d => d.radius + 8).strength(0.9));
 
     const link = svg.append('g').selectAll('line')
       .data(links).join('line').attr('class', 'graph-link')
