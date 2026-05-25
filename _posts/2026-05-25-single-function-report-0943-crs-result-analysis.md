@@ -1,34 +1,44 @@
 ---
 layout: post
 title: "single function report(..0943) CRS 결과 분석"
+subtitle: ""
+categories: ["📂/"]
+tags: []
+banner:
+  image: ""
+  opacity: 0.5
+  background: "rgba(0, 0, 0, 0.7)"
 ---
 
 ## 0943 취약점 요약: OOB(버퍼 밖 R/W)으로 인한 Heap based Buffer Over flow
 
-> #시나리오: badlen이 실제 라인 크기를 넘어서는 선택을 만들 수 있음
-> ```javascript
-> badlen (spell_suggest 로컬)
->   → su->su_badlen (구조체 필드로 복사)
->     → 모든 하위 함수가 이걸 참조
-> ```
->
-> 이므로, 참조하는 모든 함수가 잠재적 sink → 
-> 제로 OOB가 발생하려면 `su_badlen` 값을 버퍼 크기 검증 없이 메모리 접근에 사용하는 함수여야 해. `su_badlen`을 참조하되 단순 비교만 하는 함수(618, 666라인 같은)는 sink가 아님
->
-> `vim_strnsave()`가 내부적으로 `alloc()` (= `malloc()`)을 호출해서 힙에 메모리를 할당(힙에 할당된 버퍼)
->
-> `spell_find_suggest(line + cursor.col, badlen, ...)`로 넘어가서 `badlen`만큼 읽고 씀
->
-> 읽기 → `badword_captype() // end 포인터가 badlen만큼 이동하여 버퍼 범위 밖을 읽음`
->
-> 쓰기 → `vim_strncpy() //to[len] = NUL—> len이 badlen에서 유래된 값이라 버퍼 범위 밖에 NUL을 쓴다 `/`spell_casefold()//buf[outi] = NUL — 마찬가지로 badlen 기반 크기로 버퍼를 넘겨서 범위 밖에 씀`
->
-> 패치 → 라인에 남은 실제 길이를 초과하면 잘라냄
->
-> ```javascript
-> if (badlen > STRLEN(line) - curwin->w_cursor.col)
->     badlen = STRLEN(line) - curwin->w_cursor.col;
-> ```
+<div class="box-warning" markdown="1">
+#시나리오: badlen이 실제 라인 크기를 넘어서는 선택을 만들 수 있음
+
+```javascript
+badlen (spell_suggest 로컬)
+  → su->su_badlen (구조체 필드로 복사)
+    → 모든 하위 함수가 이걸 참조
+```
+
+이므로, 참조하는 모든 함수가 잠재적 sink → 
+제로 OOB가 발생하려면 `su_badlen` 값을 버퍼 크기 검증 없이 메모리 접근에 사용하는 함수여야 해. `su_badlen`을 참조하되 단순 비교만 하는 함수(618, 666라인 같은)는 sink가 아님
+
+`vim_strnsave()`가 내부적으로 `alloc()` (= `malloc()`)을 호출해서 힙에 메모리를 할당(힙에 할당된 버퍼)
+
+`spell_find_suggest(line + cursor.col, badlen, ...)`로 넘어가서 `badlen`만큼 읽고 씀
+
+읽기 → `badword_captype() // end 포인터가 badlen만큼 이동하여 버퍼 범위 밖을 읽음`
+
+쓰기 → `vim_strncpy() //to[len] = NUL—> len이 badlen에서 유래된 값이라 버퍼 범위 밖에 NUL을 쓴다 `/`spell_casefold()//buf[outi] = NUL — 마찬가지로 badlen 기반 크기로 버퍼를 넘겨서 범위 밖에 씀`
+
+패치 → 라인에 남은 실제 길이를 초과하면 잘라냄
+
+```javascript
+if (badlen > STRLEN(line) - curwin->w_cursor.col)
+    badlen = STRLEN(line) - curwin->w_cursor.col;
+```
+</div>
 
 src/spellsuggest.c 464 spell_suggest()에서 503 badlen 생성
 
@@ -112,7 +122,7 @@ src/spellsuggest.c 779 spell_find_suggest 804 	su->su_badlen = badlen;
 	su->su_badlen = spell_check(curwin, su->su_badptr, &attr, NULL, FALSE);
 ```
 
-**su_badlen 을 신뢰하는 모든 하위 함수가 sink가 됨**
+<span class="highlight-red">**su_badlen 을 신뢰하는 모든 하위 함수가 sink가 됨**</span>
 
 특히 vim_strncpy는 내용을 컨트롤 가능함(임의 주소 임의 쓰기) + spell casefold도
 
@@ -256,7 +266,9 @@ vim_strncpy(char_u *to, char_u *from, size_t len)
 
 #### 1-1. vim-mini
 
-> vim-mini: sink 정의(spell, spellsuggest, strings(vim)) + buffer관리(memline)으로 선정
+<div class="box-warning" markdown="1">
+vim-mini: sink 정의(spell, spellsuggest, strings(vim)) + buffer관리(memline)으로 선정
+</div>
 
 ```javascript
 cat /workspace/data/cve-2022-0943/analysis-miniVim/singlemode/gpt-5_vim_*-report.jsonl | python3 -c "
