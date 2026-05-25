@@ -7,7 +7,7 @@
 </style>
 
 <div class="post-menu">
-  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-title">📂Table of contents</div>
   <div class="post-menu-content"></div>
 </div>
 
@@ -32,6 +32,34 @@
     }
 
     menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // Hover: highlight the hovered entry and its heading ancestry, so the
+    // hierarchy lights up without drawing fixed tree connectors.
+    var tocItems = Array.prototype.slice.call(menuContent.querySelectorAll('li'));
+    function levelOf(li) {
+      var m = li.className.match(/h-h(\d)/);
+      return m ? parseInt(m[1], 10) : 99;
+    }
+    function clearTocHighlight() {
+      for (var i = 0; i < tocItems.length; i++) {
+        tocItems[i].classList.remove('toc-hl', 'toc-hl-self');
+      }
+    }
+    tocItems.forEach(function (li, idx) {
+      li.addEventListener('mouseenter', function () {
+        clearTocHighlight();
+        li.classList.add('toc-hl', 'toc-hl-self');
+        var need = levelOf(li);
+        for (var j = idx - 1; j >= 0 && need > 2; j--) {
+          var lv = levelOf(tocItems[j]);
+          if (lv < need) {
+            tocItems[j].classList.add('toc-hl');
+            need = lv;
+          }
+        }
+      });
+    });
+    menuContent.addEventListener('mouseleave', clearTocHighlight);
 
     // The header element
     var header = document.querySelector('header.site-header');
