@@ -17,12 +17,16 @@
   padding: 24px;
   margin-bottom: 24px;
   border: 1px solid #e5e5e5;
-  transition: all 0.3s ease;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease,
+    border-color 0.25s ease, transform 0.25s ease;
 }
 
+/* Whole-card hover: achromatic, just deepens the surface a touch */
 .pagination .post-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: #f3f3f3;
   border-color: #d0d0d0;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 /* Post Title Hover Animation */
@@ -111,8 +115,10 @@ html[data-theme="dark"] .pagination .post-item {
 }
 
 html[data-theme="dark"] .pagination .post-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: #262626;
   border-color: #444;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
 }
 
 html[data-theme="dark"] .pagination .post-title .post-link {

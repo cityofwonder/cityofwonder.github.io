@@ -614,6 +614,77 @@ $highlight-colors: (
   text-decoration: underline;
 }
 
+/*
+ * Inline comment (Notion-style).
+ * Usage:  <span class="cmt" data-cmt="댓글 내용">대상 텍스트</span>
+ * The target text gets a dotted red underline + a small 💬 marker; the
+ * comment body shows in a popover on hover/focus.
+ */
+.cmt {
+  position: relative;
+  border-bottom: 2px dotted rgba($brand-color, 0.65);
+  cursor: help;
+  transition: background-color 0.15s ease;
+}
+
+.cmt::after {
+  content: "💬";
+  font-size: 0.62em;
+  margin-left: 2px;
+  vertical-align: 0.35em;
+  opacity: 0.65;
+  transition: opacity 0.15s ease;
+}
+
+.cmt:hover,
+.cmt:focus {
+  background-color: rgba($brand-color, 0.09);
+  outline: none;
+}
+
+.cmt:hover::after,
+.cmt:focus::after {
+  opacity: 1;
+}
+
+.cmt::before {
+  content: attr(data-cmt);
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 9px);
+  z-index: 60;
+  width: max-content;
+  max-width: 280px;
+  white-space: normal;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: #2b2b2b;
+  color: #f3f3f3;
+  font-size: 0.82rem;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.5;
+  text-align: left;
+  letter-spacing: 0;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+  opacity: 0;
+  transform: translateY(5px);
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.cmt:hover::before,
+.cmt:focus::before {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-theme="dark"] .cmt::before {
+  background: #ededed;
+  color: #1c1c1c;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+}
+
 /* Box highlight styles */
 .box-note {
   background-color: #e3f2fd;
@@ -655,9 +726,9 @@ html[data-theme="dark"] {
     .highlight-#{$name} {
       background-image: linear-gradient(
         to bottom,
-        transparent 14%,
-        rgba($color, 0.6) 14%,
-        rgba($color, 0.6) 90%,
+        transparent 16%,
+        rgba($color, 0.34) 16%,
+        rgba($color, 0.34) 90%,
         transparent 90%
       );
       mix-blend-mode: screen;
