@@ -120,208 +120,182 @@ li {
 }
 
 /**
- * Enhanced List Styles with File-Tree Connectors
- * Applied to post and page content
+ * Enhanced List Styles with File-Tree Rail + Node Markers
+ * Scoped to .post-content only, so home / sidebars / other pages keep
+ * their plain lists.
  *
- * Each list level draws a shared vertical rail on its left; every item
- * hangs off the rail with a short horizontal tick, and the last sibling
- * trims the rail at its own tick so no tail dangles below the group.
+ * Each list level draws a shared vertical rail; every item carries an
+ * opaque round node centred on the rail (a number for <ol>, a dot for
+ * <ul>). The node sits on top of the rail and masks the line behind it,
+ * so the marker never visually collides with the connector. The last
+ * sibling trims the rail at its node so no tail dangles below the group.
  */
-.post-content,
-.page-content {
-  $tree-line: rgba(128, 128, 128, 0.4);
-  $tree-line-hover: var(--brand-color, #0066cc);
-  $tick-offset: 0.95em; // distance from item content to the rail
-  $tick-top: 0.72em;    // vertical center of the first line / marker
+.post-content {
+  $rail: rgba(130, 130, 130, 0.45);
+  $rail-hover: $brand-color;
+  $node-bg: #ffffff;                  // opaque chip masking the rail
+  $node-border: rgba(120, 120, 120, 0.55);
+  $node-text: rgba(70, 70, 70, 0.95);
+  $rail-x: 1em;                       // rail distance left of item content
+  $node-y: 0.85em;                    // vertical centre, aligned to 1st line
+  $node-size: 1.5em;                  // ordered-node diameter
+  $dot-size: 0.5em;                   // unordered-node diameter
 
   ul, ol {
-    list-style-position: outside;
-    margin: 0.35em 0;
-    padding-left: 1.55em;
+    list-style: none;
+    margin: 0.4em 0;
+    padding-left: 1.9em;
     position: relative;
   }
 
   > ul,
   > ol {
-    margin-left: 0.4em;
+    margin-left: 0.3em;
   }
 
-  // List items
+  ol {
+    counter-reset: ol-node;
+  }
+
   li {
     position: relative;
-    padding: 0.1em 0.35em;
-    margin: 0.15em 0;
-    border-radius: 3px;
+    padding: 0.12em 0.4em;
+    margin: 0.18em 0;
+    border-radius: 4px;
     transition: background-color 0.2s ease-in-out;
-
-    // Vertical rail shared by all siblings of this level
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -$tick-offset;
-      width: 1px;
-      height: 100%;
-      background: $tree-line;
-      border-radius: 1px;
-    }
-
-    // Horizontal tick connecting the rail to this item's marker
-    &::after {
-      content: "";
-      position: absolute;
-      top: $tick-top;
-      left: -$tick-offset;
-      width: 0.65em;
-      height: 1px;
-      background: $tree-line;
-      border-radius: 1px;
-    }
-
-    // Last sibling: stop the rail at its own tick (no dangling tail)
-    &:last-child::before {
-      height: $tick-top;
-    }
-
-    // Individual item hover lights up its connectors
-    &:hover {
-      background-color: rgba(128, 128, 128, 0.08);
-
-      &::before,
-      &::after {
-        background: $tree-line-hover;
-      }
-    }
   }
 
-  // Refined unordered markers per depth (numbers are kept for <ol>)
-  ul {
-    list-style-type: "\25B8\00a0"; // ▸
-
-    ul {
-      list-style-type: "\25AA\00a0"; // ▪
-
-      ul {
-        list-style-type: "\2022\00a0"; // •
-
-        ul {
-          list-style-type: "\25B8\00a0";
-        }
-      }
-    }
+  // RAIL: vertical line shared by siblings (painted behind the node)
+  li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -$rail-x;
+    width: 1.5px;
+    background: $rail;
+    border-radius: 2px;
   }
 
-  // Ordered list numbering per depth
-  ol {
-    list-style-type: decimal;
-
-    ol {
-      list-style-type: lower-alpha;
-
-      ol {
-        list-style-type: lower-roman;
-
-        ol {
-          list-style-type: decimal;
-        }
-      }
-    }
+  // Last sibling: stop the rail at its node (no dangling tail)
+  li:last-child::before {
+    bottom: auto;
+    height: $node-y;
   }
 
-  // Marker styling
-  li::marker {
-    color: rgba(105, 105, 105, 0.9);
-    font-weight: 600;
-    transition: color 0.25s ease-in-out;
+  // NODE: opaque round marker centred on the rail (painted on top)
+  li::after {
+    position: absolute;
+    top: $node-y;
+    left: -$rail-x;
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: $node-size;
+    height: $node-size;
+    background: $node-bg;
+    border: 1.5px solid $node-border;
+    border-radius: 50%;
+    color: $node-text;
+    font-weight: 700;
+    line-height: 1;
+    transition: border-color 0.2s ease-in-out, color 0.2s ease-in-out,
+      background-color 0.2s ease-in-out;
   }
 
-  li:hover::marker {
-    color: var(--brand-color, #0066cc);
+  // Ordered: number inside the node, restyled per depth
+  ol > li {
+    counter-increment: ol-node;
+  }
+  ol > li::after {
+    content: counter(ol-node, decimal);
+  }
+  ol ol > li::after {
+    content: counter(ol-node, lower-alpha);
+  }
+  ol ol ol > li::after {
+    content: counter(ol-node, lower-roman);
+  }
+  ol ol ol ol > li::after {
+    content: counter(ol-node, decimal);
+  }
+
+  // Unordered: small filled dot node (no glyph)
+  ul > li::after {
+    content: "";
+    width: $dot-size;
+    height: $dot-size;
+    background: $node-border;
+    border: none;
+  }
+  ul ul > li::after {
+    background: rgba(120, 120, 120, 0.4);
+  }
+  ul ul ul > li::after {
+    background: transparent;
+    border: 1.5px solid $node-border;
+  }
+
+  // Hover: light up the item, its rail and its node
+  li:hover {
+    background-color: rgba(128, 128, 128, 0.07);
+  }
+  li:hover::before {
+    background: $rail-hover;
+  }
+  li:hover::after {
+    border-color: $rail-hover;
+    color: $rail-hover;
+  }
+  ul > li:hover::after {
+    background: $rail-hover;
+    border-color: $rail-hover;
   }
 }
 
 // Dark mode adjustments for lists
-[data-theme="dark"] {
-  .post-content,
-  .page-content {
-    li::before,
-    li::after {
-      background: rgba(180, 180, 180, 0.32);
-    }
+[data-theme="dark"] .post-content {
+  $rail-d: rgba(180, 180, 180, 0.32);
+  $node-bg-d: #1a1a1a;
+  $node-border-d: rgba(170, 170, 170, 0.5);
+  $node-text-d: rgba(205, 205, 205, 0.95);
 
-    li:hover {
-      background-color: rgba(255, 255, 255, 0.06);
-
-      &::before,
-      &::after {
-        background: var(--brand-color, #6db3f2);
-      }
-    }
-
-    li::marker {
-      color: rgba(185, 185, 185, 0.85);
-    }
-
-    li:hover::marker {
-      color: var(--brand-color, #6db3f2);
-    }
-  }
-}
-
-// Reset tree-view styles for sidebar notepad widget
-.notepad-widget {
-  ul, ol {
-    list-style: none !important;
-    border-left: none !important;
-    margin-left: 0;
-    padding-left: 0;
-    position: static;
+  li::before {
+    background: $rail-d;
   }
 
-  li {
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    transition: none;
-
-    &::before,
-    &::after {
-      content: none !important;
-      display: none !important;
-    }
-
-    &:hover {
-      background-color: transparent;
-    }
-
-    &::marker {
-      content: "" !important;
-      display: none;
-    }
-  }
-}
-
-// Keep the "Related Articles" list plain (it lives inside .page-content)
-.post-related {
-  ul, ol {
-    position: static;
-    list-style: disc;
+  li::after {
+    background: $node-bg-d;
+    border-color: $node-border-d;
+    color: $node-text-d;
   }
 
-  li {
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
+  ul > li::after {
+    background: $node-border-d;
+    border: none;
+  }
+  ul ul ul > li::after {
+    background: transparent;
+    border: 1.5px solid $node-border-d;
+  }
 
-    &::before,
-    &::after {
-      content: none !important;
-      display: none !important;
-    }
+  $hover-d: lighten($brand-color, 12%);
 
-    &:hover {
-      background-color: transparent;
-    }
+  li:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+  li:hover::before {
+    background: $hover-d;
+  }
+  li:hover::after {
+    border-color: $hover-d;
+    color: $hover-d;
+  }
+  ul > li:hover::after {
+    background: $hover-d;
+    border-color: $hover-d;
   }
 }
 
@@ -553,77 +527,47 @@ table {
  * Text Highlighting and Color Utilities
  */
 
-/* Highlighter styles - transparent background covering full text height */
-.highlight-yellow {
-  background-color: rgba(255, 241, 118, 0.4);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
+/*
+ * Highlighter (marker-pen) styles.
+ *
+ * Instead of a flat box that covers the whole line height, each highlight
+ * paints a translucent band over only the middle of the text (like a real
+ * highlighter stroke) and blends with the page via mix-blend-mode, so the
+ * text stays legible and the colour reads as ink on top in both themes:
+ *   - light mode uses `multiply` (ink darkens the white page)
+ *   - dark mode uses `screen`  (ink lightens the dark page)
+ */
+$highlight-colors: (
+  "yellow": #ffe14d,
+  "green":  #7bd389,
+  "blue":   #5fb0f5,
+  "pink":   #f48fb1,
+  "orange": #ffb24d,
+  "purple": #c07be0,
+  "red":    #f0625f,
+  "cyan":   #4dd0e1,
+  "lime":   #c2dd3a,
+  "gray":   #b0b0b0,
+  "teal":   #4db6ac,
+  "indigo": #7986cb,
+);
 
-.highlight-green {
-  background-color: rgba(129, 199, 132, 0.4);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.highlight-blue {
-  background-color: rgba(100, 181, 246, 0.4);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.highlight-pink {
-  background-color: rgba(244, 143, 177, 0.4);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.highlight-orange {
-  background-color: rgba(255, 183, 77, 0.4);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.highlight-purple {
-  background-color: rgba(186, 104, 200, 0.4);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.highlight-red {
-  background-color: rgba(239, 83, 80, 0.4);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.highlight-cyan {
-  background-color: rgba(77, 208, 225, 0.4);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.highlight-lime {
-  background-color: rgba(212, 225, 87, 0.4);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.highlight-gray {
-  background-color: rgba(158, 158, 158, 0.35);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.highlight-teal {
-  background-color: rgba(77, 182, 172, 0.4);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-.highlight-indigo {
-  background-color: rgba(121, 134, 203, 0.4);
-  padding: 2px 4px;
-  border-radius: 3px;
+@each $name, $color in $highlight-colors {
+  .highlight-#{$name} {
+    background-image: linear-gradient(
+      to bottom,
+      transparent 14%,
+      rgba($color, 0.85) 14%,
+      rgba($color, 0.85) 90%,
+      transparent 90%
+    );
+    background-repeat: no-repeat;
+    border-radius: 0.15em;
+    padding: 0 0.12em;
+    mix-blend-mode: multiply;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
 }
 
 /* Text color styles */
@@ -705,52 +649,19 @@ table {
 
 /* Dark theme adjustments */
 html[data-theme="dark"] {
-  .highlight-yellow {
-    background-color: rgba(255, 241, 118, 0.35);
-  }
-
-  .highlight-green {
-    background-color: rgba(129, 199, 132, 0.35);
-  }
-
-  .highlight-blue {
-    background-color: rgba(100, 181, 246, 0.35);
-  }
-
-  .highlight-pink {
-    background-color: rgba(244, 143, 177, 0.35);
-  }
-
-  .highlight-orange {
-    background-color: rgba(255, 183, 77, 0.35);
-  }
-
-  .highlight-purple {
-    background-color: rgba(186, 104, 200, 0.35);
-  }
-
-  .highlight-red {
-    background-color: rgba(239, 83, 80, 0.35);
-  }
-
-  .highlight-cyan {
-    background-color: rgba(77, 208, 225, 0.35);
-  }
-
-  .highlight-lime {
-    background-color: rgba(212, 225, 87, 0.35);
-  }
-
-  .highlight-gray {
-    background-color: rgba(158, 158, 158, 0.3);
-  }
-
-  .highlight-teal {
-    background-color: rgba(77, 182, 172, 0.35);
-  }
-
-  .highlight-indigo {
-    background-color: rgba(121, 134, 203, 0.35);
+  // Switch the marker-pen blend to `screen` so ink lightens the dark page,
+  // and dim the colours a touch so text underneath stays readable.
+  @each $name, $color in $highlight-colors {
+    .highlight-#{$name} {
+      background-image: linear-gradient(
+        to bottom,
+        transparent 14%,
+        rgba($color, 0.6) 14%,
+        rgba($color, 0.6) 90%,
+        transparent 90%
+      );
+      mix-blend-mode: screen;
+    }
   }
 
   .box-note {
