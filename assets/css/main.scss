@@ -14,12 +14,13 @@ $brand-colors: (
   "orangered": #ff5100,
   "greatgold": #f2cb05,
   "greenblue": #389092,
+  "vividred":  #ff3b30,
 );
 
 $theme-name: "{{ site.theme_color }}";
 $brand-name: "{{ site.brand_color }}";
 $theme-color: map-get($theme-colors, "snowwhite");
-$brand-color: map-get($brand-colors, "orangered");
+$brand-color: map-get($brand-colors, "vividred");
 
 @if map-has-key($theme-colors, $theme-name) {
   $theme-color: map-get($theme-colors, $theme-name);
@@ -33,7 +34,7 @@ $brand-color: map-get($brand-colors, "orangered");
   $brand-color: {{ site.brand_color | default: '#ff5100' }};
 }
 
-$content-width: {{ site.content_width | default: '920px' }};
+$content-width: {{ site.content_width | default: '800px' }};
 
 // Click to top theme
 $click-to-top-light-background-color: {{ site.click_to_top.light.background_color | default: "white" }};

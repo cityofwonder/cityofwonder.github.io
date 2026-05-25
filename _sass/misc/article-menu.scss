@@ -64,9 +64,11 @@
         border-radius: 0 4px 4px 0;
       }
 
+      // Achromatic (grayscale) emphasis — the red point colour is reserved
+      // for content interactions, the TOC stays neutral.
       .toc-hl {
-        background-color: rgba($brand-color, 0.1);
-        box-shadow: inset 2px 0 0 rgba($brand-color, 0.45);
+        background-color: rgba(0, 0, 0, 0.05);
+        box-shadow: inset 2px 0 0 rgba(0, 0, 0, 0.28);
 
         a {
           color: darken($text-color, 5%) !important;
@@ -74,8 +76,8 @@
       }
 
       .toc-hl-self {
-        background-color: rgba($brand-color, 0.2);
-        box-shadow: inset 3px 0 0 $brand-color;
+        background-color: rgba(0, 0, 0, 0.09);
+        box-shadow: inset 3px 0 0 rgba(0, 0, 0, 0.55);
 
         a {
           color: $text-color !important;
@@ -89,7 +91,8 @@
 // Dark mode: brighten the hover-hierarchy highlight against the dark sidebar
 html[data-theme="dark"] .post-menu .post-menu-content ul {
   .toc-hl {
-    background-color: rgba($brand-color, 0.16);
+    background-color: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 2px 0 0 rgba(255, 255, 255, 0.3);
 
     a {
       color: #e8e8e8 !important;
@@ -97,7 +100,8 @@ html[data-theme="dark"] .post-menu .post-menu-content ul {
   }
 
   .toc-hl-self {
-    background-color: rgba($brand-color, 0.3);
+    background-color: rgba(255, 255, 255, 0.14);
+    box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.6);
 
     a {
       color: #ffffff !important;
