@@ -120,69 +120,98 @@ li {
 }
 
 /**
- * Enhanced List Styles with Tree-View Lines
+ * Enhanced List Styles with File-Tree Connectors
  * Applied to post and page content
+ *
+ * Each list level draws a shared vertical rail on its left; every item
+ * hangs off the rail with a short horizontal tick, and the last sibling
+ * trims the rail at its own tick so no tail dangles below the group.
  */
 .post-content,
 .page-content {
-  // Base list styles
-  > ul,
-  > ol {
-    margin-left: 1.5em;
-    padding-left: 1em;
-    border-left: 1px dotted rgba(128, 128, 128, 0.5);
-  }
+  $tree-line: rgba(128, 128, 128, 0.4);
+  $tree-line-hover: var(--brand-color, #0066cc);
+  $tick-offset: 0.95em; // distance from item content to the rail
+  $tick-top: 0.72em;    // vertical center of the first line / marker
 
   ul, ol {
     list-style-position: outside;
-
-    // Hover state - highlight all same-depth markers
-    &:hover > li::marker {
-      color: var(--brand-color, #0066cc);
-    }
+    margin: 0.35em 0;
+    padding-left: 1.55em;
+    position: relative;
   }
 
-  // All nested lists
-  li > ul,
-  li > ol {
-    margin-top: 0.3em;
-    margin-left: 0.5em;
-    padding-left: 1em;
-    border-left: 1px dotted rgba(128, 128, 128, 0.5);
+  > ul,
+  > ol {
+    margin-left: 0.4em;
   }
 
   // List items
   li {
-    padding: 0.15em 0.4em;
-    margin-bottom: 0.25em;
     position: relative;
+    padding: 0.1em 0.35em;
+    margin: 0.15em 0;
     border-radius: 3px;
     transition: background-color 0.2s ease-in-out;
 
-    // Individual item hover
+    // Vertical rail shared by all siblings of this level
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -$tick-offset;
+      width: 1px;
+      height: 100%;
+      background: $tree-line;
+      border-radius: 1px;
+    }
+
+    // Horizontal tick connecting the rail to this item's marker
+    &::after {
+      content: "";
+      position: absolute;
+      top: $tick-top;
+      left: -$tick-offset;
+      width: 0.65em;
+      height: 1px;
+      background: $tree-line;
+      border-radius: 1px;
+    }
+
+    // Last sibling: stop the rail at its own tick (no dangling tail)
+    &:last-child::before {
+      height: $tick-top;
+    }
+
+    // Individual item hover lights up its connectors
     &:hover {
       background-color: rgba(128, 128, 128, 0.08);
+
+      &::before,
+      &::after {
+        background: $tree-line-hover;
+      }
     }
   }
 
-  // Unordered list specific styles
+  // Refined unordered markers per depth (numbers are kept for <ol>)
   ul {
-    list-style-type: disc;
+    list-style-type: "\25B8\00a0"; // ▸
 
     ul {
-      list-style-type: circle;
+      list-style-type: "\25AA\00a0"; // ▪
 
       ul {
-        list-style-type: square;
+        list-style-type: "\2022\00a0"; // •
 
         ul {
-          list-style-type: disc;
+          list-style-type: "\25B8\00a0";
         }
       }
     }
   }
 
-  // Ordered list specific styles - different numbering per depth
+  // Ordered list numbering per depth
   ol {
     list-style-type: decimal;
 
@@ -201,8 +230,13 @@ li {
 
   // Marker styling
   li::marker {
-    color: rgba(100, 100, 100, 0.8);
+    color: rgba(105, 105, 105, 0.9);
+    font-weight: 600;
     transition: color 0.25s ease-in-out;
+  }
+
+  li:hover::marker {
+    color: var(--brand-color, #0066cc);
   }
 }
 
@@ -210,28 +244,25 @@ li {
 [data-theme="dark"] {
   .post-content,
   .page-content {
-    > ul,
-    > ol,
-    li > ul,
-    li > ol {
-      border-left-color: rgba(180, 180, 180, 0.35);
-    }
-
-    li {
-      transition: background-color 0.2s ease-in-out;
-    }
-
-    li::marker {
-      color: rgba(180, 180, 180, 0.8);
-      transition: color 0.25s ease-in-out;
+    li::before,
+    li::after {
+      background: rgba(180, 180, 180, 0.32);
     }
 
     li:hover {
       background-color: rgba(255, 255, 255, 0.06);
+
+      &::before,
+      &::after {
+        background: var(--brand-color, #6db3f2);
+      }
     }
 
-    ul:hover > li::marker,
-    ol:hover > li::marker {
+    li::marker {
+      color: rgba(185, 185, 185, 0.85);
+    }
+
+    li:hover::marker {
       color: var(--brand-color, #6db3f2);
     }
   }
@@ -244,24 +275,52 @@ li {
     border-left: none !important;
     margin-left: 0;
     padding-left: 0;
-
-    &:hover > li::marker {
-      color: inherit;
-    }
+    position: static;
   }
 
   li {
     padding: 0;
-    margin-bottom: 0;
+    margin: 0;
     border-radius: 0;
     transition: none;
+
+    &::before,
+    &::after {
+      content: none !important;
+      display: none !important;
+    }
 
     &:hover {
       background-color: transparent;
     }
 
     &::marker {
+      content: "" !important;
       display: none;
+    }
+  }
+}
+
+// Keep the "Related Articles" list plain (it lives inside .page-content)
+.post-related {
+  ul, ol {
+    position: static;
+    list-style: disc;
+  }
+
+  li {
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+
+    &::before,
+    &::after {
+      content: none !important;
+      display: none !important;
+    }
+
+    &:hover {
+      background-color: transparent;
     }
   }
 }
