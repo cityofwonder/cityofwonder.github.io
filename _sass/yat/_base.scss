@@ -685,11 +685,16 @@ $highlight-colors: (
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
 }
 
+/* Strikethrough text utility */
+.text-strike {
+  text-decoration: line-through;
+}
+
 /* Box highlight styles */
 .box-note {
   background-color: #e3f2fd;
   border-left: 4px solid #2196f3;
-  padding: 12px 16px;
+  padding: 8px 16px;
   margin: 16px 0;
   border-radius: 4px;
 }
@@ -697,7 +702,7 @@ $highlight-colors: (
 .box-warning {
   background-color: #fff3e0;
   border-left: 4px solid #ff9800;
-  padding: 12px 16px;
+  padding: 8px 16px;
   margin: 16px 0;
   border-radius: 4px;
 }
@@ -705,7 +710,7 @@ $highlight-colors: (
 .box-danger {
   background-color: #ffebee;
   border-left: 4px solid #f44336;
-  padding: 12px 16px;
+  padding: 8px 16px;
   margin: 16px 0;
   border-radius: 4px;
 }
@@ -713,26 +718,94 @@ $highlight-colors: (
 .box-success {
   background-color: #e8f5e9;
   border-left: 4px solid #4caf50;
-  padding: 12px 16px;
+  padding: 8px 16px;
   margin: 16px 0;
   border-radius: 4px;
 }
 
+/* kramdown wraps markdown="1" content in <p>, whose top/bottom margin
+   adds a blank line inside these blocks. Strip the edge margins. */
+.box-note,
+.box-warning,
+.box-danger,
+.box-success,
+.toggle-content {
+  > :first-child {
+    margin-top: 0;
+  }
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
+
 /* Dark theme adjustments */
 html[data-theme="dark"] {
-  // Switch the marker-pen blend to `screen` so ink lightens the dark page,
-  // and dim the colours a touch so text underneath stays readable.
-  @each $name, $color in $highlight-colors {
-    .highlight-#{$name} {
-      background-image: linear-gradient(
-        to bottom,
-        transparent 16%,
-        rgba($color, 0.34) 16%,
-        rgba($color, 0.34) 90%,
-        transparent 90%
-      );
-      mix-blend-mode: screen;
-    }
+  /* Dark mode: NO blend mode. screen washed bright colors into the
+     light text (killing contrast); multiply/overlay darken the marker
+     into the background. Plain translucent bg keeps text readable and
+     the color band visible — tune visibility with the alpha below. */
+  .highlight-yellow,
+  .highlight-green,
+  .highlight-blue,
+  .highlight-pink,
+  .highlight-orange,
+  .highlight-purple,
+  .highlight-red,
+  .highlight-cyan,
+  .highlight-lime,
+  .highlight-gray,
+  .highlight-teal,
+  .highlight-indigo {
+    background-image: none; // 리모트 라이트 그라데이션 끄기 → 아래 plain bg 적용
+    mix-blend-mode: normal;
+  }
+
+  .highlight-yellow {
+    background-color: rgba(255, 241, 118, 0.25);
+  }
+
+  .highlight-green {
+    background-color: rgba(129, 199, 132, 0.25);
+  }
+
+  .highlight-blue {
+    background-color: rgba(100, 181, 246, 0.25);
+  }
+
+  .highlight-pink {
+    background-color: rgba(244, 143, 177, 0.25);
+  }
+
+  .highlight-orange {
+    background-color: rgba(255, 183, 77, 0.25);
+  }
+
+  .highlight-purple {
+    background-color: rgba(186, 104, 200, 0.25);
+  }
+
+  .highlight-red {
+    background-color: rgba(239, 83, 80, 0.25);
+  }
+
+  .highlight-cyan {
+    background-color: rgba(77, 208, 225, 0.25);
+  }
+
+  .highlight-lime {
+    background-color: rgba(212, 225, 87, 0.25);
+  }
+
+  .highlight-gray {
+    background-color: rgba(158, 158, 158, 0.25);
+  }
+
+  .highlight-teal {
+    background-color: rgba(77, 182, 172, 0.25);
+  }
+
+  .highlight-indigo {
+    background-color: rgba(121, 134, 203, 0.25);
   }
 
   .box-note {
@@ -762,7 +835,7 @@ html[data-theme="dark"] {
 details {
   background-color: #f5f5f5;
   border-radius: 8px;
-  padding: 16px 20px;
+  padding: 10px 20px;
   margin: 16px 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
@@ -926,4 +999,65 @@ html[data-theme="dark"] .notion-comment .comment-bubble {
 
 html[data-theme="dark"] .notion-comment .comment-bubble::after {
   border-bottom-color: #f5f5f5;
+}
+
+/**
+ * Two-image side-by-side block with a single shared caption
+ * 모바일에서도 줄바꿈 없이 가로 병렬 유지 (작아지더라도)
+ * Usage:
+ *   <figure class="img-pair">
+ *     <div class="img-pair-row">
+ *       <img src="/assets/images/.../a.jpg">
+ *       <img src="/assets/images/.../b.jpg">
+ *     </div>
+ *     <figcaption>묶음 캡션 하나</figcaption>
+ *   </figure>
+ */
+.img-pair {
+  margin: 16px 0;
+  text-align: center;
+
+  .img-pair-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    // flex-wrap 없음 → 좁은 화면에서도 두 장이 나란히, 대신 각자 줄어듦
+
+    img {
+      flex: 1 1 0;     // 둘이 공간을 균등하게 나눠 가짐
+      min-width: 0;    // 좁아지면 이미지가 함께 줄어들 수 있게
+      width: 100%;
+      height: clamp(140px, 40vh, 360px); // 두 장 공통 높이 → 항상 같게 맞춰짐
+      object-fit: cover;                 // 높이에 맞춰 채우고 넘치는 부분만 크롭
+      border-radius: 4px;
+    }
+  }
+
+  figcaption {
+    font-size: 0.9em;
+    color: gray;
+    margin-top: 8px;
+  }
+}
+
+/**
+ * Full-width embed (iframe) — overrides the theme's 50vh height cap
+ * Usage: <iframe class="embed-frame" src="..." ...></iframe>
+ * (inline width/height attributes are ignored — CSS wins)
+ */
+.post .post-content iframe.embed-frame {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 75vh;       // 높게; 원하는 값으로 조정
+  max-height: none;   // 테마의 50vh 캡 해제
+  border: 0;
+  border-radius: 8px; // 둥근 모서리
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.25s ease;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); // 호버 시 그림자 드리움
+  }
 }

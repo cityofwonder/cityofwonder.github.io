@@ -258,6 +258,11 @@ giscus:
   input_position: "bottom"
   lang: "ko"
 
+# Local serve settings (WSL on /mnt/c can't use inotify, so force polling)
+# These only affect `jekyll serve`; GitHub Pages builds ignore them.
+livereload: true
+force_polling: true
+
 # Build settings
 # highlighter: none
 markdown: kramdown
