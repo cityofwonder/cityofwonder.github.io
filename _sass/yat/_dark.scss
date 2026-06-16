@@ -200,10 +200,5 @@ html[data-theme="dark"]  {
   a .post-badges .post-badge {
     color: $dark-background-color !important;
   }
-
-  a:visited .post-badges .post-badge.badge-new {
-    display: none;
-    background-color: $dark-background-color;
-  }
 }
 

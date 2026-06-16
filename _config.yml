@@ -63,8 +63,8 @@ yat:
 # header_transparent: true
 
 # If you want to change the content width, you can set to another value
-# Default is 920px, widened to 1500px (about 1.6x)
-content_width: "1500px"
+# Default is 920px. 1200px keeps enough left margin for the margin comments.
+content_width: "1200px"
 
 # Google analytics - GA4
 # google_analytics: [Measurement ID]

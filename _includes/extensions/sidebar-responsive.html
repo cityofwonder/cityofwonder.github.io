@@ -1,0 +1,210 @@
+<style>
+/* Inline "바로가기" (narrow screens): no box — just indented, gray,
+   underlined links following the heading (h2/h3/h4) hierarchy. */
+.toc-card {
+  margin: 4px 0 28px;
+}
+.toc-inline-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #999;
+  margin-bottom: 8px;
+}
+.toc-tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.toc-tree li {
+  margin: 4px 0;
+}
+.toc-tree li a {
+  color: #888;                /* text-gray */
+  text-decoration: none;
+  font-size: 0.9em;
+  transition: color 0.15s ease;
+}
+.toc-tree li a:hover { color: #555; text-decoration: underline; } /* underline on hover only */
+/* strip the file-tree rail/node markers inherited from .post-content li */
+.toc-tree li::before,
+.toc-tree li::after { content: none !important; display: none !important; }
+.toc-tree li:hover { background: none !important; }
+/* hierarchy indent */
+.toc-tree li.h-h3 { padding-left: 16px; }
+.toc-tree li.h-h4 { padding-left: 32px; }
+.toc-tree li.h-h5 { padding-left: 48px; }
+.toc-tree li.h-h6 { padding-left: 64px; }
+
+html[data-theme="dark"] .toc-inline-title { color: #888; }
+html[data-theme="dark"] .toc-tree li a { color: #999; }
+html[data-theme="dark"] .toc-tree li a:hover { color: #ccc; }
+
+/* ===== Simplified sidebar widgets =====
+   Flatten the post-it look into a clean card: no shadow/tape/folded-corner/
+   gradient, no emojis, left-aligned title with a | bar (like the ToC). */
+.sidebar .sticky-note-widget {
+  filter: none;          /* drop the post-it shadow */
+  margin-bottom: 0;
+}
+.sidebar .sticky-tape,
+.sidebar .sticky-corner,
+.sidebar .sticky-icon,
+.sidebar .stat-emoji,
+.sidebar .item-icon,
+.sidebar .section-icon {
+  display: none;         /* remove decorations + emojis */
+}
+/* No boxes — widgets sit on the page bg; separated by divider lines only */
+.sidebar .sticky-content {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+.sidebar .sticky-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 10px;
+  padding: 0 0 0 9px;
+  border: 0;
+  border-left: 3px solid #c9c9c9; /* the | symbol */
+  line-height: 1.25;
+}
+/* heatmap sits directly on the page bg → the left black/white fade blends */
+.sidebar .heatmap-wrapper {
+  border: 0 !important;
+  background: transparent !important;
+}
+.sidebar .heatmap-grid,
+.sidebar .heatmap-months {
+  padding-right: 8px; /* keep the recent cells off the right edge after scroll */
+}
+
+/* Visitors: plain stacked "label .... value" rows (no inner boxes) */
+.sidebar .visitor-stats-grid { display: block; }
+.sidebar .visitor-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 3px 0 !important;
+  text-align: left;
+}
+.sidebar .visitor-stat .stat-label { font-size: 13px; color: #666; }
+.sidebar .visitor-stat .stat-value { font-weight: 700; font-size: 14px; font-family: inherit !important; }
+
+/* "Posts" notepad: no box either, just content */
+.sidebar .notepad-widget {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.sidebar .notepad-header,
+.sidebar .notepad-content {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+.sidebar .notepad-rings,
+.sidebar .notepad-footer,
+.sidebar .notepad-doodle {
+  display: none !important;
+}
+.sidebar .notepad-title {
+  text-align: left !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #555 !important;
+  border-left: 3px solid #c9c9c9 !important;
+  padding: 0 0 0 9px !important;
+  margin: 0 0 10px !important;
+}
+.sidebar .notepad-section { margin-bottom: 8px; }
+.sidebar .section-header { margin: 8px 0 4px; font-size: 12px; color: #888; }
+
+/* The three widgets are separated by a divider line (no boxes) */
+.sidebar .activity-sticky,
+.sidebar .notepad-widget {
+  border-top: 1px solid #e5e5e5 !important;
+  margin-top: 18px !important;
+  padding-top: 18px !important;
+}
+
+/* Dark theme */
+html[data-theme="dark"] .sidebar .sticky-title { color: #ccc; border-left-color: #555; }
+html[data-theme="dark"] .sidebar .visitor-stat .stat-label { color: #aaa; }
+html[data-theme="dark"] .sidebar .notepad-title { color: #ccc !important; border-left-color: #555 !important; }
+html[data-theme="dark"] .sidebar .activity-sticky,
+html[data-theme="dark"] .sidebar .notepad-widget {
+  border-top-color: #333 !important;
+}
+</style>
+
+<script>
+// Hide the (TOC / heatmap) sidebar with JS when the window isn't wide enough.
+// On a post page, when the TOC disappears we fold its links into a "바로가기"
+// card at the top of the body (styled like the Categories page).
+(function () {
+  var THRESHOLD = 1320; // below this width the sidebar is hidden
+
+  function init() {
+    var sidebar = document.querySelector('.framework .sidebar');
+    if (!sidebar) return;
+    var content = document.querySelector('.post .post-content');
+    var menu = document.querySelector('.post-menu'); // TOC (post pages only)
+    var inlineToc = null;
+
+    function buildInlineToc() {
+      if (inlineToc || !content || !menu) return;
+      var srcUl = menu.querySelector('.post-menu-content ul');
+      if (!srcUl) return; // no headings -> no TOC
+
+      var box = document.createElement('nav');
+      box.className = 'toc-card';
+      var body = document.createElement('div');
+      body.className = 'toc-tree';
+      var ul = srcUl.cloneNode(true);
+      // sidebar links are shortened ("#Q1."); restore the full heading text here
+      var headings = content.querySelectorAll('h2, h3, h4, h5, h6');
+      [].forEach.call(ul.querySelectorAll('li'), function (li, i) {
+        li.style.display = '';
+        var a = li.querySelector('a');
+        if (a && headings[i]) a.textContent = headings[i].textContent.trim();
+      });
+      body.appendChild(ul);
+      box.appendChild(body);
+      content.insertBefore(box, content.firstChild);
+      inlineToc = box;
+    }
+    function removeInlineToc() {
+      if (inlineToc && inlineToc.parentNode) inlineToc.parentNode.removeChild(inlineToc);
+      inlineToc = null;
+    }
+
+    function apply() {
+      if (document.documentElement.clientWidth < THRESHOLD) {
+        sidebar.classList.add('is-hidden');
+        buildInlineToc();
+      } else {
+        sidebar.classList.remove('is-hidden');
+        removeInlineToc();
+      }
+    }
+
+    var t;
+    window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(apply, 150); });
+    apply();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>

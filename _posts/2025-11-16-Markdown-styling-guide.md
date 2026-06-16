@@ -44,17 +44,18 @@ markdown을 사이트에서 보여주는 형식인 github blog에서는 더 자�
 
 ## **💬 인라인 댓글 (hover)**
 
-본문 중간에 <span class="cmt" data-cmt="이렇게 마우스를 올리면 댓글이 보입니다. Notion에서 옮겨온 주석 기능이에요." tabindex="0">댓글이 달린 텍스트</span>를 두면, 마우스를 올렸을 때 주석이 나타난다. 문장 끝에 달아도 <span class="cmt" data-cmt="문장 끝에 단 테스트 댓글입니다." tabindex="0">자연스럽게 동작</span>한다.
+본문 중간에 <span class="notion-comment">댓글이 달린 텍스트<span class="comment-bubble"><span class="comment-item">이렇게 마우스를 올리면 댓글이 보입니다. Notion에서 옮겨온 주석 기능이에요.</span></span></span>를 두면, 마우스를 올렸을 때 주석이 나타난다. 문장 끝에 달아도 <span class="notion-comment">자연스럽게 동작<span class="comment-bubble"><span class="comment-item">문장 끝에 단 테스트 댓글입니다.</span></span></span>한다.
 
 리스트 안에서도 동작한다:
 
-- 첫 번째 항목 — <span class="cmt" data-cmt="리스트 항목에 단 댓글 테스트." tabindex="0">여기에 주석</span>
+- 첫 번째 항목 — <span class="notion-comment">여기에 주석<span class="comment-bubble"><span class="comment-item">리스트 항목에 단 댓글 테스트.</span></span></span>
 - 두 번째 항목은 일반 텍스트
 
-**사용법:**
+**사용법:** (말풍선 안에 형광펜·색상 등 서식 그대로 사용 가능)
 ```html
-<span class="cmt" data-cmt="여기에 댓글 내용을 적습니다." tabindex="0">대상 텍스트</span>
+<span class="notion-comment">대상 텍스트<span class="comment-bubble"><span class="comment-item">댓글 내용. <span class="highlight-green">서식</span>도 됨</span></span></span>
 ```
+한 줄로 작성할 것(중간에 빈 줄을 넣으면 깨짐). 여러 줄 댓글은 `comment-item`을 추가하면 구분선으로 나뉜다.
 
 ---
 

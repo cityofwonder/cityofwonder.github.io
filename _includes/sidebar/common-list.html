@@ -9,25 +9,9 @@
 <!-- Cute Notepad Widget -->
 <div class="notepad-widget">
   <div class="notepad-header">
-    <div class="notepad-rings">
-      <span class="ring"></span>
-      <span class="ring"></span>
-      <span class="ring"></span>
-      <span class="ring"></span>
-      <span class="ring"></span>
-    </div>
     <div class="notepad-title">Posts</div>
   </div>
   <div class="notepad-content">
-    <!-- All Posts -->
-    <div class="notepad-section">
-      <a href="{{ '/index.html' | relative_url }}" class="notepad-item all-posts">
-        <span class="item-icon">📚</span>
-        <span class="item-label">All</span>
-        <span class="item-count">{{ site.posts.size }}</span>
-      </a>
-    </div>
-
     <!-- Recently Added -->
     <div class="notepad-section">
       <div class="section-header">
@@ -62,14 +46,8 @@
           </a>
         </li>
         {% endfor %}
-        <li class="hot-placeholder">
-          <span class="placeholder-text">💬 Comments coming soon...</span>
-        </li>
       </ul>
     </div>
-  </div>
-  <div class="notepad-footer">
-    <div class="notepad-doodle">~ ♪ ~</div>
   </div>
 </div>
 

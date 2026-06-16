@@ -1,0 +1,132 @@
+<script>
+// Notion-style comments. Wide screens (>=1500px, enough left margin) show the
+// notes pinned in the left page margin, open by default — click the word to
+// collapse/expand. Narrow screens open a popover on click that stays until you
+// click elsewhere. Bubbles are moved to be direct children of .post-content so
+// the file-tree list items (position:relative) can't capture their positioning.
+(function () {
+  var MIN_MARGIN = 174; // need at least this much left whitespace to use margin notes
+
+  function init() {
+    var content = document.querySelector('.post .post-content');
+    if (!content) return;
+    var words = [].slice.call(content.querySelectorAll('.notion-comment'));
+    if (!words.length) return;
+    var html = document.documentElement;
+
+    var pairs = words.map(function (w) {
+      var b = w.querySelector('.comment-bubble');
+      if (b) {
+        content.appendChild(b); // re-parent to the content box
+        var label = w.textContent.trim(); // anchor text (bubble already removed)
+        if (label && !b.querySelector('.comment-quote')) {
+          var q = document.createElement('div');
+          q.className = 'comment-quote';
+          q.textContent = label; // (2) show what this note is attached to
+          b.insertBefore(q, b.firstChild);
+        }
+      }
+      return { word: w, bubble: b };
+    }).filter(function (p) { return p.bubble; });
+
+    function layoutMargin() {
+      html.classList.add('nc-margin');
+      html.classList.remove('nc-popover');
+      var cRect = content.getBoundingClientRect();
+      var pageEdge = 30; // gap from the window's left edge
+      var gap = 34;      // gap between the note and the body (clears the list rail)
+      var noteW = Math.max(110, Math.min(cRect.left - gap - pageEdge, 300));
+      var sorted = pairs.slice().sort(function (a, b) {
+        return a.word.getBoundingClientRect().top - b.word.getBoundingClientRect().top;
+      });
+      var prevBottom = -1e9;
+      sorted.forEach(function (p) {
+        p.bubble.classList.remove('is-open');
+        p.bubble.style.left = (pageEdge - cRect.left) + 'px'; // note's left edge near the window edge
+        p.bubble.style.width = noteW + 'px';
+        if (p.bubble.classList.contains('is-collapsed')) return;
+        var wTop = p.word.getBoundingClientRect().top - cRect.top;
+        var top = Math.max(wTop, prevBottom + 12); // push down to avoid overlap
+        p.bubble.style.top = top + 'px';
+        prevBottom = top + p.bubble.offsetHeight;
+      });
+    }
+
+    function setupPopover() {
+      html.classList.add('nc-popover');
+      html.classList.remove('nc-margin');
+      pairs.forEach(function (p) {
+        p.bubble.classList.remove('is-open');
+        p.bubble.style.top = '';
+        p.bubble.style.left = '';
+        p.bubble.style.width = '';
+      });
+    }
+
+    function openPopover(p) {
+      pairs.forEach(function (q) { q.bubble.classList.remove('is-open'); });
+      var cRect = content.getBoundingClientRect();
+      var w = p.word.getClientRects()[0] || p.word.getBoundingClientRect();
+      p.bubble.style.left = (w.left - cRect.left) + 'px';
+      p.bubble.style.top = (w.bottom - cRect.top + 8) + 'px';
+      p.bubble.classList.add('is-open');
+      // keep it inside the content's right edge
+      var over = (p.bubble.offsetLeft + p.bubble.offsetWidth) - content.clientWidth;
+      if (over > 0) p.bubble.style.left = Math.max(0, p.bubble.offsetLeft - over - 4) + 'px';
+    }
+
+    function apply() {
+      // Decide by the ACTUAL left margin (room for notes), not innerWidth —
+      // innerWidth flips when the scrollbar appears and made the mode flicker.
+      if (content.getBoundingClientRect().left >= MIN_MARGIN) {
+        layoutMargin();
+      } else {
+        setupPopover();
+      }
+    }
+
+    pairs.forEach(function (p) {
+      // (3) hover either the word or the note -> brighten both
+      function on() { p.bubble.classList.add('nc-active'); p.word.classList.add('nc-word-active'); }
+      function off() { p.bubble.classList.remove('nc-active'); p.word.classList.remove('nc-word-active'); }
+      p.word.addEventListener('mouseenter', on);
+      p.word.addEventListener('mouseleave', off);
+      p.bubble.addEventListener('mouseenter', on);
+      p.bubble.addEventListener('mouseleave', off);
+
+      p.word.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('a')) return; // let links work
+        if (html.classList.contains('nc-margin')) {
+          p.bubble.classList.toggle('is-collapsed');
+          layoutMargin();
+        } else {
+          if (p.bubble.classList.contains('is-open')) p.bubble.classList.remove('is-open');
+          else openPopover(p);
+          e.stopPropagation();
+        }
+      });
+      p.bubble.addEventListener('click', function (e) { e.stopPropagation(); });
+    });
+
+    document.addEventListener('click', function () {
+      if (html.classList.contains('nc-popover')) {
+        pairs.forEach(function (q) { q.bubble.classList.remove('is-open'); });
+      }
+    });
+
+    function applyInstant() {
+      html.classList.remove('nc-animate'); // placement / image-settle reflow shouldn't animate
+      apply();
+      setTimeout(function () { html.classList.add('nc-animate'); }, 60);
+    }
+
+    var t;
+    window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(apply, 150); });
+    window.addEventListener('load', applyInstant); // re-layout once images settle
+    applyInstant();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>

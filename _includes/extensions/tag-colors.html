@@ -1,0 +1,29 @@
+<script>
+// Give every .post-tag a highlighter colour, picked deterministically from the
+// blog's highlight palette by hashing the tag name → same tag, same colour.
+(function () {
+  var COLORS = ['yellow', 'green', 'blue', 'pink', 'orange', 'purple',
+                'red', 'cyan', 'lime', 'gray', 'teal', 'indigo'];
+
+  function hash(s) {
+    var h = 0;
+    for (var i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) | 0; }
+    return Math.abs(h);
+  }
+
+  function apply() {
+    var tags = document.querySelectorAll('.post-tag');
+    for (var i = 0; i < tags.length; i++) {
+      var t = tags[i];
+      if (t.getAttribute('data-tag-colored')) continue;
+      var name = t.textContent.replace(/^#/, '').trim();
+      if (!name) continue;
+      t.classList.add('highlight-' + COLORS[hash(name) % COLORS.length]);
+      t.setAttribute('data-tag-colored', '1');
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+  else apply();
+})();
+</script>

@@ -379,18 +379,14 @@ html {
   .post-tags .post-tag {
     display: inline-block;
     text-decoration: none;
-    border: 1px solid;
-    padding: 2px 4px;
+    padding: 1px 4px;
     border-radius: 2px;
     transition: color 0.2s;
     margin-bottom: 8px;
+    /* background comes from the per-tag .highlight-* class (set by JS) */
 
     &:not(:last-child) {
       margin-right: 8px;
-    }
-
-    &:hover {
-      color: #787878;
     }
   }
 
@@ -740,15 +736,28 @@ html {
   }
 
   .sidebar {
+    flex: 0 0 320px;
+    max-width: 320px;
     padding-left: 8px;
     transition: top 0.2s, display 0.2s;
 
     @include flex-sticky($header-height + 20px);
 
-    @include media-query($on-laptop) {
+    /* MUST come after flex-sticky (which sets `transform: scale(...)`); keep the
+       scale so the sticky x-overflow fix stays, plus a rightward nudge. */
+    transform: translateX(40px) scale(0.9999);
+
+    /* visibility is controlled by JS — see extensions/sidebar-responsive.html */
+    &.is-hidden {
       display: none;
     }
 
+  }
+
+  /* On post pages the sidebar is just the ToC. Rest it a little lower so its
+     top lines up with the article body once it sticks (tune the +px to taste). */
+  .sidebar:has(.post-menu) {
+    top: $header-height + 64px;
   }
 }
 
@@ -842,16 +851,15 @@ html {
   transition-duration: $base-transition-duration;
 }
 
-.post-badge.badge-new {
-  display: inline-block;
-}
-
 .top-post .post-badges .post-badge.badge-top {
   display: inline-block;
 }
 
-a:visited .post-badges .post-badge.badge-new {
-  display: none;
-  color: $background-color;
-  background-color: $background-color;
+/* Draft / work-in-progress badge: set `draft: true` in a post's front matter */
+.draft-post .post-badges .post-badge.badge-draft {
+  display: inline-block;
+}
+
+.post-badge.badge-draft {
+  background-color: #c8860d; /* amber — distinct from TOP */
 }

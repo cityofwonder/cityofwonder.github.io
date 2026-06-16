@@ -4,6 +4,15 @@
   padding: 0;
   margin: 0;
 }
+/* one line per entry; the right end fades out and long titles get an ellipsis */
+.post-menu-content li a {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-mask-image: linear-gradient(to right, #000 62%, rgba(0, 0, 0, 0.35) 100%);
+          mask-image: linear-gradient(to right, #000 62%, rgba(0, 0, 0, 0.35) 100%);
+}
 </style>
 
 <div class="post-menu">
@@ -22,7 +31,8 @@
       return menu.style.display = "none";
     }
 
-    // Generate post menu
+    // Generate post menu (full heading text; the right edge fades + ellipsis
+    // truncates long titles via CSS)
     var menuHTML = '';
     for (var i = 0; i < headings.length; i++) {
       var h = headings[i];

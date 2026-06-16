@@ -54,6 +54,23 @@
   padding: 10px;
   border: 1px dashed #ccc;
   overflow: hidden;
+  position: relative;
+}
+
+/* fade the clipped left edge into the page background (white / black) */
+.heatmap-wrapper::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 34px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0));
+}
+html[data-theme="dark"] .heatmap-wrapper::before {
+  background: linear-gradient(to right, #0e0e0e, rgba(14, 14, 14, 0));
 }
 
 .heatmap-months {
@@ -73,8 +90,9 @@
 .heatmap-grid {
   display: grid;
   grid-template-rows: repeat(7, 8px);
+  grid-auto-columns: 8px; /* equal to row height → equal H/V gaps */
   grid-auto-flow: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .heatmap-cell {
@@ -255,8 +273,8 @@ html[data-theme="dark"] .legend-box.level-4 { background-color: #ff5e52; }
     cells.forEach(cell => grid.appendChild(cell));
 
     monthsContainer.style.display = 'grid';
-    monthsContainer.style.gridTemplateColumns = `repeat(${totalWeeks}, 10px)`;
-    monthsContainer.style.gap = '2px';
+    monthsContainer.style.gridTemplateColumns = `repeat(${totalWeeks}, 8px)`;
+    monthsContainer.style.gap = '3px';
 
     monthSpans.forEach(({ name, week }, index) => {
       const monthLabel = document.createElement('span');
@@ -269,6 +287,12 @@ html[data-theme="dark"] .legend-box.level-4 { background-color: #ff5e52; }
       monthLabel.style.gridColumn = `${week + 1} / span ${spanWeeks}`;
       monthsContainer.appendChild(monthLabel);
     });
+
+    // Show the most recent weeks: scroll the clipped strip to its right end.
+    var wrap = grid.parentElement; // .heatmap-wrapper
+    function scrollToRecent() { wrap.scrollLeft = wrap.scrollWidth; }
+    requestAnimationFrame(scrollToRecent);
+    window.addEventListener('resize', scrollToRecent);
   }
 
   if (document.readyState === 'loading') {
