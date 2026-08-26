@@ -394,11 +394,16 @@ html[data-theme="dark"] .pagination .paginator a:hover {
   <ul class="post-list {{ image_style }}">
     <!-- Top list item -->
     {%- if paginator == site or paginator.page == 1 -%}
-      {%- assign post_item_class = "top-post" -%}
       {%- assign posts = site.posts
         | where_exp: "item", "item.top > 0"
         | sort: "top" -%}
       {%- for post in posts -%}
+        {%- comment -%} top:1 gets the featured (rendered-markdown) template; other pinned posts stay compact {%- endcomment -%}
+        {%- if post.top == 1 -%}
+          {%- assign post_item_class = "top-post featured" -%}
+        {%- else -%}
+          {%- assign post_item_class = "top-post" -%}
+        {%- endif -%}
         {%- include views/pagination-item.html -%}
       {%- endfor -%}
     {%- endif -%}
