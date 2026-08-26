@@ -1,7 +1,14 @@
 <!-- Generate posting dates data -->
+{%- comment -%}
+  Key off the FILENAME date (_posts/YYYY-MM-DD-title.md), not post.date.
+  post.date renders in the build machine's timezone (UTC on Actions), so a
+  post carrying an explicit time in front matter can slide a day.
+{%- endcomment -%}
 {%- assign posting_dates = "" | split: "" -%}
 {%- for post in site.posts -%}
-  {%- assign post_date = post.date | date: "%Y-%m-%d" -%}
+  {%- assign fname = post.path | split: "/" | last -%}
+  {%- assign p = fname | split: "-" -%}
+  {%- assign post_date = p[0] | append: "-" | append: p[1] | append: "-" | append: p[2] -%}
   {%- assign posting_dates = posting_dates | push: post_date -%}
 {%- endfor -%}
 
@@ -215,6 +222,12 @@ html[data-theme="dark"] .legend-box.level-4 { background-color: #ff5e52; }
     postCountByDate[date] = (postCountByDate[date] || 0) + 1;
   });
 
+  // Local-time date key. toISOString() is UTC, which shifted every cell by a
+  // day for anyone off UTC (KST = +9) and hid same-day posts entirely.
+  const toKey = d => d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+
   function generateHeatmap() {
     const grid = document.getElementById('heatmap-grid');
     const monthsContainer = document.getElementById('heatmap-months');
@@ -222,13 +235,12 @@ html[data-theme="dark"] .legend-box.level-4 { background-color: #ff5e52; }
     if (!grid || !monthsContainer) return;
 
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const startPeriod = new Date(today);
     startPeriod.setDate(today.getDate() - 179);
 
     const startDate = new Date(startPeriod);
     startDate.setDate(startDate.getDate() - startDate.getDay());
-
-    const maxPosts = Math.max(...Object.values(postCountByDate), 1);
 
     let currentMonth = -1;
     let monthSpans = [];
@@ -237,13 +249,15 @@ html[data-theme="dark"] .legend-box.level-4 { background-color: #ff5e52; }
     let weekIndex = 0;
 
     while (currentDate <= today) {
-      const dateStr = currentDate.toISOString().split('T')[0];
+      const dateStr = toKey(currentDate);
       const postCount = postCountByDate[dateStr] || 0;
 
+      // Absolute thresholds. Scaling against the all-time max washed every
+      // single-post day out to the palest shade, so June/July looked blank.
       let level = 0;
-      if (postCount > 0) {
-        level = Math.min(4, Math.ceil((postCount / maxPosts) * 4));
-      }
+      if (postCount >= 3) level = 4;
+      else if (postCount === 2) level = 3;
+      else if (postCount === 1) level = 2;
 
       const cell = document.createElement('div');
       cell.className = `heatmap-cell level-${level}`;
