@@ -585,6 +585,7 @@ $highlight-colors: (
   "gray":   #b0b0b0,
   "teal":   #4db6ac,
   "indigo": #7986cb,
+  "brown":  #b98b60,
 );
 
 @each $name, $color in $highlight-colors {
@@ -632,6 +633,17 @@ $highlight-colors: (
 
 .text-gray {
   color: #757575;
+}
+
+/* Notion has yellow/brown text; these match its light-theme values so a
+   converted post keeps the color the original had. Deliberately darker than
+   .text-orange (#fb8c00) so the two stay distinguishable on white. */
+.text-yellow {
+  color: #cb912f;
+}
+
+.text-brown {
+  color: #9b6e4e;
 }
 
 /* Bold text utility */
