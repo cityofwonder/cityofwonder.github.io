@@ -5,7 +5,14 @@
 // click elsewhere. Bubbles are moved to be direct children of .post-content so
 // the file-tree list items (position:relative) can't capture their positioning.
 (function () {
-  var MIN_MARGIN = 174; // need at least this much left whitespace to use margin notes
+  // Margin-note geometry. MIN_MARGIN is derived rather than hard-coded: with a
+  // threshold below NOTE_MIN + GAP + PAGE_EDGE the note was allowed to be wider
+  // than the margin it sits in and lapped over the body text.
+  var NOTE_MIN  = 110;  // narrowest a note may be
+  var NOTE_MAX  = 300;
+  var PAGE_EDGE = 60;   // gap from the window's left edge
+  var GAP       = 10;   // gap between the note and the body
+  var MIN_MARGIN = NOTE_MIN + GAP + PAGE_EDGE;
 
   function init() {
     var content = document.querySelector('.post .post-content');
@@ -33,16 +40,14 @@
       html.classList.add('nc-margin');
       html.classList.remove('nc-popover');
       var cRect = content.getBoundingClientRect();
-      var pageEdge = 60; // gap from the window's left edge
-      var gap =10;      // gap between the note and the body
-      var noteW = Math.max(110, Math.min(cRect.left - gap - pageEdge, 300));
+      var noteW = Math.min(NOTE_MAX, cRect.left - GAP - PAGE_EDGE);
       var sorted = pairs.slice().sort(function (a, b) {
         return a.word.getBoundingClientRect().top - b.word.getBoundingClientRect().top;
       });
       var prevBottom = -1e9;
       sorted.forEach(function (p) {
         p.bubble.classList.remove('is-open');
-        p.bubble.style.left = (pageEdge - cRect.left) + 'px'; // note's left edge near the window edge
+        p.bubble.style.left = (PAGE_EDGE - cRect.left) + 'px'; // note's left edge near the window edge
         p.bubble.style.width = noteW + 'px';
         if (p.bubble.classList.contains('is-collapsed')) return;
         var wTop = p.word.getBoundingClientRect().top - cRect.top;
@@ -121,8 +126,27 @@
     }
 
     var t;
-    window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(apply, 150); });
+    function scheduleApply() { clearTimeout(t); t = setTimeout(apply, 100); }
+
+    window.addEventListener('resize', scheduleApply);
     window.addEventListener('load', applyInstant); // re-layout once images settle
+
+    // Anything that changes the article's height moves every note below it: a
+    // <details> opening, MathJax typesetting a formula, an image or web font
+    // landing late. Previously the notes kept whatever offset they were given
+    // at load and drifted away from the text they annotate.
+    if (window.ResizeObserver) {
+      new ResizeObserver(scheduleApply).observe(content);
+    }
+    // The `toggle` event does not bubble, hence the capture listener.
+    content.addEventListener('toggle', scheduleApply, true);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(applyInstant);
+    }
+    if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
+      window.MathJax.startup.promise.then(applyInstant);
+    }
+
     applyInstant();
   }
 

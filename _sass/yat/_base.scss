@@ -183,6 +183,18 @@ li {
     height: $node-y;
   }
 
+  // First sibling: start the rail AT its node. Otherwise a list that opens
+  // with an item shows a stub hanging above the dot, connected to nothing.
+  li:first-child::before {
+    top: $node-y;
+  }
+
+  // A lone item has no sibling to connect to, so it gets no rail at all.
+  // (first-child + last-child would otherwise leave a stub below the dot.)
+  li:only-child::before {
+    display: none;
+  }
+
   // NODE: opaque round marker centred on the rail (painted on top)
   li::after {
     position: absolute;
@@ -809,15 +821,19 @@ html[data-theme="dark"] {
  * Collapsible Toggle (Accordion)
  */
 details {
-  background-color: #f5f5f5;
+  /* Closed: nothing but the caret and its label, the way Notion draws it.
+     The panel chrome only appears once the toggle is opened. */
+  background-color: transparent;
   border-radius: 8px;
   padding: 10px 20px;
   margin: 16px 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
   transition: all 0.3s ease;
-  border: 1px solid #e0e0e0;
+  border: 1px solid transparent;
 
   &[open] {
+    background-color: #f5f5f5;
+    border-color: #e0e0e0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
@@ -866,6 +882,16 @@ details {
   }
 }
 
+/* A toggle carrying a Notion block colour uses it for the open panel.
+   Same palette as the highlighter, dialled down so text stays readable. */
+@each $name, $color in $highlight-colors {
+  details.toggle-#{$name}[open],
+  html[data-theme="dark"] details.toggle-#{$name}[open] {
+    background-color: rgba($color, 0.18);
+    border-color: rgba($color, 0.38);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -880,8 +906,13 @@ details {
 /* Dark theme adjustments for collapsible */
 html[data-theme="dark"] {
   details {
-    background-color: #2a2a2a;
-    border-color: #404040;
+    background-color: transparent;
+    border-color: transparent;
+
+    &[open] {
+      background-color: #2a2a2a;
+      border-color: #404040;
+    }
 
     summary {
       color: #e0e0e0;
@@ -936,7 +967,9 @@ html[data-theme="dark"] {
 
   z-index: 30;
   padding: 12px 14px;
-  font-size: 0.85em;
+  /* Absolute, not em: the post body was enlarged and the bubble should stay
+     at the size it had before (14px * 0.85). */
+  font-size: 12px;
   font-style: normal;
   font-weight: 400;
   letter-spacing: 0;

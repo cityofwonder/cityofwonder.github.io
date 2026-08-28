@@ -452,6 +452,9 @@ html {
   }
 
   .post-content {
+    /* One step up from the site default (14px). Headings are unaffected:
+       relative-font-size() bakes them to absolute px at compile time. */
+    font-size: 16px;
     margin-bottom: $spacing-unit;
     overflow-wrap: normal;
     word-wrap: normal;

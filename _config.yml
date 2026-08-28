@@ -276,3 +276,12 @@ plugins:
   - jekyll-paginate
 
   - jekyll-spaceship
+
+# jekyll-spaceship's mathjax processor hardcodes a script tag for polyfill.io,
+# which was taken over in 2024 and served malware to the sites embedding it;
+# the domain now answers with an HTTP auth prompt. Override the src list to
+# load MathJax 3 alone -- it needs no ES6 polyfill in any current browser.
+jekyll-spaceship:
+  mathjax-processor:
+    src:
+      - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
