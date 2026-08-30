@@ -118,9 +118,9 @@
   margin-bottom: 0; /* grid gap handles the spacing */
 }
 
-/* Featured (and pinned top) posts span the full row */
-.pagination .post-item.featured,
-.pagination .post-item.top-post {
+/* Only the side-by-side cards span the full row. A pinned post that did not
+   get a featured slot is an ordinary compact card. */
+.pagination .post-item.featured {
   grid-column: 1 / -1;
 }
 
@@ -176,7 +176,10 @@ html[data-theme="dark"] .pagination .post-item.featured .post-foot .post-tag { c
   padding: 0 4px 0 28px; /* gap from the image on the left */
   /* clip to roughly the image height so it stays a tidy preview */
   max-height: 29.25cqw;
-  overflow: hidden;
+  /* `clip`, not `hidden`: hidden still makes this a scroll container, and an
+     embedded iframe deep in the post (xmind, youtube) takes focus on load, so
+     the browser scrolled the preview to the very bottom of the article. */
+  overflow: clip;
 }
 
 /* Fade out the clipped preview at the bottom */
@@ -369,17 +372,39 @@ html[data-theme="dark"] .pagination .paginator a:hover {
     padding: 16px;
   }
 
-  /* Featured stacks: image on top, body below */
+  /* On mobile there is only ONE card shape: image on top, text underneath.
+     The desktop featured card fills its image column with an absolutely
+     positioned div sized by the body next to it -- stack that and the image
+     has nothing to take its height from, so it collapsed to zero. Everything
+     below puts the image back in normal flow with a fixed 16:9 box, which is
+     exactly what a compact card does. */
   .pagination .post-item.featured {
-    flex-direction: column;
+    display: block;
   }
 
   .pagination .post-item.featured .post-image {
     flex: none;
+    position: static;
+    align-self: auto;
+    width: 100%;
+  }
+
+  .pagination .post-item.featured .post-image > div {
+    position: static;
+    inset: auto;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1920 / 1080;
   }
 
   .pagination .post-item.featured .post-body {
-    max-height: 340px;
+    padding: 12px 2px 0; /* no left gap: the image is above, not beside */
+    max-height: 260px;
+    overflow: clip;
+  }
+
+  .pagination .post-item.featured .post-foot {
+    margin-top: 12px;
   }
 
   .pagination .post-tags .post-tag {
@@ -397,12 +422,20 @@ html[data-theme="dark"] .pagination .paginator a:hover {
       {%- assign posts = site.posts
         | where_exp: "item", "item.top > 0"
         | sort: "top" -%}
+      {%- comment -%}
+        Exactly FEATURED_SLOTS cards get the side-by-side layout, and manually
+        pinned posts (front matter `top:`) fill those slots first. Any pinned
+        post beyond that falls back to a normal compact card rather than a
+        bare full-row one, whose header image would blow up to full width.
+      {%- endcomment -%}
+      {%- assign featured_slots = 2 -%}
+      {%- assign featured_used = 0 -%}
       {%- for post in posts -%}
-        {%- comment -%} top:1 gets the featured (rendered-markdown) template; other pinned posts stay compact {%- endcomment -%}
-        {%- if post.top == 1 -%}
+        {%- if featured_used < featured_slots -%}
           {%- assign post_item_class = "top-post featured" -%}
+          {%- assign featured_used = featured_used | plus: 1 -%}
         {%- else -%}
-          {%- assign post_item_class = "top-post" -%}
+          {%- assign post_item_class = "top-post compact" -%}
         {%- endif -%}
         {%- include views/pagination-item.html -%}
       {%- endfor -%}
@@ -413,14 +446,21 @@ html[data-theme="dark"] .pagination .paginator a:hover {
     {%- if paginator == site or paginator.page == 1 -%}
       {%- assign is_first_page = true -%}
     {%- endif -%}
-    {%- assign featured_done = false -%}
+
+    {%- comment -%}
+      Pinned posts are skipped ONLY on page 1, where they are already shown in
+      the block above. Skipping them everywhere meant they still consumed a
+      paginator slot on their real page but rendered nothing -- the posts
+      vanished from the listing and the page came up short.
+    {%- endcomment -%}
     {%- for post in paginator.posts -%}
-      {%- if post.top -%}
+      {%- if post.top and is_first_page -%}
         {%- continue -%}
       {%- endif -%}
-      {%- if is_first_page and featured_done == false -%}
+      {%- comment -%} only fill slots the pinned posts left over {%- endcomment -%}
+      {%- if is_first_page and featured_used < featured_slots -%}
         {%- assign post_item_class = "featured" -%}
-        {%- assign featured_done = true -%}
+        {%- assign featured_used = featured_used | plus: 1 -%}
       {%- else -%}
         {%- assign post_item_class = "compact" -%}
       {%- endif -%}

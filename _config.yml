@@ -195,7 +195,11 @@ banner:
 permalink: /:year/:month/:day/:title/
 
 # Pagination setting
-paginate: 5
+# Page 1 shows the 2 pinned posts as side-by-side cards (outside this count)
+# and spends the rest of its slice on the 2-column grid: 8 - 2 pinned = 6
+# compact cards, i.e. 3 full rows. Re-check this if rows go ragged after
+# adding posts -- the grid needs an EVEN number of compact cards per page.
+paginate: 8
 
 # Photo previewer settings (PhotoSwipe 5)
 # the options please refer to: https://photoswipe.com/options/

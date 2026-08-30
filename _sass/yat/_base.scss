@@ -882,6 +882,43 @@ details {
   }
 }
 
+/* Notion quote. Notion draws an uncoloured quote as a bare left bar with no
+   fill and no italics, and only paints a background when the block carries a
+   colour -- so the default here is deliberately plainer than the theme's
+   blockquote, which it has to override. */
+.post-content blockquote.notion-quote {
+  color: inherit;
+  font-size: inherit;
+  font-style: normal;
+  letter-spacing: normal;
+  border-left: 3px solid rgba(130, 130, 130, 0.55);
+  padding: 2px 0 2px 14px;
+  margin: 14px 0;
+  border-radius: 0 4px 4px 0;
+
+  > :first-child { margin-top: 0; }
+  > :last-child { margin-bottom: 0; }
+}
+
+@each $name, $color in $highlight-colors {
+  .post-content blockquote.notion-quote.quote-#{$name} {
+    background-color: rgba($color, 0.16);
+    border-left-color: rgba($color, 0.85);
+    padding: 10px 14px;
+  }
+}
+
+html[data-theme="dark"] .post-content blockquote.notion-quote {
+  border-left-color: rgba(180, 180, 180, 0.4);
+}
+
+@each $name, $color in $highlight-colors {
+  html[data-theme="dark"] .post-content blockquote.notion-quote.quote-#{$name} {
+    background-color: rgba($color, 0.15);
+    border-left-color: rgba($color, 0.7);
+  }
+}
+
 /* A toggle carrying a Notion block colour uses it for the open panel.
    Same palette as the highlighter, dialled down so text stays readable. */
 @each $name, $color in $highlight-colors {

@@ -21,6 +21,11 @@ sidebar: tag-list
     </div>
     <div class="graph-content">
       <svg id="tag-graph"></svg>
+      <div class="graph-controls">
+        <button type="button" class="graph-btn" data-zoom="in" aria-label="확대">+</button>
+        <button type="button" class="graph-btn" data-zoom="out" aria-label="축소">&minus;</button>
+        <button type="button" class="graph-btn" data-zoom="reset" aria-label="처음 위치로">&#8634;</button>
+      </div>
       <div id="tag-tooltip" class="tag-tooltip"></div>
     </div>
   </div>
@@ -142,6 +147,58 @@ sidebar: tag-list
     width: 100%;
     height: 350px;
     display: block;
+    /* One finger scrolls the page; panning the graph takes two (or a mouse
+       drag). Without this the graph swallowed every touch and the page could
+       not be scrolled past it on a phone. */
+    touch-action: pan-y;
+    cursor: grab;
+  }
+
+  #tag-graph:active {
+    cursor: grabbing;
+  }
+
+  /* Zoom controls: the graph is laid out on a fixed virtual canvas and scaled
+     to fit, so on a narrow screen everything shrinks. These make zooming
+     discoverable without relying on a gesture. */
+  .graph-controls {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 2;
+  }
+
+  .graph-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    font-size: 15px;
+    line-height: 1;
+    color: #555;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .graph-btn:hover {
+    background: #fff;
+    color: #222;
+  }
+
+  html[data-theme="dark"] .graph-btn {
+    color: #bbb;
+    background: rgba(40, 40, 40, 0.92);
+    border-color: #444;
+  }
+
+  html[data-theme="dark"] .graph-btn:hover {
+    background: #333;
+    color: #fff;
   }
 
   .graph-link {
@@ -467,7 +524,13 @@ sidebar: tag-list
     }
 
     #tag-graph {
-      height: 280px;
+      height: 340px;
+    }
+
+    .graph-btn {
+      width: 32px;
+      height: 32px;
+      font-size: 16px;
     }
 
     .filter-bar {
@@ -581,10 +644,22 @@ sidebar: tag-list
       return { source, target, weight: count };
     });
 
-    const width = container.offsetWidth;
-    const height = parseInt(getComputedStyle(svg.node()).height);
+    // The graph is laid out ONCE on a fixed virtual canvas and the SVG scales
+    // it to fit via viewBox. Previously the simulation ran inside whatever the
+    // element measured at load, so on a phone every node was squeezed into a
+    // ~350px box and the labels piled on top of each other -- and nothing
+    // re-ran on rotate. Now the picture is the same everywhere; the viewer
+    // zooms and pans into it instead.
+    const width = 760;
+    const height = 480;
 
-    svg.attr('viewBox', [0, 0, width, height]);
+    // Set from JS, not markup: the HTML pipeline lowercases attributes and
+    // SVG's preserveAspectRatio is case-sensitive.
+    svg.attr('viewBox', [0, 0, width, height])
+       .attr('preserveAspectRatio', 'xMidYMid meet');
+
+    // Everything the zoom moves lives in here.
+    const viewport = svg.append('g').attr('class', 'graph-viewport');
 
     const simulation = d3.forceSimulation(nodes)
       .force('link', d3.forceLink(links).id(d => d.id).distance(60).strength(0.5))
@@ -593,11 +668,11 @@ sidebar: tag-list
       .force('y', d3.forceY(height / 2).strength(0.15))
       .force('collision', d3.forceCollide().radius(d => d.radius + 8).strength(0.9));
 
-    const link = svg.append('g').selectAll('line')
+    const link = viewport.append('g').selectAll('line')
       .data(links).join('line').attr('class', 'graph-link')
       .attr('stroke-width', d => Math.max(1, d.weight * 1.5));
 
-    const node = svg.append('g').selectAll('g')
+    const node = viewport.append('g').selectAll('g')
       .data(nodes).join('g').attr('class', 'graph-node')
       .call(d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended));
 
@@ -655,5 +730,51 @@ sidebar: tag-list
       if (!event.active) simulation.alphaTarget(0);
       d.fx = null; d.fy = null;
     }
+
+    // ===== Zoom / pan =====
+    const zoom = d3.zoom()
+      .scaleExtent([0.5, 6])
+      .filter(function (event) {
+        // A bare wheel keeps scrolling the page; ctrl/⌘ + wheel zooms (the
+        // same contract as a map embed). One finger scrolls, two pan/pinch.
+        if (event.type === 'wheel') return event.ctrlKey || event.metaKey;
+        if (event.type === 'touchstart') return event.touches.length >= 2;
+        return !event.button;
+      })
+      .on('zoom', function (event) {
+        viewport.attr('transform', event.transform);
+      });
+
+    svg.call(zoom);
+
+    // Frame the drawing rather than the whole canvas, so a phone still uses
+    // the full width instead of showing empty margins around a small cluster.
+    function fitToContent(duration) {
+      const xs = nodes.map(d => d.x);
+      const ys = nodes.map(d => d.y);
+      if (!xs.length) return;
+      const pad = 24;
+      const minX = Math.min(...xs) - pad, maxX = Math.max(...xs) + pad;
+      const minY = Math.min(...ys) - pad, maxY = Math.max(...ys) + pad;
+      const boxW = Math.max(1, maxX - minX);
+      const boxH = Math.max(1, maxY - minY);
+      const scale = Math.min(3, width / boxW, height / boxH);
+      const transform = d3.zoomIdentity
+        .translate(width / 2, height / 2)
+        .scale(scale)
+        .translate(-(minX + maxX) / 2, -(minY + maxY) / 2);
+      svg.transition().duration(duration || 0).call(zoom.transform, transform);
+    }
+
+    simulation.on('end', () => fitToContent(0));
+
+    document.querySelectorAll('.graph-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.zoom;
+        if (action === 'reset') fitToContent(250);
+        else svg.transition().duration(200)
+                .call(zoom.scaleBy, action === 'in' ? 1.4 : 1 / 1.4);
+      });
+    });
   });
 </script>
