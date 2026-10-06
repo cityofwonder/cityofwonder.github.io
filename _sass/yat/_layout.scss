@@ -858,11 +858,21 @@ html {
   display: inline-block;
 }
 
-/* Draft / work-in-progress badge: set `draft: true` in a post's front matter */
+/* Writing-status badges. Set by the Notion sync from the DB's 상태 property
+   (진행 중 -> 작성중, 작성완료 -> 작성완료, 커밋완료 -> no badge), or by hand with
+   `draft: true` / `status: 작성완료` in a post's front matter. */
 .draft-post .post-badges .post-badge.badge-draft {
+  display: inline-block;
+}
+
+.done-post .post-badges .post-badge.badge-done {
   display: inline-block;
 }
 
 .post-badge.badge-draft {
   background-color: #c8860d; /* amber — distinct from TOP */
+}
+
+.post-badge.badge-done {
+  background-color: #2e7d32; /* green — finished, not yet committed */
 }

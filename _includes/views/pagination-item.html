@@ -27,7 +27,14 @@
   | default: default_image
   | default: '/assets/images/default-image.jpeg' -%}
 
-<li class="post-item {{ post_item_class }}{% if post.draft %} draft-post{% endif %}">
+{%- comment -%} 작성중: `draft: true` 이거나 Notion 상태가 진행 중/작성중 {%- endcomment -%}
+{%- assign status_class = '' -%}
+{%- if post.draft or post.status == '작성중' or post.status == '진행 중' -%}
+  {%- assign status_class = ' draft-post' -%}
+{%- elsif post.status == '작성완료' -%}
+  {%- assign status_class = ' done-post' -%}
+{%- endif -%}
+<li class="post-item {{ post_item_class }}{{ status_class }}">
   {%- if post_image and post_image != 'NO_EXCERPT_IMAGE' -%}
   <a class="post-image" href="{{ post_url }}">
     <div style="background-image: url({{ post_image | relative_url }})"></div>
