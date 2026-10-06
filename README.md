@@ -1,3 +1,6 @@
+> 이 파일은 Yat 테마 원본 README 입니다.
+> 이 블로그를 로컬에서 띄우고 글을 쓰는 방법은 **[DEVELOPING.md](DEVELOPING.md)** 를 보세요.
+
 <div align="center">
   <br>
 
