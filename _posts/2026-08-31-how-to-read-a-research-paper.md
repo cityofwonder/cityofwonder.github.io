@@ -4,6 +4,10 @@ title: "[etc 03.] How to read a reaserch paper(Jacques Cornwell)"
 subtitle: ""
 categories: ["📂/etc/"]
 tags: ["work", "careers"]
+status: "진행 중"
+notion: true
+notion_id: "3ccbb540-e5fe-80ad-a550-dab37f51c2e3"
+notion_synced: "2026-10-06T07:57:00.000Z"
 banner:
   image: "/assets/images/2026-08-31/how-to-read-a-research-paper-banner.png"
   opacity: 0.5
