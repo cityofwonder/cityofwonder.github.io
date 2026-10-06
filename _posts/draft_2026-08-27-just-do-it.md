@@ -4,9 +4,10 @@ title: "목표와 정진"
 subtitle: "그런데 이제 꼼꼼하진 않은"
 categories: ["📂/etc/"]
 tags: ["君たちはどう生きるか"]
+status: "커밋완료"
 notion: true
 notion_id: "3c8bb540-e5fe-8081-b218-fe9e3c95d3c3"
-notion_synced: "2026-10-06T07:55:00.000Z"
+notion_synced: "2026-10-06T08:25:00.000Z"
 banner:
   image: "/assets/images/2026-08-27/just-do-it-banner.jpg"
   opacity: 0.5

@@ -76,40 +76,47 @@ index 745bc773f..41d15200e 100644
 +source "kpwnote/Kconfig"
 ```
 
-#### <span class="highlight-purple">impl.c</span>: `my_write`/`my_read`/`my_lseek`의 경계검사·OOB 방향/범위
+<details class="toggle-heading toggle-h3">
+<summary markdown="span"><span class="highlight-purple">impl.c</span>: `my_write`/`my_read`/`my_lseek`의 경계검사·OOB 방향/범위</summary>
+<div class="toggle-content" markdown="1">
 
 - 전역: 모두 data 영역에 있음
-```c
-#define INITSTR "hi\n"
 
-static DECLARE_RWSEM(sem);
-static loff_t tlen = sizeof(INITSTR) - 1; //3
-static unsigned char tmp[1024] = INITSTR; //"hi\n"
-```
+  ```c
+  #define INITSTR "hi\n"
+
+  static DECLARE_RWSEM(sem);
+  static loff_t tlen = sizeof(INITSTR) - 1; //3
+  static unsigned char tmp[1024] = INITSTR; //"hi\n"
+  ```
 - 지역
-<details>
-<summary markdown="span">my_lseek</summary>
-<div class="toggle-content" markdown="1">
+
+  <details>
+  <summary markdown="span">my_lseek</summary>
+  <div class="toggle-content" markdown="1">
 
 
 
-</div>
-</details>
+  </div>
+  </details>
 
-<details>
-<summary markdown="span">my_read</summary>
-<div class="toggle-content" markdown="1">
-
-
-
-</div>
-</details>
-
-<details>
-<summary markdown="span">my_write</summary>
-<div class="toggle-content" markdown="1">
+  <details>
+  <summary markdown="span">my_read</summary>
+  <div class="toggle-content" markdown="1">
 
 
+
+  </div>
+  </details>
+
+  <details>
+  <summary markdown="span">my_write</summary>
+  <div class="toggle-content" markdown="1">
+
+
+
+  </div>
+  </details>
 
 </div>
 </details>
@@ -126,10 +133,11 @@ static unsigned char tmp[1024] = INITSTR; //"hi\n"
 
 ## Knowledge
 
-![](/assets/images/2026-10-02/dh-kpwnote-34db51a0.png)
-
-<figure style="text-align: center;">
-    <img src="/assets/images/2026-10-02/dh-kpwnote-f431bed5.png" alt="https://etloveguitar.tistory.com/62">
+<figure class="img-pair">
+    <div class="img-pair-row">
+      <img src="/assets/images/2026-10-02/dh-kpwnote-34db51a0.png" alt="">
+      <img src="/assets/images/2026-10-02/dh-kpwnote-f431bed5.png" alt="https://etloveguitar.tistory.com/62">
+    </div>
     <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">[https://etloveguitar.tistory.com/62](https://etloveguitar.tistory.com/62)</figcaption>
 </figure>
 
@@ -138,23 +146,26 @@ static unsigned char tmp[1024] = INITSTR; //"hi\n"
 전체 프로세서에서 동시에 할 수 있는 작업의 개수가 곧 <span class="text-underline"><em>logical CPU의 개수</em></span>이다.
 
 - 예를 들어 내가 사용 중인 Intel(R) Core(TM) Ultra 7 155U는 아래와 같이 <span class="text-underline"><em>2 P-Cores + 8 E-Cores + 2 LP E-Cores</em></span>로 총 12개의 <span class="text-underline"><em>physical CPU</em></span>를 가진다.
-  - 그리고 P-Cores만 HT를 지원하므로 <span class="text-underline"><em>4“ + 8” + 2”</em></span>, 총 16개의 <span class="text-underline"><em>logical CPU</em></span>를 가진다. 이는 아래와 같이 확인할 수 있다.
-```powershell
-$p = Get-CimInstance Win32_Processor; $p | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors | Format-List; echo "---CPU name via env---"; echo $env:PROCESSOR_IDENTIFIER
-```
 
-<figure style="text-align: center;">
-    <img src="/assets/images/2026-10-02/dh-kpwnote-d44a843a.png" alt="https://www.notebookcheck.net/Core-Ultra-7-255U-vs-Core-Ultra-155U-Early-benchmarks-show-good-multi-thread-performance-improvements.1078886.0.html
-4 Xᵉ-Cores LPG는 내장 GPU 그래픽 코어">
-    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">[https://www.notebookcheck.net/Core-Ultra-7-255U-vs-Core-Ultra-155U-Early-benchmarks-show-good-multi-thread-performance-improvements.1078886.0.html](https://www.notebookcheck.net/Core-Ultra-7-255U-vs-Core-Ultra-155U-Early-benchmarks-show-good-multi-thread-performance-improvements.1078886.0.html)
-4 Xᵉ-Cores LPG는 내장 GPU 그래픽 코어</figcaption>
-</figure>
+  - 그리고 P-Cores만 HT를 지원하므로 <span class="text-underline"><em>4“ + 8” + 2”</em></span>, 총 16개의 <span class="text-underline"><em>logical CPU</em></span>를 가진다. 이는 아래와 같이 확인할 수 있다.
+
+    ```powershell
+    $p = Get-CimInstance Win32_Processor; $p | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors | Format-List; echo "---CPU name via env---"; echo $env:PROCESSOR_IDENTIFIER
+    ```
+
+  <figure style="text-align: center;">
+      <img src="/assets/images/2026-10-02/dh-kpwnote-d44a843a.png" alt="https://www.notebookcheck.net/Core-Ultra-7-255U-vs-Core-Ultra-155U-Early-benchmarks-show-good-multi-thread-performance-improvements.1078886.0.html
+  4 Xᵉ-Cores LPG는 내장 GPU 그래픽 코어">
+      <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">[https://www.notebookcheck.net/Core-Ultra-7-255U-vs-Core-Ultra-155U-Early-benchmarks-show-good-multi-thread-performance-improvements.1078886.0.html](https://www.notebookcheck.net/Core-Ultra-7-255U-vs-Core-Ultra-155U-Early-benchmarks-show-good-multi-thread-performance-improvements.1078886.0.html)
+  4 Xᵉ-Cores LPG는 내장 GPU 그래픽 코어</figcaption>
+  </figure>
 
 x86 CPU는 지금 실행중인 코드의 <span class="text-underline"><em>privilege 등급</em></span>을 logical CPU 당 하나씩 있는 CS 레지스터의 하위 2비트 <span class="text-underline"><em>CPL(Current Privilege Level)에 저장</em></span>한다. 이는 <span class="text-underline"><em>Ring이</em></span>라고도 한다.
 
 CPU가 저장하는 privilege 등급 = CPL = Ring은 0~3으로 나뉘지만<span class="text-underline"><em> Ring 0 는 커널, Ring 3은 유저권한</em></span>으로 이 둘만 쓰인다.
 
 - Ring 0으로 할 수 있는 것들
+
   - `CR0/CR3/CR4` 같은 제어 레지스터 수정 (메모리 보호·페이지 테이블 전환)
   - `hlt`(CPU 정지), `in/out`(I/O 포트), 인터럽트 끄기/켜기
   - 임의의 물리/커널 메모리 접근
@@ -164,10 +175,11 @@ CPU가 저장하는 privilege 등급 = CPL = Ring은 0~3으로 나뉘지만<span
 이 값이 동작하는 방식은 아래와 같다.
 
 - 커널은 사전에 정의된 방식으로만 진입할 수 있음
+
   - syscall: CPU가 MSR `IA32_LSTAR`에 커널이 미리 써둔 주소(`entry_SYSCALL_64`)로만 점프(RIP를 변경). 유저는 이 주소를 바꿀 수 없으며, 바꾸려면 Ring 0 권한이 필요함. 
-`entry_SYSCALL_64`는 커널이 작성한 어셈 코드로, 유저 레지스터를 `pt_regs`로 저장*하고 커널 스택으로 전환함.
-그 뒤 `rax`의 syscall 번호를 보고 `sys_call_table[rax]` 항목을 <strong>call</strong>해서 실제 핸들러(`__x64_sys_read` 등)를 호출함.
-핸들러가 끝나면 반환값을 `rax`에 넣고 `sysret`으로 ring 3 복귀
+  `entry_SYSCALL_64`는 커널이 작성한 어셈 코드로, 유저 레지스터를 `pt_regs`로 저장*하고 커널 스택으로 전환함.
+  그 뒤 `rax`의 syscall 번호를 보고 `sys_call_table[rax]` 항목을 <strong>call</strong>해서 실제 핸들러(`__x64_sys_read` 등)를 호출함.
+  핸들러가 끝나면 반환값을 `rax`에 넣고 `sysret`으로 ring 3 복귀
   - 인터럽트, 예외: IDT(Interrupt Descriptor Table)에 커널이 등록한 핸들러로만 진입함. 페이지 폴트면 항상 `page_fault` 핸들러로 감.
 
   ⇒ syscall 번호, 어떤 인자를 넘길지는 유저가 고를 수 있지만, 진입주소, 핸들러 매핑, 핸들러 안에서 실행되는 코드 일체는 <span class="text-underline"><em>유저가 바꿀 수 가 없음</em></span>
@@ -180,6 +192,7 @@ root 유저가 되는 것(ring 3의 uid=0)과 ring 0를 쥐는 것은 다른 층
 <strong>vmlinux</strong>
 
 - 커널 소스를 컴파일/링크해서 나온 <strong>ELF 실행 파일</strong>임. `.text`, `.data`, `.symtab`, `.debug_info`(디버그 심볼 포함 빌드 시) 등 일반 ELF 섹션 구조를 그대로 가짐.
+
   디버그 심볼이란 컴파일된 기계어 코드와 그걸 만든 소스 코드 상의 이름 위치 타입 정보를 연결해주는 데이터를 말함. CPU 실행에는 전혀 필요 없고, 오직 사람(또는 디버거)이 바이너리를 읽기 위해 존재함. CPU는 함수 정의를 리졸브하는게 아니라 링크 시점에 적힌 상대 주소로 점프하는 것이 전부이기 때문임.
 
   - 소스 코드의 `add(1, 2)` 같은 함수 호출은 컴파일/링크 단계에서 `call 0x401230` 같은 <strong>절대/상대 주소</strong>로 변환됨.
@@ -194,8 +207,9 @@ root 유저가 되는 것(ring 3의 uid=0)과 ring 0를 쥐는 것은 다른 층
   1. `vmlinux`에서 디버그 심볼 등을 제거하고 `objcopy`로 <strong>raw binary</strong>(`vmlinux.bin`)로 변환함. ELF 헤더/섹션 구조가 대부분 사라짐.
   1. 이 바이너리를 gzip/xz/zstd 등으로 압축함.
   1. 앞에 <strong>압축 해제용 부트스트랩 코드</strong>(decompressor, piggy.o 등)와 `bzImage`/`zImage` 헤더(부트 프로토콜 정보)를 붙여서 하나의 파일로 만듦.
+
     디스크의 압축 파일이 메모리에 그대로 올라간다는 뉘앙스에서 image(상)이라는 표현을 씀. 
-일반 실행 파일(ELF)처럼 OS가 동적으로 링크/로드하는 게 아니라, <strong>부트로더가 정해진 규칙대로 메모리에 적재만 하면 되는 self-contained 덩어리</strong>라는 의미
+    일반 실행 파일(ELF)처럼 OS가 동적으로 링크/로드하는 게 아니라, <strong>부트로더가 정해진 규칙대로 메모리에 적재만 하면 되는 self-contained 덩어리</strong>라는 의미
 
     → 디스크 이미지(`.img`), 컨테이너 이미지(Docker), VM 디스크 이미지 등도 같은 맥락임. "복잡한 로딩 과정 없이, 정해진 규칙에 따라 그대로 적재/실행 가능한 바이트 덩어리"라는 뜻으로 공통적으로 쓰임.
 - 즉 `vmlinuz`는 "vmlinux를 압축한 파일"이 아니라 "압축된 커널 본체 + 이걸 풀어서 실행하는 자체 내장 로더"가 합쳐진 부트 이미지임.

@@ -4,9 +4,10 @@ title: "[TIL #01] AI agents"
 subtitle: ""
 categories: ["📂/"]
 tags: ["magazine"]
+status: "커밋완료"
 notion: true
 notion_id: "3ccbb540-e5fe-80bb-9c70-fecfb8aff7bf"
-notion_synced: "2026-09-16T00:30:00.000Z"
+notion_synced: "2026-10-06T08:25:00.000Z"
 banner:
   image: ""
   opacity: 0.5

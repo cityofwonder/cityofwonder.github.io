@@ -929,6 +929,22 @@ html[data-theme="dark"] .post-content blockquote.notion-quote {
   }
 }
 
+/* Toggle headings (Notion collapsible headings). Reuse the toggle chrome but
+   size the summary like the matching heading, and keep the caret inline with
+   the heading text instead of floating as a tiny triangle. */
+details.toggle-heading > summary {
+  font-weight: 700;
+  color: inherit;
+}
+details.toggle-heading.toggle-h1 > summary { font-size: 1.5em; }
+details.toggle-heading.toggle-h2 > summary { font-size: 1.3em; }
+details.toggle-heading.toggle-h3 > summary { font-size: 1.12em; }
+
+details.toggle-heading > summary::before {
+  font-size: 0.7em;
+  top: 0.15em;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

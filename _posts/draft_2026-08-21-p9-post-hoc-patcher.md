@@ -4,9 +4,10 @@ title: "[paper #9] Patcher: Post-Hoc Patching of Backdoored Large Language Model
 subtitle: "Anjun Gao 등. USENIX2026"
 categories: ["📂/paper-review/AI-for-Sec/"]
 tags: ["paper review", "USENIX2026"]
+status: "커밋완료"
 notion: true
 notion_id: "3c8bb540-e5fe-8074-b83c-e497642d907f"
-notion_synced: "2026-08-28T09:30:00.000Z"
+notion_synced: "2026-10-06T08:25:00.000Z"
 banner:
   image: ""
   opacity: 0.5
