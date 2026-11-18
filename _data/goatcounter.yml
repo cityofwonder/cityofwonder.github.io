@@ -1,0 +1,8 @@
+# GoatCounter -- visitor counting (https://danil22.goatcounter.com)
+#
+# _includes/custom-head.html loads the counting script on every page
+# (GoatCounter itself skips localhost, so local previews aren't counted), and
+# the sidebar "Visitors" widget (_includes/sidebar/visitor-stats.html) reads
+# the public counter. That needs "Allow adding visitor counts on your
+# website" switched on in the GoatCounter site settings.
+code: danil22

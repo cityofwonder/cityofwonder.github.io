@@ -22,175 +22,44 @@
   <div class="sticky-corner"></div>
 </div>
 
-<style>
-/* Sticky Note Widget Base - Grayscale */
-.sticky-note-widget {
-  position: relative;
-  margin-bottom: 20px;
-  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.1));
-}
-
-.sticky-note-widget.visitor-sticky .sticky-content {
-  background: var(--c-surface);
-}
-
-.sticky-tape {
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 20px;
-  background: linear-gradient(180deg, rgba(200, 200, 200, 0.6) 0%, rgba(180, 180, 180, 0.4) 100%);
-  border-radius: var(--r-xs);
-  z-index: 1;
-}
-
-.sticky-content {
-  padding: 20px 16px 16px;
-  border-radius: var(--r-xs);
-  position: relative;
-}
-
-.sticky-corner {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 0 20px 20px;
-  border-color: transparent transparent #d0d0d0 transparent;
-}
-
-.sticky-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--c-text);
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 2px dashed var(--c-line);
-}
-
-.sticky-icon {
-  font-size: 16px;
-}
-
-/* Visitor Stats Grid */
-.visitor-stats-grid {
-  display: flex;
-  gap: 12px;
-}
-
-.visitor-stat {
-  flex: 1;
-  background: var(--c-card);
-  border-radius: var(--r-sm);
-  padding: 10px 8px;
-  text-align: center;
-  border: 1px dashed var(--c-line-strong);
-}
-
-.visitor-stat .stat-emoji {
-  display: block;
-  font-size: 18px;
-  margin-bottom: 4px;
-}
-
-.visitor-stat .stat-label {
-  display: block;
-  font-size: 10px;
-  color: var(--c-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-}
-
-.visitor-stat .stat-value {
-  display: block;
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--c-ink);
-  font-family: 'Georgia', serif;
-}
-
-/* Dark Theme (colours come from the tokens; only the decorative tape and
-   folded corner keep their own dark values) */
-html[data-theme="dark"] .sticky-tape {
-  background: linear-gradient(180deg, rgba(80, 80, 80, 0.5) 0%, rgba(60, 60, 60, 0.3) 100%);
-}
-
-html[data-theme="dark"] .sticky-corner {
-  border-color: transparent transparent #1a1a1a transparent;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  .sticky-note-widget {
-    margin-bottom: 16px;
-  }
-
-  .sticky-content {
-    padding: 16px 12px 12px;
-  }
-
-  .visitor-stat .stat-value {
-    font-size: 16px;
-  }
-}
-</style>
+{%- comment -%} styles: _sass/misc/sidebar-widgets.scss {%- endcomment -%}
 
 <script>
+// Site-wide visitor counts from GoatCounter's public counter
+// (_data/goatcounter.yml). These used to be kept in each visitor's own
+// localStorage, so every browser showed only its own visits.
+// GoatCounter caches these responses for up to 4 hours.
 (function() {
-  const STORAGE_KEY = 'blog_visitor_stats';
-  const TODAY_KEY = 'blog_last_visit_date';
+  var code = {{ site.data.goatcounter.code | jsonify }};
 
-  function getTodayString() {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  // the old per-browser tally is meaningless now; drop it
+  try {
+    localStorage.removeItem('blog_visitor_stats');
+    localStorage.removeItem('blog_last_visit_date');
+  } catch (e) {}
+
+  if (!code || !window.fetch) return;
+  var base = 'https://' + code + '.goatcounter.com/counter/TOTAL.json';
+
+  function ymd(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') +
+      '-' + String(d.getDate()).padStart(2, '0');
   }
 
-  function getStats() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-    return { total: 0, today: 0, date: getTodayString() };
+  function show(id, url) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    fetch(url)
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (d) { el.textContent = d.count; })
+      .catch(function () {
+        el.textContent = '-';
+        el.title = 'Visitor count unavailable';
+      });
   }
 
-  function saveStats(stats) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
-  }
-
-  function updateVisitorStats() {
-    const today = getTodayString();
-    const lastVisit = localStorage.getItem(TODAY_KEY);
-    const stats = getStats();
-
-    if (lastVisit !== today) {
-      if (stats.date !== today) {
-        stats.today = 0;
-        stats.date = today;
-      }
-
-      stats.today++;
-      stats.total++;
-
-      localStorage.setItem(TODAY_KEY, today);
-      saveStats(stats);
-    }
-
-    document.getElementById('today-visitors').textContent = stats.today;
-    document.getElementById('total-visitors').textContent = stats.total;
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', updateVisitorStats);
-  } else {
-    updateVisitorStats();
-  }
+  var today = ymd(new Date());
+  show('total-visitors', base);
+  show('today-visitors', base + '?start=' + today + '&end=' + today);
 })();
 </script>
