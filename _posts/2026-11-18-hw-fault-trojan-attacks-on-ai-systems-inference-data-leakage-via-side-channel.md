@@ -5,17 +5,12 @@ subtitle: ""
 categories: ["📂/"]
 tags: []
 status: "작성완료"
-date: 2026-11-18 09:20:00 +0000
+date: 2026-11-18 13:39:00 +0000
 permalink: /directory/hw-fault-trojan-attacks-on-ai-systems-inference-data-leakage-via-side-channel/
 notion: true
 notion_id: "41cbb540-e5fe-81fb-b9dd-f31c667d0834"
-notion_synced: "2026-11-18T09:20:00.000Z"
+notion_synced: "2026-11-18T13:39:00.000Z"
 directory:
-  - title: ""
-    items:
-      - id: "41cbb540-e5fe-81c8-91dc-cc865d877d27"
-        title: "DNN Model Stealing via Side-Channel (DLSCA)"
-        note: "모델 자체가 아니라 AI 시스템의 무결성·권한, 사용자 입력·출력을 노리는 HW·side-channel 논문 모음. 모델 탈취는 참고"
   - title: "A. GPU Rowhammer·bit-flip·HW Trojan (GPUHammer 계열)"
     items:
       - id: "41cbb540-e5fe-81be-85fd-dcb915df876c"
@@ -51,8 +46,6 @@ directory:
       - id: "41cbb540-e5fe-8123-a7bb-c9766da44a01"
         title: "[paper #81] Mirage: Provable Defense Against LLM KV Cache Timing Side Channels with Topology-Aware Isolation"
 ---
-
-- DNN Model Stealing via Side-Channel (DLSCA) — 모델 자체가 아니라 AI 시스템의 무결성·권한, 사용자 입력·출력을 노리는 HW·side-channel 논문 모음. 모델 탈취는 참고
 
 ## A. GPU Rowhammer·bit-flip·HW Trojan (GPUHammer 계열)
 
