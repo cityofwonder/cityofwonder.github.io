@@ -12,13 +12,10 @@
 {%- include functions.html func='get_value' default='true' -%}
 {%- assign badge_enabled = return -%}
 
-{%- assign name = 'code_badge.color' -%}
-{%- include functions.html func='get_value' default='#fff' -%}
-{%- assign badge_color = return -%}
-
-{%- assign name = 'code_badge.background_color' -%}
-{%- include functions.html func='get_value' default='#ff4e00' -%}
-{%- assign badge_background_color = return -%}
+{%- comment -%}
+  code_badge.color / background_color are no longer read: the language label
+  is a muted caption like the directory view's, not a coloured pill.
+{%- endcomment -%}
 
 {%- assign name = 'code_badge.text_transform' -%}
 {%- include functions.html func='get_value' default='uppercase' -%}
@@ -82,22 +79,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
     pre.appendChild(copyBtn);
   }
 
-  function addMacButtons(block) {
-    var pre = block.parentElement;
-
-    // Create Mac window buttons container
-    var macButtons = document.createElement('div');
-    macButtons.className = 'mac-buttons';
-    macButtons.innerHTML = '<span class="mac-btn mac-close"></span><span class="mac-btn mac-minimize"></span><span class="mac-btn mac-maximize"></span>';
-
-    pre.insertBefore(macButtons, pre.firstChild);
-  }
-
   function handle(block) {
     addLangData(block);
     addBadge(block);
     addCopyButton(block);
-    addMacButtons(block);
     hljs.highlightBlock(block);
   }
 
@@ -109,13 +94,15 @@ document.addEventListener('DOMContentLoaded', function(event) {
 </script>
 
 <style>
-  /* Mac style code block */
+  /* Code block: a flat dark card like the directory view's -- hairline edge,
+     no window chrome. The top strip holds the language caption (left) and
+     the copy button (right). Colours/radii: _sass/misc/tokens.scss. */
   pre {
     position: relative;
-    border-radius: 8px;
-    background-color: #282c34 !important;
-    padding: 45px 20px 20px 20px !important;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+    border-radius: var(--r-md);
+    background-color: var(--c-code-bg) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 44px 20px 20px 20px !important;
     margin: 1.5em 0;
   }
 
@@ -131,46 +118,17 @@ document.addEventListener('DOMContentLoaded', function(event) {
     padding: 0 !important;
   }
 
-  /* Mac window buttons */
-  .mac-buttons {
-    position: absolute;
-    top: 12px;
-    left: 15px;
-    display: flex;
-    gap: 8px;
-    z-index: 1;
-  }
-
-  .mac-btn {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
-  .mac-close {
-    background-color: #ff5f56;
-  }
-
-  .mac-minimize {
-    background-color: #ffbd2e;
-  }
-
-  .mac-maximize {
-    background-color: #27c93f;
-  }
-
   /* Copy button */
   .code-copy-btn {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    color: #fff;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--r-sm);
+    color: rgba(255, 255, 255, 0.72);
     cursor: pointer;
-    padding: 6px 10px;
+    padding: 5px 9px;
     font-size: 12px;
     transition: all 0.2s ease;
     display: flex;
@@ -180,35 +138,34 @@ document.addEventListener('DOMContentLoaded', function(event) {
   }
 
   .code-copy-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.18);
   }
 
   .code-copy-btn.copied {
-    background: rgba(39, 201, 63, 0.2);
-    border-color: rgba(39, 201, 63, 0.4);
+    color: var(--k-green);
+    background: color-mix(in srgb, var(--k-green) 20%, transparent);
+    border-color: color-mix(in srgb, var(--k-green) 45%, transparent);
   }
 
   .code-copy-btn svg {
     display: block;
   }
 
-  /* code language badge */
+  /* code language caption (top-left), styled like the directory kicker */
   pre.badge::before {
     content: attr(data-lang);
-    color: {{badge_color}};
-    background-color: {{badge_background_color}};
-    padding: 3px 8px;
-    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.45);
     text-transform: {{badge_text_transform}};
-    text-align: center;
-    min-width: 32px;
+    letter-spacing: 0.08em;
     display: inline-block;
     position: absolute;
-    top: 10px;
-    right: 60px;
+    top: 14px;
+    left: 20px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
+    line-height: 1;
     z-index: 2;
   }
 
@@ -217,25 +174,15 @@ document.addEventListener('DOMContentLoaded', function(event) {
     display: none;
   }
 
-  /* Dark theme adjustments */
-  html[data-theme="dark"] pre {
-    background-color: #1e2127 !important;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
-
-  html[data-theme="dark"] pre > code {
-    color: #abb2bf !important;
-  }
-
-  /* Diff syntax highlighting */
+  /* Diff syntax highlighting (dark key tones: see `pre` in tokens.scss) */
   .hljs-deletion,
   .hljs-deletion .hljs-string,
   .diff .hljs-deletion,
   code.diff .hljs-deletion,
   code.language-diff .hljs-deletion,
   .hljs.diff .hljs-deletion {
-    background-color: rgba(248, 81, 73, 0.2) !important;
-    color: #f85149 !important;
+    background-color: color-mix(in srgb, var(--k-red) 20%, transparent) !important;
+    color: var(--k-red) !important;
     display: block;
     width: 100%;
     margin: 0 -20px;
@@ -248,8 +195,8 @@ document.addEventListener('DOMContentLoaded', function(event) {
   code.diff .hljs-addition,
   code.language-diff .hljs-addition,
   .hljs.diff .hljs-addition {
-    background-color: rgba(46, 160, 67, 0.2) !important;
-    color: #56d364 !important;
+    background-color: color-mix(in srgb, var(--k-green) 20%, transparent) !important;
+    color: var(--k-green) !important;
     display: block;
     width: 100%;
     margin: 0 -20px;
