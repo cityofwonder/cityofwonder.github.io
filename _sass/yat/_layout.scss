@@ -256,10 +256,7 @@ html {
   .post-tags {
     padding-right: 150px;
 
-    .post-tag {
-      display: inline-block;
-      margin: 0 12px 0 0;
-    }
+    .post-tag { margin: 0 6px 6px 0; }   // chip itself: .post-tag in _base.scss
   }
 }
 
@@ -271,14 +268,6 @@ html {
   -ms-flex: none; /* <-- Fix IE footer issue */
   padding: $spacing-unit * 2 0;
   padding-top: 72px;
-}
-
-.page-heading {
-  @include relative-font-size(2);
-}
-
-.post-list-heading {
-  @include relative-font-size(1.75);
 }
 
 /**
@@ -320,55 +309,6 @@ html {
     margin-bottom: $spacing-unit * 0.5;
   }
 
-  .post-excerpt {
-    display: flex;
-    position: relative;
-    gap: 15px;
-    margin-bottom: 15px;
-
-    .post-image > *:first-child {
-      flex: 0 1 38.2%;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center center;
-      overflow: hidden;
-      transition: 0.2s all ease-in-out;
-    }
-  }
-
-  .post-list {
-    &.none-image-style .post-item .post-excerpt .post-image {
-      display: none;
-    }
-
-    &.left-image-style .post-item .post-excerpt {
-      flex-direction: row;
-    }
-
-    &.right-image-style .post-item .post-excerpt {
-      flex-direction: row-reverse;
-    }
-
-    &.post-list.top-image-style .post-item .post-excerpt {
-      flex-direction: column;
-    }
-
-    &.z-image-style .post-item:nth-child(even) .post-excerpt {
-      flex-direction: row-reverse;
-    }
-
-    &.z-reverse-image-style .post-item:nth-child(odd) .post-excerpt {
-      flex-direction: row-reverse;
-    }
-
-    .post-item .post-excerpt {
-      @include media-query($on-laptop) {
-        flex-direction: column !important;
-      }
-    }
-  }
-
   .post-text {
     color: var(--c-muted);
     word-break: break-word;
@@ -376,19 +316,7 @@ html {
     flex: 1;
   }
 
-  .post-tags .post-tag {
-    display: inline-block;
-    text-decoration: none;
-    padding: 1px 4px;
-    border-radius: var(--r-xs);
-    transition: color 0.2s;
-    margin-bottom: 8px;
-    /* background comes from the per-tag .highlight-* class (set by JS) */
-
-    &:not(:last-child) {
-      margin-right: 8px;
-    }
-  }
+  .post-tags .post-tag { margin: 0 6px 6px 0; }   // chip: .post-tag in _base.scss
 
   .paginator {
     text-align: center;
@@ -585,31 +513,6 @@ html {
 
 
 /**
- * Archives page
- */
-.page-archives {
-  .page-archives-list {
-    margin-left: 0;
-    list-style: none;
-  }
-
-  .archives-time {
-    @include relative-font-size(1.5);
-
-    &:not(:first-child) {
-      margin-top: 18px;
-    }
-    margin-bottom: 8px;
-  }
-
-  .post-meta {
-    font-size: $small-font-size;
-    color: var(--c-muted);
-  }
-}
-
-
-/**
  * Page banner
  */
 .page-banner {
@@ -708,16 +611,13 @@ html {
         padding-right: 0;
       }
 
+      /* the site's tag chip (_base.scss), in glass: on the photo the per-tag
+         colour (a pale tone in light mode) would swallow the white text */
       .post-tag {
-        @include relative-font-size(1.125);
-        display: inline-block;
-        text-decoration: none;
-        margin: 9px 12px 0 0;
+        margin: 9px 6px 0 0;
         color: #fff;
-
-        &:hover {
-          text-decoration: underline;
-        }
+        background: rgba(255, 255, 255, 0.14) !important;
+        background-image: none !important;
       }
     }
   }
@@ -765,51 +665,6 @@ html {
 }
 
 
-/**
- * Segments page
- */
-.page-segments {
-  .page-segments-list {
-    margin-left: 0;
-    list-style: none;
-  }
-
-  .segment-name {
-    font-weight: $base-font-weight * 1.5;
-    margin-bottom: 8px;
-    position: relative;
-
-    @include relative-font-size(1.6);
-
-    &:not(:first-child) {
-      margin-top: 28px;
-    }
-
-    &:hover:before {
-      content: '#';
-      left: -1em;
-      position: absolute;
-    }
-  }
-
-  .post-meta {
-    font-size: $small-font-size;
-    color: var(--c-muted);
-  }
-
-  li a {
-    &.post-link {
-      margin-left: 5px;
-    }
-
-    color: var(--c-text);
-
-    &:hover {
-      color: var(--c-ink);
-    }
-  }
-}
-
 .left-vsplit:before {
   content: "";
   display: inline-block;
@@ -836,10 +691,6 @@ html {
 }
 
 .post-related .post-badges {
-  bottom: 0.1em;
-}
-
-.page-segments .post-badges {
   bottom: 0.1em;
 }
 

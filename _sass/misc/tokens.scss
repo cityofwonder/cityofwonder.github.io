@@ -11,8 +11,11 @@
  * Each key colour has a text tone (--k-*) and a background tone (--k-*-bg).
  * The accent (links, focus) is red, the blog's brand colour.
  *
- * NEUTRALS: the directory view's (misc/directory.scss) -- warm paper
- * surfaces with hairline borders, Notion's gray for secondary text.
+ * NEUTRALS: the directory view's structure (misc/directory.scss) --
+ * surfaces with hairline borders. Two low-glare themes:
+ *   light = OVERCAST SLATE: a muted blue-grey well below white, with dark
+ *           navy text. Nothing on screen is near white.
+ *   dark  = DEEP NAVY.
  *
  * RADII: five steps. Pick by the size of the thing, not by taste:
  *     --r-xs   4px  tags, badges, inline code, tiny tiles
@@ -25,13 +28,13 @@
 // Sass copies, for the few places that need a colour at compile time
 // (lighten(), rgba($c, a), ...). Keep in sync with the variables below.
 // (Keys are quoted: bare `red`, `gray` ... would be parsed as colours.)
-$k-light: (
-  "gray":   #787774,
-  "red":    #d44c47,
-  "orange": #d9730d,
-  "yellow": #cb912f,
-  "green":  #448361,
-  "blue":   #337ea9,
+$k-light: (            // the light (slate) theme's deepened Notion tones
+  "gray":   #555451,
+  "red":    #a3302c,
+  "orange": #8c4705,
+  "yellow": #7a530c,
+  "green":  #2f6045,
+  "blue":   #235a7a,
 );
 $k-dark: (
   "gray":   #9b9b9b,
@@ -50,30 +53,48 @@ $k-dark: (
   --r-lg: 16px;
   --r-pill: 999px;
 
-  /* neutrals */
-  --c-page: #ffffff;                    // page background
-  --c-surface: #f4f3f0;                 // panels, board columns, header strips
-  --c-card: #ffffff;                    // a card sitting on a surface
-  --c-hover: rgba(55, 53, 47, 0.06);    // row / button hover tint
-  --c-line: rgba(15, 15, 15, 0.08);     // hairline borders, dividers
-  --c-line-strong: rgba(15, 15, 15, 0.16);
-  --c-ink: #1d1d1f;                     // headings, strong text
-  --c-text: #37352f;                    // body text
-  --c-muted: #787774;                   // secondary text, meta, counts
-  --c-faint: rgba(55, 53, 47, 0.45);    // placeholders, disabled
+  /* neutrals -- overcast slate: light enough for dark text, dim enough not
+     to glare. --c-muted keeps 4.5:1+ on every surface. */
+  --c-page: #cdd3de;                      // page background
+  --c-surface: #c1c8d5;                   // panels, board columns, header strips
+  --c-card: #d9dee7;                      // a card sitting on a surface
+  --c-hover: rgba(20, 28, 48, 0.07);      // row / button hover tint
+  --c-line: rgba(20, 28, 48, 0.12);       // hairline borders, dividers
+  --c-line-strong: rgba(20, 28, 48, 0.22);
+  --c-ink: #151b2a;                       // headings, strong text
+  --c-text: #242b3b;                      // body text
+  --c-muted: #485165;                     // secondary text, meta, counts
+  --c-faint: rgba(20, 28, 48, 0.5);       // placeholders, disabled
 
-  /* key colours: text tone / background tone */
-  --k-gray: #787774;    --k-gray-bg: #f1f1ef;
-  --k-red: #d44c47;     --k-red-bg: #fdebec;
-  --k-orange: #d9730d;  --k-orange-bg: #fbecdd;
-  --k-yellow: #cb912f;  --k-yellow-bg: #fbf3db;
-  --k-green: #448361;   --k-green-bg: #edf3ec;
-  --k-blue: #337ea9;    --k-blue-bg: #e7f3f8;
+  /* key colours: Notion's hues, deepened until text in them clears 4.5:1 on
+     the slate page (Notion's own light tones are tuned for white and read
+     at ~3:1 here). Background tones are Notion's light tone mixed into the
+     page, so tags and highlights sit in the theme. */
+  --k-gray: #555451;    --k-gray-bg: #{mix(#787774, #cdd3de, 20%)};
+  --k-red: #a3302c;     --k-red-bg: #{mix(#d44c47, #cdd3de, 22%)};
+  --k-orange: #8c4705;  --k-orange-bg: #{mix(#d9730d, #cdd3de, 22%)};
+  --k-yellow: #7a530c;  --k-yellow-bg: #{mix(#cb912f, #cdd3de, 26%)};
+  --k-green: #2f6045;   --k-green-bg: #{mix(#448361, #cdd3de, 22%)};
+  --k-blue: #235a7a;    --k-blue-bg: #{mix(#337ea9, #cdd3de, 22%)};
+
+  /* glow tones: the vivid version of each key colour, for light effects
+     (the tag graph's hover glow) rather than text -- Notion's own tones */
+  --k-gray-glow: #787774;
+  --k-red-glow: #d44c47;
+  --k-orange-glow: #d9730d;
+  --k-yellow-glow: #cb912f;
+  --k-green-glow: #448361;
+  --k-blue-glow: #337ea9;
 
   --accent: var(--k-red);
 
-  /* code blocks: an always-dark surface (the syntax theme is a dark one) */
-  --c-code-bg: #1f1f22;
+  /* a quiet second ink for labels inside titles (the "[paper #85]" part):
+     the ink with a share of a key colour mixed in -- navy here, ivory in
+     dark mode -- so it reads as a variation of the title, not a link */
+  --c-kind: color-mix(in srgb, var(--k-blue) 45%, var(--c-ink));
+
+  /* code blocks: an always-dark slate card (the syntax theme is dark) */
+  --c-code-bg: #232736;
 }
 
 /* Code blocks are dark in both themes, so inside them the key colours use
@@ -91,21 +112,35 @@ pre {
 }
 
 html[data-theme="dark"] {
-  --c-page: #0e0e0e;
-  --c-surface: #18181a;
-  --c-card: #1f1f22;
+  /* deep navy -- darker than a Monokai-style dim navy, not pure black.
+     --c-muted keeps 5:1+ on --c-card. */
+  --c-page: #181b28;
+  --c-surface: #1f2333;
+  --c-card: #262b3d;
   --c-hover: rgba(255, 255, 255, 0.055);
   --c-line: rgba(255, 255, 255, 0.08);
   --c-line-strong: rgba(255, 255, 255, 0.16);
-  --c-ink: #e8e8e8;
-  --c-text: #d4d4d4;
-  --c-muted: #9b9b9b;
+  --c-ink: #e9ebf2;
+  --c-text: #d3d7e2;
+  --c-muted: #a0a7ba;
   --c-faint: rgba(255, 255, 255, 0.4);
 
-  --k-gray: #9b9b9b;    --k-gray-bg: #2f2f2f;
-  --k-red: #df5452;     --k-red-bg: #522e2a;
-  --k-orange: #c77d48;  --k-orange-bg: #5c3b23;
-  --k-yellow: #ca9849;  --k-yellow-bg: #564328;
-  --k-green: #529e72;   --k-green-bg: #243d30;
-  --k-blue: #379ad3;    --k-blue-bg: #143a4e;
+  /* Notion's dark text tones; background tones mixed into the navy page */
+  --k-gray: #9b9b9b;    --k-gray-bg: #{mix(#9b9b9b, #181b28, 22%)};
+  --k-red: #df5452;     --k-red-bg: #{mix(#df5452, #181b28, 26%)};
+  --k-orange: #c77d48;  --k-orange-bg: #{mix(#c77d48, #181b28, 26%)};
+  --k-yellow: #ca9849;  --k-yellow-bg: #{mix(#ca9849, #181b28, 26%)};
+  --k-green: #529e72;   --k-green-bg: #{mix(#529e72, #181b28, 26%)};
+  --k-blue: #379ad3;    --k-blue-bg: #{mix(#379ad3, #181b28, 26%)};
+
+  --k-gray-glow: #9b9b9b;
+  --k-red-glow: #df5452;
+  --k-orange-glow: #c77d48;
+  --k-yellow-glow: #ca9849;
+  --k-green-glow: #529e72;
+  --k-blue-glow: #379ad3;
+
+  --c-kind: color-mix(in srgb, var(--k-yellow) 28%, var(--c-ink));
+
+  --c-code-bg: #12141f;              // a well below the navy page
 }

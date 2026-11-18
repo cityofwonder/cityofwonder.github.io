@@ -7,28 +7,21 @@
  *   .directory-page  the board it opens (_layouts/directory.html,
  *                    cards from _includes/views/board-card.html)
  */
+/* Colours are the site tokens (misc/tokens.scss); only two values are the
+   directory's own: */
 .directory-item,
 .directory-page {
-  // The site-wide tokens (misc/tokens.scss) were taken from this view; these
-  // names stay as aliases so the rules below read the way they always have.
-  --dir-surface: var(--c-surface);   // column + mini-board background
-  --dir-card: var(--c-card);
-  --dir-line: var(--c-line);
-  --dir-ink: var(--c-ink);
-  --dir-muted: var(--c-muted);
-  --dir-ghost: rgba(55, 53, 47, 0.62); // a post's own text behind its card
-  --dir-tile: var(--c-card);
-  --dir-tile-ink: var(--c-text);
+  --dir-ghost: rgba(20, 28, 48, 0.5);  // a post's own text behind its card
+  --dir-tile: var(--c-card);           // mini-board tiles
 }
 
 html[data-theme="dark"] {
   .directory-item,
   .directory-page {
     --dir-ghost: rgba(255, 255, 255, 0.4);
-    --dir-tile: #26262a;               // a step above the dark card
+    --dir-tile: #2d3346;               // a step above the dark (navy) card
   }
 }
-
 
 /* ---------------------------------------------------------------------------
  * Feed card: the image slot is a miniature of the board
@@ -41,8 +34,8 @@ html[data-theme="dark"] {
   padding: 14px 14px 0;
   box-sizing: border-box;
   line-height: 1.3;           // .post-image sets line-height: 0 for photos
-  background-color: var(--dir-surface);
-  background-image: radial-gradient(var(--dir-line) 1px, transparent 1px);
+  background-color: var(--c-surface);
+  background-image: radial-gradient(var(--c-line) 1px, transparent 1px);
   background-size: 14px 14px;
   overflow: hidden;
 }
@@ -85,8 +78,8 @@ html[data-theme="dark"] {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--dir-surface);
-  background: var(--dir-ink);
+  color: var(--c-surface);
+  background: var(--c-ink);
 }
 
 .dir-mini-board {
@@ -121,20 +114,20 @@ html[data-theme="dark"] {
 
 .dir-mini-head {
   font-weight: 700;
-  color: var(--dir-muted);
+  color: var(--c-muted);
   padding: 0 2px 1px;
 }
 
 .dir-mini-tile {
   padding: 5px 7px;
   border-radius: var(--r-xs);
-  color: var(--dir-tile-ink);
+  color: var(--c-text);
   background: var(--dir-tile);
-  border: 1px solid var(--dir-line);
+  border: 1px solid var(--c-line);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 
   &.is-pending {
-    color: var(--dir-muted);
+    color: var(--c-muted);
     background: transparent;
     border-style: dashed;
     box-shadow: none;
@@ -142,14 +135,14 @@ html[data-theme="dark"] {
 }
 
 .dir-mini-more {
-  color: var(--dir-muted);
+  color: var(--c-muted);
   padding-left: 2px;
 }
 
 /* Card body: sections with counts */
 .pagination .directory-item .dir-card-subtitle {
   margin: -2px 0 6px;
-  color: var(--dir-muted);
+  color: var(--c-muted);
 }
 
 .pagination .directory-item .dir-sections {
@@ -159,7 +152,7 @@ html[data-theme="dark"] {
 
   > li {
     margin: 0;
-    border-top: 1px solid var(--dir-line);
+    border-top: 1px solid var(--c-line);
   }
   > li:first-child { border-top: 0; }
 }
@@ -169,7 +162,7 @@ html[data-theme="dark"] {
   align-items: baseline;
   gap: 10px;
   padding: 6px 0;
-  color: var(--dir-ink);
+  color: var(--c-ink);
   text-decoration: none;
 
   &:hover .dir-sec-name { text-decoration: underline; }
@@ -192,8 +185,8 @@ html[data-theme="dark"] {
   font-size: 11px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--dir-muted);
-  background: var(--dir-surface);
+  color: var(--c-muted);
+  background: var(--c-surface);
 }
 
 /* Featured card only: a few posts under each section */
@@ -201,7 +194,7 @@ html[data-theme="dark"] {
   list-style: none;
   margin: -2px 0 8px;
   padding: 0 0 0 12px;
-  border-left: 2px solid var(--dir-line);
+  border-left: 2px solid var(--c-line);
 
   li {
     margin: 0;
@@ -211,9 +204,9 @@ html[data-theme="dark"] {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  a { color: var(--dir-muted); }
-  a:hover { color: var(--dir-ink); }
-  .is-pending { color: var(--dir-muted); opacity: 0.6; }
+  a { color: var(--c-muted); }
+  a:hover { color: var(--c-ink); }
+  .is-pending { color: var(--c-muted); opacity: 0.6; }
 }
 
 
@@ -235,12 +228,14 @@ html[data-theme="dark"] {
   padding: 56px 48px 40px;
   border-radius: var(--r-lg);
   color: #fff;
-  background: #141416;
+  /* a dark well in either theme: deep navy on the slate page, and a step
+     below the navy page in dark mode */
+  background: #1d2030;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 html[data-theme="dark"] .dir-hero {
-  background: #161618;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  background: #10131d;
 }
 
 .dir-hero-cover {
@@ -322,19 +317,12 @@ html[data-theme="dark"] .dir-hero {
   .left-vsplit:before { background: #e3e3e388; }
 
   .post-tags { margin-top: 12px; }
+  /* the site's tag chip (_base.scss), in glass on the dark hero */
   .post-tag {
-    display: inline-block;
     margin: 0 6px 6px 0;
-    padding: 2px 10px;
-    border-radius: var(--r-pill);
-    font-size: 12px;
     color: #fff;
-    text-decoration: none;
-    /* tag-colors.js adds a highlighter class meant for light pages; on the
-       dark hero a plain glass pill reads better */
     background: rgba(255, 255, 255, 0.12) !important;
     background-image: none !important;
-    mix-blend-mode: normal !important;
   }
 }
 
@@ -381,7 +369,7 @@ html[data-theme="dark"] .dir-hero {
   min-width: 0;
   padding: 12px;
   border-radius: var(--r-lg);
-  background: var(--dir-surface);
+  background: var(--c-surface);
   scroll-snap-align: start;
   scroll-margin-top: 80px;   // #dir-section-N links land below the header
 }
@@ -398,7 +386,7 @@ html[data-theme="dark"] .dir-hero {
     font-size: 15px;
     font-weight: 700;
     line-height: 1.4;
-    color: var(--dir-ink);
+    color: var(--c-ink);
   }
 }
 
@@ -410,15 +398,15 @@ html[data-theme="dark"] .dir-hero {
   font-size: 12px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--dir-muted);
-  background: var(--dir-card);
-  border: 1px solid var(--dir-line);
+  color: var(--c-muted);
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
 }
 
 .dir-col-note {
   margin: -4px 4px 12px;
   font-size: 13px;
-  color: var(--dir-muted);
+  color: var(--c-muted);
 }
 
 .dir-col-body {
@@ -431,7 +419,7 @@ html[data-theme="dark"] .dir-hero {
   padding: 8px 4px 0;
   font-size: 12px;
   font-weight: 700;
-  color: var(--dir-muted);
+  color: var(--c-muted);
 }
 
 /* Card: the post's body text is the "image", fading into the title block */
@@ -445,9 +433,9 @@ html[data-theme="dark"] .dir-hero {
   min-height: 176px;
   padding: 16px 16px 14px;
   border-radius: var(--r-md);
-  border: 1px solid var(--dir-line);
-  background: var(--dir-card);
-  color: var(--dir-ink);
+  border: 1px solid var(--c-line);
+  background: var(--c-card);
+  color: var(--c-ink);
   text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -455,7 +443,7 @@ html[data-theme="dark"] .dir-hero {
 a.board-card:hover {
   text-decoration: none;
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 24px rgba(20, 28, 48, 0.14);
 }
 html[data-theme="dark"] a.board-card:hover {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
@@ -490,7 +478,7 @@ a.board-card:hover .board-card-bg { opacity: 1; }
   font-size: 15px;
   font-weight: 700;
   line-height: 1.38;
-  color: var(--dir-ink);
+  color: var(--c-ink);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -514,22 +502,14 @@ a.board-card:hover .board-card-bg { opacity: 1; }
   margin: 0;
   font-size: 13px;
   line-height: 1.45;
-  color: var(--dir-muted);
+  color: var(--c-muted);
 }
 
-.board-card-tags {
+.board-card-tags {             // chips: .post-tag in _base.scss
   display: flex;
   flex-wrap: wrap;
   gap: 4px 6px;
   margin-top: 6px;
-
-  .post-tag {
-    padding: 1px 4px;
-    border-radius: var(--r-xs);
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--c-text);
-  }
 }
 
 .board-card.is-pending {
@@ -540,7 +520,7 @@ a.board-card:hover .board-card-bg { opacity: 1; }
 
   .board-card-title {
     font-weight: 600;
-    color: var(--dir-muted);
+    color: var(--c-muted);
   }
 }
 

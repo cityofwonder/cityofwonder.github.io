@@ -9,11 +9,6 @@ html[data-theme="dark"]  {
       }
     }
   }
-
-  // transparent PNG diagrams in posts get a light backing to stay readable
-  .post .post-content {
-    img:not(.emoji):not([raw]) {
-      background-color: #ffffff33;
-    }
-  }
+  // (the light backing for transparent post images is in _base.scss now:
+  // both themes need it)
 }

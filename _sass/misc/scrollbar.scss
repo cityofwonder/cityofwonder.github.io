@@ -17,8 +17,8 @@ $scrollbar-size: 10px;   // gutter; the knob is inset 2px on each side -> 6px
 
 :root {
   --scrollbar-size: #{$scrollbar-size};
-  --scrollbar-thumb: rgba(60, 64, 72, 0.32);        // slate ink on light pages
-  --scrollbar-thumb-hover: rgba(60, 64, 72, 0.55);
+  --scrollbar-thumb: rgba(20, 28, 48, 0.3);         // slate ink on the light theme
+  --scrollbar-thumb-hover: rgba(20, 28, 48, 0.5);
 }
 
 html[data-theme="dark"],

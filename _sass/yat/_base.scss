@@ -82,7 +82,12 @@ img {
   }
 }
 
-// Dark mode image shadow adjustment
+// Neither theme is white, so transparent PNG diagrams (black lines on
+// nothing) get a light backing in both to stay readable.
+.post .post-content img:not(.emoji):not([raw]) {
+  background-color: #ffffff33;
+}
+
 [data-theme="dark"] {
   .post-content,
   .page-content {
@@ -131,11 +136,12 @@ li {
  * sibling trims the rail at its node so no tail dangles below the group.
  */
 .post-content {
-  $rail: rgba(130, 130, 130, 0.45);
-  $rail-hover: var(--accent);         // themes itself (tokens.scss)
+  // all tokens, so the tree reads on either theme (both are dark surfaces)
+  $rail: var(--c-line-strong);
+  $rail-hover: var(--accent);
   $node-bg: var(--c-page);            // opaque chip masking the rail
-  $node-border: rgba(120, 120, 120, 0.55);
-  $node-text: rgba(70, 70, 70, 0.95);
+  $node-border: var(--c-muted);
+  $node-text: var(--c-text);
   $rail-x: 1em;                       // rail distance left of item content
   $node-y: 0.85em;                    // vertical centre, aligned to 1st line
   $node-size: 1.5em;                  // ordered-node diameter
@@ -243,7 +249,7 @@ li {
     border: none;
   }
   ul ul > li::after {
-    background: rgba(120, 120, 120, 0.4);
+    background: var(--c-faint);
   }
   ul ul ul > li::after {
     background: transparent;
@@ -294,52 +300,7 @@ li {
   }
 }
 
-// Dark mode adjustments for lists. The node background and the hover accent
-// are tokens and switch on their own; only the greys of rail/node differ.
-[data-theme="dark"] .post-content {
-  $rail-d: rgba(180, 180, 180, 0.32);
-  $node-border-d: rgba(170, 170, 170, 0.5);
-  $node-text-d: rgba(205, 205, 205, 0.95);
-
-  li::before {
-    background: $rail-d;
-  }
-
-  li::after {
-    border-color: $node-border-d;
-    color: $node-text-d;
-  }
-
-  ul > li::after {
-    background: $node-border-d;
-    border: none;
-  }
-  ul ul ul > li::after {
-    background: transparent;
-    border: 1.5px solid $node-border-d;
-  }
-
-  // the hover rules above must win over these greys again
-  li:hover::before {
-    background: var(--accent);
-  }
-  li:hover::after {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  ul > li:hover::after {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
-
-  // depth 3+ file-tree tick (dark) — vertical rail reuses base $rail-d
-  li li li::after {
-    background: $rail-d !important;
-  }
-  li li li:hover::after {
-    background: var(--accent) !important;
-  }
-}
+// (No dark-mode block for lists: rail and nodes are tokens.)
 
 
 
@@ -359,14 +320,6 @@ a {
 
   &:hover {
     text-decoration: underline;
-  }
-
-  .social-media-list &:hover {
-    text-decoration: none;
-
-    .username {
-      text-decoration: underline;
-    }
   }
 }
 
@@ -598,6 +551,7 @@ $notion-colors: (
  */
 @each $name, $key in $notion-colors {
   .highlight-#{$name} {
+    --tag-bg: var(--k-#{$key}-bg);     // read by the tag chip below
     background-image: linear-gradient(
       to bottom,
       transparent 14%,
@@ -616,6 +570,39 @@ $notion-colors: (
   .text-#{$name} {
     color: var(--k-#{$key});
   }
+}
+
+/*
+ * Tags (.post-tag, coloured by extensions/tag-colors.html): ONE chip for the
+ * whole site -- feed, post header, directory, tags page (filter, slide,
+ * table), about. Same colours as the highlighter band above but a different
+ * shape (a solid chip), so a tag never reads as highlighted body text.
+ * Shape and type live only here; other .post-tag rules add spacing (margin)
+ * and, on photos, a glass background -- nothing else.
+ */
+.post-tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--c-text);
+  white-space: nowrap;
+  text-decoration: none;
+
+  &,
+  &[class*="highlight-"] {          // beats the band's padding/radius
+    padding: 0 5px;
+    border-radius: var(--r-xs);
+  }
+
+  &[class*="highlight-"] {
+    background-image: none;
+    background-color: var(--tag-bg);
+    -webkit-box-decoration-break: slice;
+            box-decoration-break: slice;
+  }
+
+  &:hover { text-decoration: none; }
 }
 
 /* Bold text utility */
@@ -830,7 +817,7 @@ details.toggle-heading > summary::before {
   --note-alpha: 0.55;
   --note-ink: color-mix(in srgb, var(--k-yellow) 40%, var(--c-ink));
   --note-line: color-mix(in srgb, var(--note-ink) 22%, transparent);
-  --note-fold: rgba(0, 0, 0, 0.12);
+  --note-fold: rgba(0, 0, 0, 0.15);
 
   z-index: 30;
   padding: 12px 14px;
@@ -959,7 +946,6 @@ html.nc-popover .comment-bubble::after {
   border-bottom-color: color-mix(in srgb, var(--note-c1) calc(var(--note-alpha) * 100%), transparent);
 }
 
-/* Dark mode: the colours follow the tokens; only opacity and fold differ */
 html[data-theme="dark"] .comment-bubble {
   --note-alpha: 0.5;
   --note-fold: rgba(0, 0, 0, 0.3);
@@ -967,9 +953,6 @@ html[data-theme="dark"] .comment-bubble {
 
 /* Narrow-screen popover overlays the body text, so make it more opaque */
 html.nc-popover .comment-bubble {
-  --note-alpha: 0.93;
-}
-html[data-theme="dark"].nc-popover .comment-bubble {
   --note-alpha: 0.9;
 }
 
