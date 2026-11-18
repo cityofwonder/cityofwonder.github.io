@@ -21,11 +21,19 @@
 {%- include functions.html func='get_value' -%}
 {%- assign default_image = return -%}
 
-{%- assign post_image = post.excerpt_image
-  | default: post.banner.image
-  | default: post.banner
-  | default: default_image
-  | default: '/assets/images/default-image.jpeg' -%}
+{%- comment -%}
+  `banner` is either a URL string or a hash with `image`. A post synced
+  without a cover has `banner: { image: "" }` -- no image, so the card gets
+  no image slot at all (no placeholder, no empty box).
+{%- endcomment -%}
+{%- assign post_image = post.excerpt_image | default: post.banner.image -%}
+{%- if post_image == nil or post_image == "" -%}
+  {%- unless post.banner.first -%}
+    {%- assign post_image = post.banner -%}
+  {%- endunless -%}
+{%- endif -%}
+{%- assign post_image = post_image | default: default_image -%}
+{%- if post_image == "" -%}{%- assign post_image = nil -%}{%- endif -%}
 
 {%- comment -%} 작성중: `draft: true` 이거나 Notion 상태가 진행 중/작성중 {%- endcomment -%}
 {%- assign status_class = '' -%}
@@ -34,8 +42,10 @@
 {%- elsif post.status == '작성완료' -%}
   {%- assign status_class = ' done-post' -%}
 {%- endif -%}
-<li class="post-item {{ post_item_class }}{{ status_class }}">
-  {%- if post_image and post_image != 'NO_EXCERPT_IMAGE' -%}
+{%- assign has_image = false -%}
+{%- if post_image and post_image != 'NO_EXCERPT_IMAGE' -%}{%- assign has_image = true -%}{%- endif -%}
+<li class="post-item {{ post_item_class }}{{ status_class }}{% unless has_image %} no-image{% endunless %}">
+  {%- if has_image -%}
   <a class="post-image" href="{{ post_url }}">
     <div style="background-image: url({{ post_image | relative_url }})"></div>
   </a>
@@ -48,8 +58,26 @@
       </a>
     </h2>
     {%- if post_item_class contains 'featured' -%}
+    {%- comment -%}
+      The preview is the whole post clipped to the card, so any <iframe> in
+      it (xmind, youtube) is never visible -- but it still loads, grabs focus,
+      and the browser scrolls the WINDOW to it. Clipped content adds no
+      scroll height, so that scroll clamps to the bottom of the home page.
+      Drop iframes from the preview; the post page itself keeps them.
+    {%- endcomment -%}
+    {%- assign preview_chunks = post.content | split: '<iframe' -%}
+    {%- capture preview_html -%}
+      {%- for chunk in preview_chunks -%}
+        {%- if forloop.first -%}
+          {{- chunk -}}
+        {%- else -%}
+          {%- assign after_iframe = chunk | split: '</iframe>' | shift -%}
+          {{- after_iframe | join: '</iframe>' -}}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endcapture -%}
     <div class="post-content featured-preview">
-      {{ post.content }}
+      {{ preview_html }}
     </div>
     {%- else -%}
     <a class="post-text" href="{{ post_url }}">

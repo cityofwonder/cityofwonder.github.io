@@ -1,3 +1,11 @@
+{%- comment -%}
+  Sets has_banner (true/false) plus the banner_* values. A Notion post with
+  no cover is synced as `banner: { image: "" }`; Liquid treats "" as truthy,
+  so empty strings are turned into nil here or the page would get an empty
+  640px banner.
+{%- endcomment -%}
+{% assign has_banner = false %}
+
 {%- include functions.html func='log' level='debug' msg='Get banner value' -%}
 {% assign name = 'banner' %}
 {%- include functions.html func='get_value' -%}
@@ -61,6 +69,9 @@
 {% assign name = 'banner.start_at' %}
 {%- include functions.html func='get_value' default=0 -%}
 {% assign banner_start_at = return %}
+
+{% if banner_image == "" %}{% assign banner_image = nil %}{% endif %}
+{% if banner_video == "" %}{% assign banner_video = nil %}{% endif %}
 
 {% if banner_image or banner_video %}
   {% assign has_banner = true %}

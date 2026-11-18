@@ -10,16 +10,19 @@ sidebar:
 <div class="post">
   <section>
 
-    {%- assign name = 'banner' -%}
-    {%- include functions.html func='get_value' -%}
-    {%- assign banner = return -%}
+    {%- comment -%}
+      No banner image -> no banner section at all, so the title block moves
+      into the body instead. (`banner` itself is never nil: it falls back to
+      the site-wide banner settings in _config.yml.)
+    {%- endcomment -%}
+    {%- include functions.html func='get_banner' -%}
 
     {%- assign name = 'hidden' -%}
     {%- include functions.html func='get_value' -%}
     {%- assign hidden = return -%}
 
     {%- assign result = hidden | where_exp: "item", "item == 'header'" -%}
-    {%- if banner == nil and result.size == 0 -%}
+    {%- if has_banner != true and result.size == 0 -%}
     {%- include views/post-header.html -%}
     {%- endif -%}
 
