@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #84] Mirage: Provable Defense Against LLM KV Cache Timing Side Channels with Topology-Aware Isolation"
+title: "[paper #81] Mirage: Provable Defense Against LLM KV Cache Timing Side Channels with Topology-Aware Isolation"
 subtitle: "Xiaobei Yan 등. Arxiv2026"
 categories: ["📂/paper-review/SCA/"]
 tags: ["paper review", "AISEC"]
 notion: true
 notion_id: "41cbb540-e5fe-8123-a7bb-c9766da44a01"
-notion_synced: "2026-11-18T09:22:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

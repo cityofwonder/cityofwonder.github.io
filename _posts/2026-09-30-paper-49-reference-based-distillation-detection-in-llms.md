@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #49] Reference-Based Distillation Detection in LLMs"
+title: "[paper #61] Reference-Based Distillation Detection in LLMs"
 subtitle: "Rajat Rawat 등. Arxiv2026"
 categories: ["📂/paper-review/fingerprint/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-8175-a85f-fe8ac0d6ceec"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: "/assets/images/2026-09-30/paper-49-reference-based-distillation-detection-in-llms-banner.png"
   opacity: 0.5

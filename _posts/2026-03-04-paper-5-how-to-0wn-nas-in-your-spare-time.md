@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #5] How to 0wn NAS in Your Spare Time"
+title: "[paper #9] How to 0wn NAS in Your Spare Time"
 subtitle: "Sanghyun Hong 등. ICLR2020"
 categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
 tags: ["paper review", "AISEC", "DLSCA", "ICLR2020"]
 notion: true
 notion_id: "41cbb540-e5fe-81e0-bb0b-d936423a7927"
-notion_synced: "2026-11-18T09:58:00.000Z"
+notion_synced: "2026-11-18T11:47:00.000Z"
 banner:
   image: "/assets/images/2026-03-04/paper-5-how-to-0wn-nas-in-your-spare-time-banner.png"
   opacity: 0.5

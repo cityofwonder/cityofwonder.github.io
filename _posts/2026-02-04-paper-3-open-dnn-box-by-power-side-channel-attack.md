@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #3] Open DNN Box by Power Side-Channel Attack"
+title: "[paper #5] Open DNN Box by Power Side-Channel Attack"
 subtitle: "Yun Xiang 등. Arxiv2019"
 categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
 tags: ["paper review", "AISEC", "DLSCA"]
 notion: true
 notion_id: "41cbb540-e5fe-811b-a034-fa97814cd292"
-notion_synced: "2026-11-18T09:20:00.000Z"
+notion_synced: "2026-11-18T11:47:00.000Z"
 banner:
   image: ""
   opacity: 0.5

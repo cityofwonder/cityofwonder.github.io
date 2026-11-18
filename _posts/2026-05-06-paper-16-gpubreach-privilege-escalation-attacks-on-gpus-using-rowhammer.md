@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #72] GPUBreach: Privilege Escalation Attacks on GPUs using Rowhammer"
+title: "[paper #16] GPUBreach: Privilege Escalation Attacks on GPUs using Rowhammer"
 subtitle: "Chris S. Lin 등. S&P2026"
 categories: ["📂/paper-review/HW/"]
 tags: ["paper review", "AISEC", "S&P2026"]
 notion: true
 notion_id: "41cbb540-e5fe-8168-830b-c6437e152304"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:47:00.000Z"
 banner:
   image: ""
   opacity: 0.5

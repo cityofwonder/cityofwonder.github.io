@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #10] Leaky DNN: Stealing Deep-learning Model Secret with GPU Context-switching Side-channel"
+title: "[paper #15] Leaky DNN: Stealing Deep-learning Model Secret with GPU Context-switching Side-channel"
 subtitle: "Junyi Wei 등. DSN2020"
 categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
 tags: ["paper review", "AISEC", "DLSCA", "DSN2020"]
 notion: true
 notion_id: "41cbb540-e5fe-814e-9455-c30d53c0e82f"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:47:00.000Z"
 banner:
   image: ""
   opacity: 0.5

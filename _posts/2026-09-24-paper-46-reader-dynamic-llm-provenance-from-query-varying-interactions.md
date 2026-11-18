@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #46] READER: Dynamic LLM Provenance from Query-Varying Interactions"
+title: "[paper #58] READER: Dynamic LLM Provenance from Query-Varying Interactions"
 subtitle: "Jiaxu Liu 등. Arxiv2026"
 categories: ["📂/paper-review/fingerprint/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-8162-9085-fa1b35de6242"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: "/assets/images/2026-09-24/paper-46-reader-dynamic-llm-provenance-from-query-varying-interactions-banner.png"
   opacity: 0.5

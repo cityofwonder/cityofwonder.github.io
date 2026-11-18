@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #17] BarraCUDA: Edge GPUs do Leak DNN Weights"
+title: "[paper #26] BarraCUDA: Edge GPUs do Leak DNN Weights"
 subtitle: "Peter Horvath 등. USENIX2025"
 categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
 tags: ["paper review", "AISEC", "DLSCA", "USENIX2025"]
 notion: true
 notion_id: "41cbb540-e5fe-81ca-8819-cc3059c3566a"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #41] AttnDiff: Attention-based Differential Fingerprinting for Large Language Models"
+title: "[paper #52] AttnDiff: Attention-based Differential Fingerprinting for Large Language Models"
 subtitle: "Haobo Zhang 등. Arxiv2026"
 categories: ["📂/paper-review/fingerprint/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-8141-bcaf-ca3242ecefb9"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

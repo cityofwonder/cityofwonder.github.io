@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #43] AWM: Accurate Weight-Matrix Fingerprint for Large Language Models"
+title: "[paper #54] AWM: Accurate Weight-Matrix Fingerprint for Large Language Models"
 subtitle: "Boyi Zeng 등. ICLR2026"
 categories: ["📂/paper-review/fingerprint/"]
 tags: ["paper review", "AISEC", "fingerprint", "ICLR2026"]
 notion: true
 notion_id: "41cbb540-e5fe-8147-b538-ff37afde9e39"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

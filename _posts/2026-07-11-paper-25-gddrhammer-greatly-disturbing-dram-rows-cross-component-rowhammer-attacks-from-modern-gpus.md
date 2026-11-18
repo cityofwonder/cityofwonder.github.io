@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #73] GDDRHammer: Greatly Disturbing DRAM Rows - Cross-Component Rowhammer Attacks from Modern GPUs"
+title: "[paper #25] GDDRHammer: Greatly Disturbing DRAM Rows - Cross-Component Rowhammer Attacks from Modern GPUs"
 subtitle: "Yichang Hu 등. S&P2026"
 categories: ["📂/paper-review/HW/"]
 tags: ["paper review", "AISEC", "S&P2026"]
 notion: true
 notion_id: "41cbb540-e5fe-81ba-bc2a-d691f060a8fc"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

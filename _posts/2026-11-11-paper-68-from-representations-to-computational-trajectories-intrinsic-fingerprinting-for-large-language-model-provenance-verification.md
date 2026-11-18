@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #68] From Representations to Computational Trajectories: Intrinsic Fingerprinting for Large Language Model Provenance Verification"
+title: "[paper #82] From Representations to Computational Trajectories: Intrinsic Fingerprinting for Large Language Model Provenance Verification"
 subtitle: "Haiyong Tang 등. Arxiv2026"
 categories: ["📂/paper-review/fingerprint/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-813f-869b-cd18fcb1a5a3"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #16] DeepTheft: Stealing DNN Model Architectures through Power Side Channel"
+title: "[paper #24] DeepTheft: Stealing DNN Model Architectures through Power Side Channel"
 subtitle: "Yansong Gao 등. S&P2024"
 categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
 tags: ["paper review", "AISEC", "DLSCA", "S&P2024"]
 notion: true
 notion_id: "41cbb540-e5fe-8157-a3c8-dad8591ee118"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

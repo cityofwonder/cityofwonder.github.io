@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #82] Agent-Assisted Side-Channel Attacks on Non-Prefix KV Cache in RAG"
+title: "[paper #23] Agent-Assisted Side-Channel Attacks on Non-Prefix KV Cache in RAG"
 subtitle: "He Sun 등. Arxiv2026"
 categories: ["📂/paper-review/SCA/"]
 tags: ["paper review", "AISEC"]
 notion: true
 notion_id: "41cbb540-e5fe-812b-9164-e46c0fdcd5a1"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

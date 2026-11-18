@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #51] ARMOR: First-Order Masking of Activation and ArgMax Gadgets for Side-Channel Resistant Neural Networks"
+title: "[paper #63] ARMOR: First-Order Masking of Activation and ArgMax Gadgets for Side-Channel Resistant Neural Networks"
 subtitle: "Won Geun Shin 등. TCHES2026"
 categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
 tags: ["paper review", "AISEC", "DLSCA", "TCHES2026"]
 notion: true
 notion_id: "41cbb540-e5fe-8163-a52a-e96e966c17ee"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #77] Flipping Minds by Flipping Bits: Decision-Level Cognitive Hijacking of Large Language Models"
+title: "[paper #30] Flipping Minds by Flipping Bits: Decision-Level Cognitive Hijacking of Large Language Models"
 subtitle: "Yu Yan 등. Arxiv2026"
 categories: ["📂/paper-review/HW/"]
 tags: ["paper review", "AISEC"]
 notion: true
 notion_id: "41cbb540-e5fe-818b-8930-ec52160fa77d"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

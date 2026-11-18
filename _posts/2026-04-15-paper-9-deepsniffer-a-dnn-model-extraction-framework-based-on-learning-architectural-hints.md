@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #9] DeepSniffer: A DNN Model Extraction Framework Based on Learning Architectural Hints"
+title: "[paper #14] DeepSniffer: A DNN Model Extraction Framework Based on Learning Architectural Hints"
 subtitle: "Xing Hu 등. ASPLOS2020"
 categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
 tags: ["paper review", "AISEC", "DLSCA", "ASPLOS2020"]
 notion: true
 notion_id: "41cbb540-e5fe-8188-a517-da2f4e1d22ee"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:47:00.000Z"
 banner:
   image: ""
   opacity: 0.5

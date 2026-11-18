@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #55] Training Leaves Traces: Centered Residual Signatures for Language Model Lineage Verification"
+title: "[paper #68] Training Leaves Traces: Centered Residual Signatures for Language Model Lineage Verification"
 subtitle: "Aman Singh Thakur 등. Arxiv2026"
 categories: ["📂/paper-review/fingerprint/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-81af-a2f9-f1158e46d77f"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

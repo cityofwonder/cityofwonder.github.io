@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #11] Can one hear the shape of a neural network?: Snooping the GPU via Magnetic Side Channel"
+title: "[paper #17] Can one hear the shape of a neural network?: Snooping the GPU via Magnetic Side Channel"
 subtitle: "Henrique Teles Maia 등. USENIX2022"
 categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
 tags: ["paper review", "AISEC", "DLSCA", "USENIX2022"]
 notion: true
 notion_id: "41cbb540-e5fe-814d-9601-f018f2f21313"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:47:00.000Z"
 banner:
   image: ""
   opacity: 0.5

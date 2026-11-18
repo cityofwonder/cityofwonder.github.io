@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #66] Model-intrinsic, Weight-level, and Training-free Spectral Fingerprinting for Large Language Models"
+title: "[paper #79] Model-intrinsic, Weight-level, and Training-free Spectral Fingerprinting for Large Language Models"
 subtitle: "Yanan He 등. Arxiv2026"
 categories: ["📂/paper-review/fingerprint/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-810d-afb3-cc61c405b9e2"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

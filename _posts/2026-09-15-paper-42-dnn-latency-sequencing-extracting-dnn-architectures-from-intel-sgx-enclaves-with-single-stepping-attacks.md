@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #42] DNN Latency Sequencing: Extracting DNN Architectures from Intel SGX Enclaves with Single-Stepping Attacks"
+title: "[paper #53] DNN Latency Sequencing: Extracting DNN Architectures from Intel SGX Enclaves with Single-Stepping Attacks"
 subtitle: "Minkyung Park 등. NDSS2026"
 categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
 tags: ["paper review", "AISEC", "DLSCA", "NDSS2026"]
 notion: true
 notion_id: "41cbb540-e5fe-8195-99e2-dbe86eef7191"
-notion_synced: "2026-11-18T09:58:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: "/assets/images/2026-09-15/paper-42-dnn-latency-sequencing-extracting-dnn-architectures-from-intel-sgx-enclaves-with-single-stepping-attacks-banner.png"
   opacity: 0.5

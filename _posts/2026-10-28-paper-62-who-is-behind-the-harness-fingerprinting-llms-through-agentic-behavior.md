@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #62] Who Is Behind the Harness? Fingerprinting LLMs through Agentic Behavior"
+title: "[paper #75] Who Is Behind the Harness? Fingerprinting LLMs through Agentic Behavior"
 subtitle: "Chuyi Wang 등. Arxiv2026"
 categories: ["📂/paper-review/fingerprint/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-81e4-a34a-d41350744cdc"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: "/assets/images/2026-10-28/paper-62-who-is-behind-the-harness-fingerprinting-llms-through-agentic-behavior-banner.png"
   opacity: 0.5

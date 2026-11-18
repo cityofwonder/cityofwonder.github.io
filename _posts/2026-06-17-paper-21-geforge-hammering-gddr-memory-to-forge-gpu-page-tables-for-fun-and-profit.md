@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #74] GeForge: Hammering GDDR Memory to Forge GPU Page Tables for Fun and Profit"
+title: "[paper #21] GeForge: Hammering GDDR Memory to Forge GPU Page Tables for Fun and Profit"
 subtitle: "Junpeng Wan 등. S&P2026"
 categories: ["📂/paper-review/HW/"]
 tags: ["paper review", "AISEC", "S&P2026"]
 notion: true
 notion_id: "41cbb540-e5fe-81a0-973b-d5eb82886da7"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

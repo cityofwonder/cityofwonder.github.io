@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #7] GANRED: GAN-based Reverse Engineering of DNNs via Cache Side-Channel"
+title: "[paper #12] GANRED: GAN-based Reverse Engineering of DNNs via Cache Side-Channel"
 subtitle: "Yuntao Liu 등. CCSW2020"
 categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
 tags: ["paper review", "AISEC", "DLSCA", "CCSW2020"]
 notion: true
 notion_id: "41cbb540-e5fe-8100-92c1-e3fae7ab8bc0"
-notion_synced: "2026-11-18T09:58:00.000Z"
+notion_synced: "2026-11-18T11:47:00.000Z"
 banner:
   image: "/assets/images/2026-04-01/paper-7-ganred-gan-based-reverse-engineering-of-dnns-via-cache-side-channel-banner.png"
   opacity: 0.5

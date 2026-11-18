@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #80] From Length to Content: Token-Length Side-Channel Attacks on LLM API Merged Outputs"
+title: "[paper #31] From Length to Content: Token-Length Side-Channel Attacks on LLM API Merged Outputs"
 subtitle: "Sijia Li 등. USENIX2026"
 categories: ["📂/paper-review/SCA/"]
 tags: ["paper review", "AISEC", "USENIX2026"]
 notion: true
 notion_id: "41cbb540-e5fe-817a-a2bf-c5f239b44b09"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

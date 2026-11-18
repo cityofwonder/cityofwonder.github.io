@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #78] HAMLOCK: HArdware-Model LOgically Combined attacK"
+title: "[paper #2] HAMLOCK: HArdware-Model LOgically Combined attacK"
 subtitle: "Sanskar Amgain 등. USENIX2026"
 categories: ["📂/paper-review/HW/"]
 tags: ["paper review", "AISEC", "USENIX2026"]
 notion: true
 notion_id: "41cbb540-e5fe-81f7-8910-d631a0b78468"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:47:00.000Z"
 banner:
   image: ""
   opacity: 0.5

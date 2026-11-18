@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #85] GPUHammer: Rowhammer Attacks on GPU Memories are Practical"
+title: "[paper #6] GPUHammer: Rowhammer Attacks on GPU Memories are Practical"
 subtitle: "Chris S. Lin 등. USENIX2025"
 categories: ["📂/paper-review/HW/"]
 tags: ["paper review", "AISEC", "USENIX2025"]
 notion: true
 notion_id: "41cbb540-e5fe-81be-85fd-dcb915df876c"
-notion_synced: "2026-11-18T09:29:00.000Z"
+notion_synced: "2026-11-18T11:47:00.000Z"
 banner:
   image: ""
   opacity: 0.5

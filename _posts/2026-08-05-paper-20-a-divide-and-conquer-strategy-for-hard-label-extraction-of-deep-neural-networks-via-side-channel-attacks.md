@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #20] A Divide-and-Conquer Strategy for Hard-Label Extraction of Deep Neural Networks via Side-Channel Attacks"
+title: "[paper #29] A Divide-and-Conquer Strategy for Hard-Label Extraction of Deep Neural Networks via Side-Channel Attacks"
 subtitle: "Benoit Coqueret 등. TCHES2026"
 categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
 tags: ["paper review", "AISEC", "DLSCA", "TCHES2026"]
 notion: true
 notion_id: "41cbb540-e5fe-8125-986c-c03249a4975b"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: ""
   opacity: 0.5

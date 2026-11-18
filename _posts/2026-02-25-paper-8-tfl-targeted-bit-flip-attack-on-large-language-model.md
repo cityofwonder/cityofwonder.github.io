@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #76] TFL: Targeted Bit-Flip Attack on Large Language Model"
+title: "[paper #8] TFL: Targeted Bit-Flip Attack on Large Language Model"
 subtitle: "Jingkai Guo 등. Arxiv2026"
 categories: ["📂/paper-review/HW/"]
 tags: ["paper review", "AISEC"]
 notion: true
 notion_id: "41cbb540-e5fe-8143-aacd-dac1bd95a921"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:47:00.000Z"
 banner:
   image: ""
   opacity: 0.5

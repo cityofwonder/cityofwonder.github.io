@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #39] Provable Model Provenance Set for Large Language Models"
+title: "[paper #50] Provable Model Provenance Set for Large Language Models"
 subtitle: "Xiaoqi Qiu 등. Arxiv2026"
 categories: ["📂/paper-review/fingerprint/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-81d4-b425-ea114649e893"
-notion_synced: "2026-11-18T09:21:00.000Z"
+notion_synced: "2026-11-18T11:48:00.000Z"
 banner:
   image: "/assets/images/2026-09-08/paper-39-provable-model-provenance-set-for-large-language-models-banner.png"
   opacity: 0.5
