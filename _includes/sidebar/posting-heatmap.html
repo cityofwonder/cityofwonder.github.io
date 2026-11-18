@@ -1,5 +1,10 @@
 <!-- Generate posting dates data -->
 {%- comment -%}
+  Posting activity: posts per week as a line chart that scrolls sideways
+  (drag with the mouse, swipe, or focus it and use the arrow keys). Opens on
+  the most recent weeks; older weeks are off to the left.
+  (The file keeps its old name because sidebar lists refer to it.)
+
   Key off the FILENAME date (_posts/YYYY-MM-DD-title.md), not post.date.
   post.date renders in the build machine's timezone (UTC on Actions), so a
   post carrying an explicit time in front matter can slide a day.
@@ -12,263 +17,229 @@
   {%- assign posting_dates = posting_dates | push: post_date -%}
 {%- endfor -%}
 
-<!-- Cute Sticky Note - Posting Activity -->
 <div class="sticky-note-widget activity-sticky">
   <div class="sticky-tape"></div>
   <div class="sticky-content">
     <div class="sticky-title">
       <span class="sticky-icon">📝</span>
       <span>Activity</span>
+      <span class="activity-unit">posts / week</span>
     </div>
-    <div class="heatmap-wrapper">
-      <div class="heatmap-months" id="heatmap-months"></div>
-      <div class="heatmap-grid" id="heatmap-grid"></div>
-    </div>
-    <div class="activity-legend">
-      <span class="legend-label">Less</span>
-      <div class="legend-boxes">
-        <span class="legend-box level-0"></span>
-        <span class="legend-box level-1"></span>
-        <span class="legend-box level-2"></span>
-        <span class="legend-box level-3"></span>
-        <span class="legend-box level-4"></span>
+    <div class="activity-chart">
+      <div class="activity-yaxis" aria-hidden="true"></div>
+      <div class="activity-scroll" tabindex="0"
+           aria-label="Posts per week. Drag or use the arrow keys to move through the weeks.">
+        <svg class="activity-svg" aria-hidden="true"></svg>
       </div>
-      <span class="legend-label">More</span>
+      <div class="activity-tip" role="status" aria-live="polite"></div>
     </div>
+    <table class="activity-table">
+      <caption>Posts per week</caption>
+      <thead><tr><th scope="col">Week of</th><th scope="col">Posts</th></tr></thead>
+      <tbody></tbody>
+    </table>
   </div>
   <div class="sticky-corner activity-corner"></div>
 </div>
 
-<style>
-/* Activity Sticky Note - Grayscale with Accent */
-.sticky-note-widget.activity-sticky .sticky-content {
-  background: var(--c-surface);
-}
-
-.sticky-note-widget.activity-sticky .sticky-corner.activity-corner {
-  border-color: transparent transparent #d0d0d0 transparent;
-}
-
-.sticky-note-widget.activity-sticky .sticky-title {
-  color: var(--c-text);
-  border-bottom-color: var(--c-line);
-}
-
-/* Heatmap Wrapper */
-.heatmap-wrapper {
-  background: var(--c-card);
-  border-radius: var(--r-sm);
-  padding: 10px;
-  border: 1px dashed var(--c-line-strong);
-  overflow: hidden;
-  position: relative;
-}
-
-/* fade the clipped left edge into the page background */
-.heatmap-wrapper::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 34px;
-  z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(to right, var(--c-page), transparent);
-}
-
-.heatmap-months {
-  display: flex;
-  gap: 0;
-  margin-bottom: 3px;
-  font-size: 9px;
-  color: var(--c-muted);
-  height: 12px;
-}
-
-.heatmap-month {
-  font-size: 9px;
-  font-weight: 500;
-}
-
-.heatmap-grid {
-  display: grid;
-  grid-template-rows: repeat(7, 8px);
-  grid-auto-columns: 8px; /* equal to row height → equal H/V gaps */
-  grid-auto-flow: column;
-  gap: 3px;
-}
-
-.heatmap-cell {
-  width: 8px;
-  height: 8px;
-  border-radius: calc(var(--r-xs) / 2); /* a full --r-xs would round the 8px cells into dots */
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.heatmap-cell:hover {
-  transform: scale(1.5);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-}
-
-/* Accent-red heatmap: one key colour stepped over transparent */
-.heatmap-cell.level-0, .legend-box.level-0 { background-color: var(--c-line); }
-.heatmap-cell.level-1, .legend-box.level-1 { background-color: color-mix(in srgb, var(--accent) 25%, transparent); }
-.heatmap-cell.level-2, .legend-box.level-2 { background-color: color-mix(in srgb, var(--accent) 45%, transparent); }
-.heatmap-cell.level-3, .legend-box.level-3 { background-color: color-mix(in srgb, var(--accent) 70%, transparent); }
-.heatmap-cell.level-4, .legend-box.level-4 { background-color: var(--accent); }
-
-/* Activity Legend */
-.activity-legend {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-top: 10px;
-  font-size: 9px;
-  color: var(--c-muted);
-}
-
-.legend-boxes {
-  display: flex;
-  gap: 2px;
-}
-
-.legend-box {
-  width: 10px;
-  height: 10px;
-  border-radius: calc(var(--r-xs) / 2); /* matches the cells */
-}
-
-/* Dark Theme (colours come from the tokens; only the decorative folded
-   corner keeps its own dark value) */
-html[data-theme="dark"] .sticky-note-widget.activity-sticky .sticky-corner.activity-corner {
-  border-color: transparent transparent #1a1a1a transparent;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  .heatmap-cell {
-    width: 6px;
-    height: 6px;
-  }
-
-  .heatmap-grid {
-    grid-template-rows: repeat(7, 6px);
-  }
-
-  .heatmap-months {
-    font-size: 8px;
-  }
-}
-</style>
+{%- comment -%} styles: _sass/misc/sidebar-widgets.scss {%- endcomment -%}
 
 <script>
-(function() {
-  const postingDates = [
+(function () {
+  var postingDates = [
     {%- for date in posting_dates -%}
       "{{ date }}"{%- unless forloop.last -%},{%- endunless -%}
     {%- endfor -%}
   ];
 
-  const postCountByDate = {};
-  postingDates.forEach(date => {
-    postCountByDate[date] = (postCountByDate[date] || 0) + 1;
+  var STEP = 16;          // px per week
+  var PLOT_H = 84;        // px of plot height
+  var TOP = 12;           // room for the end label
+  var BOTTOM = 18;        // month labels
+  var PAD_X = 10;         // keeps the first/last dot off the edges
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+  var DAY = 864e5;
+
+  var root = document.querySelector('.activity-sticky .activity-chart');
+  if (!root || !postingDates.length) return;
+  var scroller = root.querySelector('.activity-scroll');
+  var svg = root.querySelector('.activity-svg');
+  var yaxis = root.querySelector('.activity-yaxis');
+  var tip = root.querySelector('.activity-tip');
+
+  // ---- data: posts per Monday-start week, first post's week -> this week
+  function parse(s) { var p = s.split('-'); return new Date(+p[0], p[1] - 1, +p[2]); }
+  function monday(d) { var m = new Date(d); m.setHours(0, 0, 0, 0); m.setDate(m.getDate() - (m.getDay() + 6) % 7); return m; }
+  function fmt(d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+
+  var dates = postingDates.map(parse);
+  var first = monday(new Date(Math.min.apply(null, dates)));
+  var last = monday(new Date());
+  var n = Math.round((last - first) / (7 * DAY)) + 1;
+  var weeks = [];
+  for (var i = 0; i < n; i++) {
+    var start = new Date(first); start.setDate(first.getDate() + i * 7);
+    weeks.push({ start: start, count: 0 });
+  }
+  dates.forEach(function (d) {
+    var k = Math.round((monday(d) - first) / (7 * DAY));
+    if (k >= 0 && k < n) weeks[k].count++;
   });
 
-  // Local-time date key. toISOString() is UTC, which shifted every cell by a
-  // day for anyone off UTC (KST = +9) and hid same-day posts entirely.
-  const toKey = d => d.getFullYear() + '-' +
-    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-    String(d.getDate()).padStart(2, '0');
+  // ---- scales: a clean y max (0 / step / 2*step), one week per STEP px
+  var max = Math.max.apply(null, weeks.map(function (w) { return w.count; })) || 1;
+  var step = [1, 2, 5, 10, 20, 50, 100].filter(function (s) { return max / s <= 2; })[0] || Math.ceil(max / 2);
+  var yMax = Math.ceil(max / step) * step;
+  var width = PAD_X * 2 + (n - 1) * STEP;
+  var height = TOP + PLOT_H + BOTTOM;
+  function x(i) { return PAD_X + i * STEP; }
+  function y(v) { return TOP + PLOT_H - (v / yMax) * PLOT_H; }
 
-  function generateHeatmap() {
-    const grid = document.getElementById('heatmap-grid');
-    const monthsContainer = document.getElementById('heatmap-months');
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+  yaxis.style.height = height + 'px';
 
-    if (!grid || !monthsContainer) return;
+  function el(name, attrs, parent) {
+    var e = document.createElementNS(SVG_NS, name);
+    for (var a in attrs) e.setAttribute(a, attrs[a]);
+    (parent || svg).appendChild(e);
+    return e;
+  }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const startPeriod = new Date(today);
-    startPeriod.setDate(today.getDate() - 179);
+  // gridlines (in the plot) + their labels (in the fixed axis column)
+  var grid = el('g', { 'class': 'activity-grid' });
+  for (var v = 0; v <= yMax; v += step) {
+    el('line', { x1: 0, x2: width, y1: y(v), y2: y(v) }, grid);
+    var lab = document.createElement('span');
+    lab.style.top = y(v) + 'px';
+    lab.textContent = v;
+    yaxis.appendChild(lab);
+  }
 
-    const startDate = new Date(startPeriod);
-    startDate.setDate(startDate.getDate() - startDate.getDay());
+  // month labels at each month's first week ('Jan '26' when the year turns)
+  var lastMonth = -1;
+  weeks.forEach(function (w, i) {
+    var mid = new Date(w.start); mid.setDate(mid.getDate() + 3);
+    if (mid.getMonth() === lastMonth) return;
+    lastMonth = mid.getMonth();
+    var text = mid.toLocaleDateString('en-US', { month: 'short' });
+    if (i === 0 || mid.getMonth() === 0) text += " '" + String(mid.getFullYear()).slice(2);
+    el('text', { 'class': 'activity-month', x: x(i), y: height - 4 }).textContent = text;
+  });
 
-    let currentMonth = -1;
-    let monthSpans = [];
-    const cells = [];
-    let currentDate = new Date(startDate);
-    let weekIndex = 0;
-
-    while (currentDate <= today) {
-      const dateStr = toKey(currentDate);
-      const postCount = postCountByDate[dateStr] || 0;
-
-      // Absolute thresholds. Scaling against the all-time max washed every
-      // single-post day out to the palest shade, so June/July looked blank.
-      let level = 0;
-      if (postCount >= 3) level = 4;
-      else if (postCount === 2) level = 3;
-      else if (postCount === 1) level = 2;
-
-      const cell = document.createElement('div');
-      cell.className = `heatmap-cell level-${level}`;
-      cell.title = `${dateStr}: ${postCount} post${postCount !== 1 ? 's' : ''}`;
-      cell.style.gridRow = currentDate.getDay() + 1;
-
-      cells.push(cell);
-
-      if (currentDate.getDay() === 0 || currentDate.getTime() === startDate.getTime()) {
-        const monthNum = currentDate.getMonth();
-        if (currentMonth !== monthNum) {
-          const monthName = currentDate.toLocaleDateString('en-US', { month: 'short' });
-          monthSpans.push({ name: monthName, week: weekIndex });
-          currentMonth = monthNum;
-        }
-      }
-
-      currentDate.setDate(currentDate.getDate() + 1);
-
-      if (currentDate.getDay() === 0) {
-        weekIndex++;
-      }
+  // monotone cubic through the weekly points (no overshoot below zero)
+  var pts = weeks.map(function (w, i) { return [x(i), y(w.count)]; });
+  function monotone(p) {
+    var k = p.length, d = '', m = [], t = [];
+    if (k === 1) return 'M' + p[0][0] + ',' + p[0][1];
+    for (var i = 0; i < k - 1; i++) m.push((p[i + 1][1] - p[i][1]) / (p[i + 1][0] - p[i][0]));
+    t[0] = m[0]; t[k - 1] = m[k - 2];
+    for (i = 1; i < k - 1; i++) t[i] = m[i - 1] * m[i] <= 0 ? 0 : (m[i - 1] + m[i]) / 2;
+    for (i = 0; i < k - 1; i++) {
+      if (m[i] === 0) { t[i] = 0; t[i + 1] = 0; continue; }
+      var a = t[i] / m[i], b = t[i + 1] / m[i], s = a * a + b * b;
+      if (s > 9) { var tau = 3 / Math.sqrt(s); t[i] = tau * a * m[i]; t[i + 1] = tau * b * m[i]; }
     }
-
-    const totalWeeks = weekIndex;
-
-    cells.forEach(cell => grid.appendChild(cell));
-
-    monthsContainer.style.display = 'grid';
-    monthsContainer.style.gridTemplateColumns = `repeat(${totalWeeks}, 8px)`;
-    monthsContainer.style.gap = '3px';
-
-    monthSpans.forEach(({ name, week }, index) => {
-      const monthLabel = document.createElement('span');
-      monthLabel.className = 'heatmap-month';
-      monthLabel.textContent = name;
-
-      const nextWeek = index < monthSpans.length - 1 ? monthSpans[index + 1].week : totalWeeks;
-      const spanWeeks = nextWeek - week;
-
-      monthLabel.style.gridColumn = `${week + 1} / span ${spanWeeks}`;
-      monthsContainer.appendChild(monthLabel);
-    });
-
-    // Show the most recent weeks: scroll the clipped strip to its right end.
-    var wrap = grid.parentElement; // .heatmap-wrapper
-    function scrollToRecent() { wrap.scrollLeft = wrap.scrollWidth; }
-    requestAnimationFrame(scrollToRecent);
-    window.addEventListener('resize', scrollToRecent);
+    d = 'M' + p[0][0] + ',' + p[0][1];
+    for (i = 0; i < k - 1; i++) {
+      var h = (p[i + 1][0] - p[i][0]) / 3;
+      d += 'C' + (p[i][0] + h) + ',' + (p[i][1] + t[i] * h) + ' ' +
+                 (p[i + 1][0] - h) + ',' + (p[i + 1][1] - t[i + 1] * h) + ' ' +
+                 p[i + 1][0] + ',' + p[i + 1][1];
+    }
+    return d;
   }
+  var line = monotone(pts);
+  el('path', { 'class': 'activity-area', d: line + 'L' + x(n - 1) + ',' + y(0) + 'L' + x(0) + ',' + y(0) + 'Z' });
+  el('path', { 'class': 'activity-line', d: line });
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', generateHeatmap);
-  } else {
-    generateHeatmap();
+  // the one direct label: this week's value at the end of the line
+  el('circle', { 'class': 'activity-dot', cx: x(n - 1), cy: y(weeks[n - 1].count), r: 4 });
+  el('text', { 'class': 'activity-end-label', x: x(n - 1), y: y(weeks[n - 1].count) - 8 }).textContent = weeks[n - 1].count;
+
+  // hover layer: crosshair + dot that snap to the nearest week
+  var hover = el('g', { 'class': 'activity-hover' });
+  var cross = el('line', { 'class': 'activity-cross', y1: TOP, y2: TOP + PLOT_H }, hover);
+  var hdot = el('circle', { 'class': 'activity-dot', r: 4 }, hover);
+
+  var tipValue = document.createElement('b');
+  var tipLabel = document.createElement('span');
+  tip.appendChild(tipValue);
+  tip.appendChild(tipLabel);
+
+  var active = -1;
+  function show(i) {
+    active = Math.max(0, Math.min(n - 1, i));
+    var w = weeks[active];
+    var end = new Date(w.start); end.setDate(end.getDate() + 6);
+    cross.setAttribute('x1', x(active)); cross.setAttribute('x2', x(active));
+    hdot.setAttribute('cx', x(active)); hdot.setAttribute('cy', y(w.count));
+    hover.classList.add('is-on');
+    tipValue.textContent = w.count + (w.count === 1 ? ' post' : ' posts');
+    tipLabel.textContent = fmt(w.start) + ' – ' + fmt(end) + (active === n - 1 ? ' (this week)' : '');
+    tip.classList.add('is-on');
+    // place the tooltip beside the point, kept inside the card
+    var px = scroller.offsetLeft + x(active) - scroller.scrollLeft;
+    var left = px + 10;
+    if (left + tip.offsetWidth > root.clientWidth - 4) left = px - 10 - tip.offsetWidth;
+    tip.style.left = Math.max(4, left) + 'px';
   }
+  function hide() { hover.classList.remove('is-on'); tip.classList.remove('is-on'); }
+
+  // ---- dragging (mouse; touch already scrolls natively)
+  var drag = null;
+  scroller.addEventListener('pointerdown', function (e) {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    drag = { x: e.clientX, left: scroller.scrollLeft, moved: false };
+    scroller.setPointerCapture(e.pointerId);
+  });
+  scroller.addEventListener('pointermove', function (e) {
+    if (drag) {
+      var dx = e.clientX - drag.x;
+      if (Math.abs(dx) > 2) { drag.moved = true; scroller.classList.add('is-dragging'); hide(); }
+      scroller.scrollLeft = drag.left - dx;
+      return;
+    }
+    var r = svg.getBoundingClientRect();
+    show(Math.round((e.clientX - r.left - PAD_X) / STEP));
+  });
+  function endDrag() { drag = null; scroller.classList.remove('is-dragging'); }
+  scroller.addEventListener('pointerup', endDrag);
+  scroller.addEventListener('pointercancel', endDrag);
+  scroller.addEventListener('pointerleave', function () { if (!drag) hide(); });
+
+  // ---- keyboard: arrows walk the weeks, keeping the active one in view
+  scroller.addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') { if (e.key === 'Escape') hide(); return; }
+    e.preventDefault();
+    show((active < 0 ? n - 1 : active) + (e.key === 'ArrowLeft' ? -1 : 1));
+    var px = x(active);
+    if (px < scroller.scrollLeft + 20) scroller.scrollLeft = px - 20;
+    else if (px > scroller.scrollLeft + scroller.clientWidth - 20) scroller.scrollLeft = px - scroller.clientWidth + 20;
+    show(active);
+  });
+  scroller.addEventListener('focus', function () { show(active < 0 ? n - 1 : active); });
+  scroller.addEventListener('blur', hide);
+
+  // ---- edge fades + open on the most recent weeks
+  function edges() {
+    var maxLeft = scroller.scrollWidth - scroller.clientWidth;
+    scroller.classList.toggle('is-clipped-left', scroller.scrollLeft > 2);
+    scroller.classList.toggle('is-clipped-right', scroller.scrollLeft < maxLeft - 2);
+  }
+  scroller.addEventListener('scroll', function () { edges(); if (tip.classList.contains('is-on') && !drag && active >= 0) show(active); }, { passive: true });
+  window.addEventListener('resize', edges);
+  scroller.scrollLeft = scroller.scrollWidth;
+  edges();
+
+  // ---- table view
+  var tbody = root.parentElement.querySelector('.activity-table tbody');
+  weeks.slice().reverse().forEach(function (w) {
+    var tr = document.createElement('tr');
+    var a = document.createElement('td'); a.textContent = fmt(w.start) + ', ' + w.start.getFullYear();
+    var b = document.createElement('td'); b.textContent = w.count;
+    tr.appendChild(a); tr.appendChild(b); tbody.appendChild(tr);
+  });
 })();
 </script>
