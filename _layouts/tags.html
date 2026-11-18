@@ -1,152 +1,341 @@
 ---
 layout: framework
-sidebar: tag-list
+# the index pages (tags, archives, categories, about) share one sidebar
+sidebar: common-list
 ---
+{%- comment -%}
+  Tags page: the tag graph on top, then every post, filterable by tag and
+  viewable as a list, a slide strip or a table. No nested panels -- the two
+  parts are separated by a single rule. Styles: _sass/misc/tags-page.scss.
+{%- endcomment -%}
 
-{%- if site.posts.size > 0 -%}
+{%- comment -%} Directories (layout: directory) live in the feed only {%- endcomment -%}
+{%- assign list_posts = site.posts | where_exp: "p", "p.layout != 'directory'" -%}
+
+{%- if list_posts.size > 0 -%}
 
   {%- include functions.html func='log' level='debug' msg='Get tags value' -%}
   {%- include functions.html func='get_tags' -%}
   {% assign tags = return %}
 
-  <!-- Tag Graph Visualization -->
-  <div class="page-card">
-    <div class="page-card-header">
-      <div class="card-title">Tag Relations</div>
-    </div>
+<div class="ix-page tags-page">
+
+  <section class="ix-section">
+    <header class="ix-head">
+      <h2 class="ix-title">Tag Relations</h2>
+      <span class="ix-meta">{{ tags.size }} tags</span>
+    </header>
     <div class="graph-content">
       <svg id="tag-graph"></svg>
       <div class="graph-controls">
-        <button type="button" class="graph-btn" data-zoom="in" aria-label="확대">+</button>
-        <button type="button" class="graph-btn" data-zoom="out" aria-label="축소">&minus;</button>
-        <button type="button" class="graph-btn" data-zoom="reset" aria-label="처음 위치로">&#8634;</button>
+        <button type="button" class="graph-btn" data-zoom="in" aria-label="확대"><i class="fa fa-plus"></i></button>
+        <button type="button" class="graph-btn" data-zoom="out" aria-label="축소"><i class="fa fa-minus"></i></button>
+        <button type="button" class="graph-btn" data-zoom="reset" aria-label="처음 위치로"><i class="fa fa-crosshairs"></i></button>
       </div>
-      <div id="tag-tooltip" class="tag-tooltip"></div>
     </div>
-  </div>
+  </section>
 
-  <!-- Post-Tag Data for JavaScript -->
+  <section class="ix-section tags-posts" id="tag-posts">
+    <header class="ix-head">
+      <h2 class="ix-title">All Posts</h2>
+      <span class="ix-meta"><span id="tag-posts-count">{{ list_posts.size }}</span> posts</span>
+      <div class="ix-tabs" role="group" aria-label="View">
+        <button type="button" data-view="table" class="is-active" aria-pressed="true"><i class="fa fa-table"></i> Table</button>
+        <button type="button" data-view="slide" aria-pressed="false"><i class="fa fa-clone"></i> Slide</button>
+      </div>
+    </header>
+
+    <!-- Tag filter: the same tag chips as the feed -->
+    <div class="tags-filter">
+      <button type="button" class="tag-filter tag-filter-all is-active" data-tag="all">All</button>
+      {%- for tag in tags -%}
+        <button type="button" class="tag-filter" data-tag="{{ tag | escape }}"><span class="post-tag">#{{ tag | escape }}</span></button>
+      {%- endfor -%}
+    </div>
+
+    <!-- Views are built from the post data below; the table is the default -->
+    <div class="tags-view" data-view="table"></div>
+    <div class="tags-view" data-view="slide" hidden></div>
+    <p class="ix-empty" hidden>No posts with this tag.</p>
+  </section>
+
+</div>
+
+  <!-- Post data for the graph and the slide / table views -->
   <script id="post-tags-data" type="application/json">
   [
-    {% for post in site.posts %}
+    {%- for post in list_posts -%}
+      {%- assign img = post.excerpt_image | default: post.banner.image -%}
+      {%- if img == nil or img == "" -%}
+        {%- unless post.banner.first -%}{%- assign img = post.banner -%}{%- endunless -%}
+      {%- endif -%}
+      {%- if img == "" -%}{%- assign img = nil -%}{%- endif -%}
       {
         "title": {{ post.title | jsonify }},
-        "url": "{{ post.url | relative_url }}",
+        "url": {{ post.url | relative_url | jsonify }},
         "date": "{{ post.date | date: '%Y-%m-%d' }}",
-        "tags": {{ post.tags | jsonify }}
+        "tags": {{ post.tags | jsonify }},
+        "category": {{ post.categories | first | jsonify }},
+        "image": {% if img %}{{ img | relative_url | jsonify }}{% else %}null{% endif %}
       }{% unless forloop.last %},{% endunless %}
-    {% endfor %}
+    {%- endfor -%}
   ]
   </script>
 
-  <!-- Tags Post List -->
-  <div class="page-card">
-    <div class="page-card-header">
-      <div class="card-title">All Posts</div>
-      <div class="card-count">{{ site.posts.size }}</div>
-    </div>
-
-    <!-- Tag Filter Pills -->
-    <div class="filter-bar">
-      <button class="filter-pill active" data-tag="all">
-        <span class="pill-label">All</span>
-      </button>
-      {% for tag in tags %}
-        {% assign tag_posts = site.posts | where: 'tags', tag %}
-        <button class="filter-pill" data-tag="{{ tag }}">
-          <span class="pill-label">{{ tag }}</span>
-          <span class="pill-count">{{ tag_posts.size }}</span>
-        </button>
-      {% endfor %}
-    </div>
-
-    <!-- Posts Grid -->
-    <div class="card-content">
-      <div class="posts-grid">
-        {% for post in site.posts %}
-        <div class="post-item" data-tags="{{ post.tags | join: ',' }}">
-          <a href="{{ post.url | relative_url }}" class="post-link">
-            <span class="post-date">{{ post.date | date: "%m/%d" }}</span>
-            <span class="post-title">{{ post.title | escape }}</span>
-          </a>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-
 {%- endif -%}
-
-{%- comment -%} Styles: _sass/misc/page-card.scss (shared with the other index pages) {%- endcomment -%}
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // ===== Tag Filter =====
-    const filterPills = document.querySelectorAll('.filter-pill');
-    const postItems = document.querySelectorAll('.post-item');
+  (function () {   // runs as soon as it's parsed: the markup and data it uses are above
+    const dataEl = document.getElementById('post-tags-data');
+    if (!dataEl) return;
+    const posts = JSON.parse(dataEl.textContent);
+    const section = document.getElementById('tag-posts');
+    const countEl = document.getElementById('tag-posts-count');
+    const emptyEl = section.querySelector('.ix-empty');
+    const filterBox = section.querySelector('.tags-filter');
+    const filters = section.querySelectorAll('.tag-filter');
+    const views = {};
+    section.querySelectorAll('.tags-view').forEach(v => { views[v.dataset.view] = v; });
+    const viewButtons = section.querySelectorAll('.ix-tabs button');
 
-    function filterByTag(selectedTag) {
-      filterPills.forEach(pill => {
-        pill.classList.toggle('active', pill.dataset.tag === selectedTag);
-      });
+    let currentTag = 'all';
+    let currentView = 'table';
+    const built = { slide: false, table: false };
+    let tableSort = { key: 'date', dir: -1 };
 
-      postItems.forEach(item => {
-        const itemTags = item.dataset.tags.split(',');
-        if (selectedTag === 'all' || itemTags.includes(selectedTag)) {
-          item.classList.remove('hidden');
-        } else {
-          item.classList.add('hidden');
+    function el(tag, cls, text) {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined) e.textContent = text;
+      return e;
+    }
+    function tagSpan(tag) {
+      const s = el('span', 'post-tag', '#' + tag);
+      s.dataset.tag = tag;
+      return s;
+    }
+    function fmtDate(iso) { return iso.replace(/-/g, '.'); }
+    // "[paper #85] Title": the bracketed kind goes bold in the accent colour
+    function putTitle(parent, title) {
+      const m = /^(\[[^\]]*\])([\s\S]*)$/.exec(title);
+      if (m) { parent.appendChild(el('b', 't-kind', m[1])); parent.appendChild(document.createTextNode(m[2])); }
+      else parent.textContent = title;
+      return parent;
+    }
+    function category(c) {
+      return (c || '').replace(/^[^\w가-힣]*\//, '').replace(/\/$/, '').split('/').filter(Boolean).join(' › ');
+    }
+    function matches(tags) { return currentTag === 'all' || tags.indexOf(currentTag) !== -1; }
+
+    // ===== Slide view: a horizontal strip of cards (drag, swipe or arrows)
+    function buildSlide() {
+      const wrap = el('div', 'ts-wrap');
+      const prev = el('button', 'ts-nav ts-prev'); prev.type = 'button'; prev.setAttribute('aria-label', 'Previous'); prev.innerHTML = '<i class="fa fa-chevron-left"></i>';
+      const next = el('button', 'ts-nav ts-next'); next.type = 'button'; next.setAttribute('aria-label', 'Next'); next.innerHTML = '<i class="fa fa-chevron-right"></i>';
+      const track = el('div', 'ts-track'); track.tabIndex = 0;
+      posts.forEach(p => {
+        const card = el('a', 'ts-card');
+        card.href = p.url;
+        card.dataset.tags = p.tags.join('|');
+        const img = el('div', 'ts-img');
+        if (p.image) img.style.backgroundImage = 'url("' + p.image.replace(/"/g, '%22') + '")';
+        else { img.classList.add('is-empty'); img.appendChild(el('i', 'fa fa-file-text-o')); }
+        card.appendChild(img);
+        card.appendChild(putTitle(el('span', 'ts-title'), p.title));
+        card.appendChild(el('span', 'ts-date', fmtDate(p.date)));
+        if (p.tags.length) {
+          const t = el('span', 'ts-tags');
+          p.tags.slice(0, 3).forEach(tag => t.appendChild(tagSpan(tag)));
+          card.appendChild(t);
         }
+        track.appendChild(card);
       });
+      wrap.appendChild(prev); wrap.appendChild(track); wrap.appendChild(next);
+      views.slide.appendChild(wrap);
+
+      function edges() {
+        const max = track.scrollWidth - track.clientWidth;
+        wrap.classList.toggle('at-start', track.scrollLeft <= 2);
+        wrap.classList.toggle('at-end', track.scrollLeft >= max - 2);
+      }
+      prev.addEventListener('click', () => track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' }));
+      next.addEventListener('click', () => track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' }));
+      track.addEventListener('scroll', edges, { passive: true });
+      window.addEventListener('resize', edges);
+
+      // mouse drag; a drag that moved doesn't count as a click on the card
+      let drag = null;
+      track.addEventListener('pointerdown', e => {
+        if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        drag = { x: e.clientX, left: track.scrollLeft, moved: false };
+      });
+      window.addEventListener('pointermove', e => {
+        if (!drag) return;
+        const dx = e.clientX - drag.x;
+        if (Math.abs(dx) > 4) { drag.moved = true; track.classList.add('is-dragging'); }
+        if (drag.moved) track.scrollLeft = drag.left - dx;
+      });
+      window.addEventListener('pointerup', () => {
+        if (!drag) return;
+        const moved = drag.moved;
+        drag = null;
+        track.classList.remove('is-dragging');
+        if (moved) track.addEventListener('click', ev => ev.preventDefault(), { capture: true, once: true });
+      });
+      track.addEventListener('dragstart', e => e.preventDefault());
+      track.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight') { e.preventDefault(); next.click(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); prev.click(); }
+      });
+      views.slide._edges = edges;
     }
 
-    filterPills.forEach(pill => {
-      pill.addEventListener('click', () => {
-        filterByTag(pill.dataset.tag);
-        // Update URL hash without scrolling
-        history.replaceState(null, '', pill.dataset.tag === 'all' ? window.location.pathname : '#' + pill.dataset.tag);
+    // ===== Table view: a sortable database table
+    function buildTable() {
+      const scroll = el('div', 'tt-scroll');
+      const table = el('table', 'tt-table');
+      const thead = el('thead');
+      const hr = el('tr');
+      // no Date column: rows still come newest first (the default sort)
+      [['title', 'Title'], ['tags', 'Tags'], ['category', 'Category']].forEach(([key, label]) => {
+        const th = el('th');
+        th.dataset.key = key;
+        if (key === 'title' || key === 'category') {
+          const b = el('button', 'tt-sort', label);
+          b.type = 'button';
+          b.addEventListener('click', () => {
+            tableSort = { key: key, dir: tableSort.key === key ? -tableSort.dir : (key === 'date' ? -1 : 1) };
+            renderTableBody();
+          });
+          th.appendChild(b);
+        } else {
+          th.textContent = label;
+        }
+        hr.appendChild(th);
       });
+      thead.appendChild(hr);
+      table.appendChild(thead);
+      table.appendChild(el('tbody'));
+      scroll.appendChild(table);
+      views.table.appendChild(scroll);
+      renderTableBody();
+    }
+    function renderTableBody() {
+      const table = views.table.querySelector('.tt-table');
+      const tbody = table.querySelector('tbody');
+      tbody.textContent = '';
+      const rows = posts.slice().sort((a, b) => {
+        const k = tableSort.key;
+        const va = k === 'category' ? category(a.category) : a[k];
+        const vb = k === 'category' ? category(b.category) : b[k];
+        return va < vb ? -tableSort.dir : va > vb ? tableSort.dir : 0;
+      });
+      rows.forEach(p => {
+        const tr = el('tr');
+        tr.dataset.tags = p.tags.join('|');
+        const tdTitle = el('td', 'tt-title');
+        const a = putTitle(el('a'), p.title); a.href = p.url;
+        tdTitle.appendChild(a);
+        tr.appendChild(tdTitle);
+        const tdTags = el('td', 'tt-tags');
+        p.tags.forEach(tag => tdTags.appendChild(tagSpan(tag)));
+        tr.appendChild(tdTags);
+        tr.appendChild(el('td', 'tt-cat', category(p.category)));
+        tbody.appendChild(tr);
+      });
+      table.querySelectorAll('th').forEach(th => {
+        th.classList.toggle('is-sorted', th.dataset.key === tableSort.key);
+        th.dataset.dir = tableSort.dir > 0 ? 'asc' : 'desc';
+      });
+      if (window.colorTags) window.colorTags();
+      applyFilter();
+    }
+
+    // ===== Filter + view switching
+    function applyFilter() {
+      let shown = 0;
+      Object.keys(views).forEach(name => {
+        if (!built[name]) return;
+        views[name].querySelectorAll('[data-tags]').forEach(item => {
+          const ok = matches(item.dataset.tags ? item.dataset.tags.split('|') : []);
+          item.hidden = !ok;
+          if (ok && name === currentView) shown++;
+        });
+      });
+      countEl.textContent = shown;
+      emptyEl.hidden = shown > 0;
+      if (views.slide._edges && currentView === 'slide') views.slide._edges();
+    }
+
+    function filterByTag(tag) {
+      currentTag = tag;
+      filters.forEach(f => f.classList.toggle('is-active', f.dataset.tag === tag));
+      filterBox.classList.toggle('has-active', tag !== 'all');
+      applyFilter();
+    }
+
+    function setView(name) {
+      if (!views[name]) return;
+      currentView = name;
+      if (!built[name]) {
+        if (name === 'slide') buildSlide();
+        if (name === 'table') buildTable();
+        built[name] = true;
+        if (window.colorTags) window.colorTags();
+      }
+      Object.keys(views).forEach(n => { views[n].hidden = n !== name; });
+      viewButtons.forEach(b => {
+        const on = b.dataset.view === name;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      try { localStorage.setItem('tags-view', name); } catch (e) {}
+      applyFilter();
+    }
+
+    filters.forEach(f => f.addEventListener('click', () => {
+      filterByTag(f.dataset.tag);
+      history.replaceState(null, '', f.dataset.tag === 'all' ? window.location.pathname : '#' + encodeURIComponent(f.dataset.tag));
+    }));
+    viewButtons.forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+
+    // a tag inside a row / card / table cell filters by that tag
+    section.addEventListener('click', e => {
+      const t = e.target.closest('.tags-view .post-tag[data-tag]');
+      if (!t) return;
+      e.preventDefault();
+      e.stopPropagation();
+      filterByTag(t.dataset.tag);
+      history.replaceState(null, '', '#' + encodeURIComponent(t.dataset.tag));
     });
 
-    // Check URL hash on load and filter accordingly
-    function handleHashChange() {
-      const hash = window.location.hash.slice(1); // Remove #
-      if (hash && hash !== '') {
-        const decodedTag = decodeURIComponent(hash);
-        // Check if the tag exists
-        const tagPill = document.querySelector(`.filter-pill[data-tag="${decodedTag}"]`);
-        if (tagPill) {
-          filterByTag(decodedTag);
-          // Scroll to post list after a short delay
-          setTimeout(() => {
-            document.querySelector('.page-card:last-of-type')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 100);
-        }
-      }
-    }
+    // table by default; a remembered choice (slide) wins
+    let saved = null;
+    try { saved = localStorage.getItem('tags-view'); } catch (e) {}
+    setView(saved && views[saved] ? saved : 'table');
 
-    // Handle initial hash and hash changes
+    function handleHashChange() {
+      const hash = decodeURIComponent(window.location.hash.slice(1));
+      if (!hash) return;
+      const known = Array.prototype.some.call(filters, f => f.dataset.tag === hash);
+      if (!known) return;
+      filterByTag(hash);
+      setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
 
     // ===== Tag Graph =====
     const svg = d3.select('#tag-graph');
-    const tooltip = document.getElementById('tag-tooltip');
     const container = document.querySelector('.graph-content');
-
     if (!svg.node() || !container) return;
-
-    const postTagsData = JSON.parse(document.getElementById('post-tags-data').textContent);
 
     const tagCounts = {};
     const edgeCounts = {};
-
-    postTagsData.forEach(post => {
+    posts.forEach(post => {
       const tags = post.tags || [];
-      tags.forEach(tag => {
-        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-      });
+      tags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; });
       for (let i = 0; i < tags.length; i++) {
         for (let j = i + 1; j < tags.length; j++) {
           const key = [tags[i], tags[j]].sort().join('|||');
@@ -160,56 +349,73 @@ sidebar: tag-list
       count: count,
       radius: Math.max(8, Math.min(22, 5 + count * 3))
     }));
-
     const links = Object.entries(edgeCounts).map(([key, count]) => {
       const [source, target] = key.split('|||');
       return { source, target, weight: count };
     });
 
-    // The graph is laid out ONCE on a fixed virtual canvas and the SVG scales
-    // it to fit via viewBox. Previously the simulation ran inside whatever the
-    // element measured at load, so on a phone every node was squeezed into a
-    // ~350px box and the labels piled on top of each other -- and nothing
-    // re-ran on rotate. Now the picture is the same everywhere; the viewer
-    // zooms and pans into it instead.
-    const width = 760;
-    const height = 480;
+    // Fit to width: the canvas takes the column's width (never narrower than
+    // 560, so a phone shows the same spread, scaled down) and the CSS height
+    // (525px). The layout is pulled wide -- x-gravity weaker than y, longer
+    // links -- so it fills the width instead of balling up in the middle.
+    //
+    // No walls: nodes are NOT clamped to the canvas (clamping pinned every
+    // loosely-connected node flat against the edge). Instead gravity is
+    // stronger the fewer links a node has, so stragglers stay near the
+    // cluster, and the finished layout is framed by fitToContent().
+    const width = Math.max(560, Math.round(container.clientWidth) || 760);
+    const height = 525;
+    const degree = {};
+    links.forEach(l => {
+      degree[l.source] = (degree[l.source] || 0) + 1;
+      degree[l.target] = (degree[l.target] || 0) + 1;
+    });
+    nodes.forEach(n => { n.degree = degree[n.id] || 0; });
 
     // Set from JS, not markup: the HTML pipeline lowercases attributes and
     // SVG's preserveAspectRatio is case-sensitive.
     svg.attr('viewBox', [0, 0, width, height])
        .attr('preserveAspectRatio', 'xMidYMid meet');
 
-    // Everything the zoom moves lives in here.
     const viewport = svg.append('g').attr('class', 'graph-viewport');
 
-    // Created stopped: the layout is settled up front (see the bottom of this
-    // script) and the simulation only runs live while a node is dragged.
+    // Created stopped: the layout is settled up front (see below) and the
+    // simulation only runs live while a node is dragged.
     const simulation = d3.forceSimulation(nodes)
-      .force('link', d3.forceLink(links).id(d => d.id).distance(60).strength(0.5))
-      .force('charge', d3.forceManyBody().strength(-80))
-      .force('x', d3.forceX(width / 2).strength(0.15))
-      .force('y', d3.forceY(height / 2).strength(0.15))
-      .force('collision', d3.forceCollide().radius(d => d.radius + 8).strength(0.9))
+      .force('link', d3.forceLink(links).id(d => d.id).distance(110).strength(0.35))
+      .force('charge', d3.forceManyBody().strength(-170))
+      .force('x', d3.forceX(width / 2).strength(d => 0.03 + 0.12 / (1 + d.degree)))
+      .force('y', d3.forceY(height / 2).strength(d => 0.09 + 0.2 / (1 + d.degree)))
+      .force('collision', d3.forceCollide().radius(d => d.radius + 12).strength(0.9))
       .stop();
 
+    // one stroke width for every link (CSS); links are trimmed to stop at
+    // the node edges, see render()
     const link = viewport.append('g').selectAll('line')
-      .data(links).join('line').attr('class', 'graph-link')
-      .attr('stroke-width', d => Math.max(1, d.weight * 1.5));
+      .data(links).join('line').attr('class', 'graph-link');
 
     const node = viewport.append('g').selectAll('g')
       .data(nodes).join('g').attr('class', 'graph-node')
       .call(d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended));
 
-    node.append('circle').attr('r', d => d.radius);
-    node.append('text').attr('class', 'node-label').attr('dy', d => -d.radius - 4).text(d => d.id);
+    node.append('circle').attr('class', 'node-dot').attr('r', d => d.radius);
+    // label + the highlight band drawn behind it on hover (sized in mouseenter)
+    node.append('rect').attr('class', 'node-label-bg').attr('rx', 3);
+    node.append('text').attr('class', 'node-label').attr('dy', d => -d.radius - 5).text(d => d.id);
+
+    // Hover: the hovered tag's colour (the one its chip gets in the feed)
+    // paints it, its neighbours and the links between them -- one colour,
+    // set as --hl on the svg. No tooltip: the node's own label grows in.
+    const keyOf = window.tagColorKey || (() => 'gray');
 
     node.on('mouseenter', function(event, d) {
-      tooltip.innerHTML = `<div class="tag-name">${d.id}</div><div class="tag-count">${d.count} posts</div>`;
-      tooltip.classList.add('visible');
-      const rect = container.getBoundingClientRect();
-      tooltip.style.left = `${event.clientX - rect.left + 10}px`;
-      tooltip.style.top = `${event.clientY - rect.top - 10}px`;
+      svg.style('--hl', `var(--k-${keyOf(d.id)}-glow)`);
+      d3.select(this).classed('is-hovered', true).raise();
+      // fit the highlight band to the (now bold, larger) label
+      const bb = this.querySelector('.node-label').getBBox();
+      d3.select(this).select('.node-label-bg')
+        .attr('x', bb.x - 5).attr('y', bb.y - 1)
+        .attr('width', bb.width + 10).attr('height', bb.height + 2);
 
       const connected = new Set([d.id]);
       link.each(function(l) {
@@ -227,33 +433,36 @@ sidebar: tag-list
       });
     })
     .on('mouseleave', function() {
-      tooltip.classList.remove('visible');
+      d3.select(this).classed('is-hovered', false);
       link.classed('highlighted', false).classed('dimmed', false);
       node.classed('highlighted', false).classed('dimmed', false);
     })
     .on('click', function(event, d) {
       event.preventDefault();
       filterByTag(d.id);
+      history.replaceState(null, '', '#' + encodeURIComponent(d.id));
     });
 
-    // Keep every node inside the virtual canvas.
-    function clampToCanvas() {
-      nodes.forEach(d => {
-        d.x = Math.max(d.radius + 5, Math.min(width - d.radius - 5, d.x));
-        d.y = Math.max(d.radius + 5, Math.min(height - d.radius - 5, d.y));
-      });
-    }
-
+    // Links run edge to edge, not centre to centre: each end is pulled back
+    // along the line by that node's radius (+1 for a hairline gap), so a
+    // translucent node never has a line showing through it. Overlapping
+    // nodes get no visible link.
     function render() {
-      link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
-          .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+      link.each(function (d) {
+        const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+        const len = Math.hypot(dx, dy) || 1;
+        const a = d.source.radius + 1, b = d.target.radius + 1;
+        const ux = dx / len, uy = dy / len;
+        const gap = len > a + b;
+        this.setAttribute('x1', d.source.x + ux * a);
+        this.setAttribute('y1', d.source.y + uy * a);
+        this.setAttribute('x2', gap ? d.target.x - ux * b : d.source.x + ux * a);
+        this.setAttribute('y2', gap ? d.target.y - uy * b : d.source.y + uy * a);
+      });
       node.attr('transform', d => `translate(${d.x},${d.y})`);
     }
 
-    simulation.on('tick', () => {
-      clampToCanvas();
-      render();
-    });
+    simulation.on('tick', render);
 
     function dragstarted(event, d) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -275,24 +484,18 @@ sidebar: tag-list
         if (event.type === 'touchstart') return event.touches.length >= 2;
         return !event.button;
       })
-      .on('zoom', function (event) {
-        viewport.attr('transform', event.transform);
-      });
+      .on('zoom', function (event) { viewport.attr('transform', event.transform); });
 
     svg.call(zoom);
 
-    // Frame the drawing rather than the whole canvas, so a phone still uses
-    // the full width instead of showing empty margins around a small cluster.
     function fitToContent(duration) {
       const xs = nodes.map(d => d.x);
       const ys = nodes.map(d => d.y);
       if (!xs.length) return;
-      const pad = 24;
+      const pad = 28;
       const minX = Math.min(...xs) - pad, maxX = Math.max(...xs) + pad;
       const minY = Math.min(...ys) - pad, maxY = Math.max(...ys) + pad;
-      const boxW = Math.max(1, maxX - minX);
-      const boxH = Math.max(1, maxY - minY);
-      const scale = Math.min(3, width / boxW, height / boxH);
+      const scale = Math.min(3, width / Math.max(1, maxX - minX), height / Math.max(1, maxY - minY));
       const transform = d3.zoomIdentity
         .translate(width / 2, height / 2)
         .scale(scale)
@@ -303,19 +506,10 @@ sidebar: tag-list
       else svg.call(zoom.transform, transform);
     }
 
-    // Settle the layout before the first paint, then frame it once. The graph
-    // used to animate into place and then snap to the fitted zoom when the
-    // simulation ended -- and again after every drag, since each drag ends
-    // with the simulation cooling down. Now the first frame is the finished,
-    // framed picture, and only the reset button re-frames it.
-    // (simulation.tick() fires no 'tick' event, hence the explicit clamp.)
-    const settleTicks = Math.ceil(
-      Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())
-    );
-    for (let i = 0; i < settleTicks; i++) {
-      simulation.tick();
-      clampToCanvas();
-    }
+    // Settle the layout before the first paint, then frame it once: no
+    // animate-then-snap on load, and no re-framing after a drag.
+    const settleTicks = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
+    for (let i = 0; i < settleTicks; i++) simulation.tick();
     render();
     fitToContent(0);
 
@@ -323,9 +517,9 @@ sidebar: tag-list
       btn.addEventListener('click', () => {
         const action = btn.dataset.zoom;
         if (action === 'reset') fitToContent(250);
-        else svg.transition().duration(200)
-                .call(zoom.scaleBy, action === 'in' ? 1.4 : 1 / 1.4);
+        else svg.transition().duration(200).call(zoom.scaleBy, action === 'in' ? 1.4 : 1 / 1.4);
       });
     });
-  });
+  })();
 </script>
+<div id="page-built" hidden></div>

@@ -23,6 +23,12 @@
     }
   }
 
+  // exposed so content built later (e.g. the tags page's slide/table views)
+  // can colour its tags the same way, and so the tag graph can tint a node
+  // with its tag's colour: window.tagColorKey('AISEC') -> 'orange'
+  window.colorTags = apply;
+  window.tagColorKey = function (name) { return COLORS[hash(name) % COLORS.length]; };
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
   else apply();
 })();

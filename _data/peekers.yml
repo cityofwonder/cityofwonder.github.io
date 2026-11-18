@@ -1,0 +1,16 @@
+# Characters that pop up out of the folder icons on the categories page when
+# a folder is hovered. Folders next to each other always get different ones
+# (siblings take consecutive entries), and a folder keeps its character.
+# The image is shown top-first, so the head comes up first.
+#
+# To add one: put an image (PNG with a transparent background, cropped close
+# to the character, ~240px) in assets/images/peekers/ and list it here.
+# Built-in drawings are also available: "- builtin: frog" / hamster / chick.
+- image: /assets/images/peekers/goodham.png
+- image: /assets/images/peekers/smartcat.png
+- image: /assets/images/peekers/smartham.png
+- image: /assets/images/peekers/duckcat.png
+- image: /assets/images/peekers/hackham.png
+- image: /assets/images/peekers/gomcat.png
+- image: /assets/images/peekers/napham.png
+- image: /assets/images/peekers/napcat.png

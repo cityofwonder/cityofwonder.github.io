@@ -1,216 +1,479 @@
 ---
 layout: framework
-sidebar: category-list
+# the index pages (tags, archives, categories, about) share one sidebar
+sidebar: common-list
 ---
+{%- comment -%}
+  Categories as a file browser, Drive / Explorer style.
+    * what:   Folders (the category tree), Kinds (grouped by the "[paper #85]"
+              prefix, like file extensions), Recent (everything by date)
+    * how:    Icons (the default -- a 4-across grid you click into, with a
+              path bar) or List (rows that fold open in place)
+    * order:  newest / oldest;  search pinned to the top ("/" focuses it)
+  Folder and file icons take a key colour (the same hash that colours tags),
+  and folders let a character peek out on hover (_data/peekers.yml).
+  Styles: _sass/misc/files-page.scss.
+{%- endcomment -%}
 
-{%- if site.posts.size > 0 -%}
+{%- comment -%} Directories (layout: directory) live in the feed only {%- endcomment -%}
+{%- assign list_posts = site.posts | where_exp: "p", "p.layout != 'directory'" -%}
 
-  <!-- Build category tree data for JavaScript -->
-  <script id="category-data" type="application/json">
-  {
-    "posts": [
-      {% for post in site.posts %}
-        {
-          "title": {{ post.title | jsonify }},
-          "url": "{{ post.url | relative_url }}",
-          "date": "{{ post.date | date: '%Y-%m-%d' }}",
-          "categories": {{ post.categories | jsonify }}
-        }{% unless forloop.last %},{% endunless %}
-      {% endfor %}
-    ]
-  }
-  </script>
+{%- if list_posts.size > 0 -%}
 
-  <!-- Categories Tree Container -->
-  <div class="page-card">
-    <div class="page-card-header">
-      <div class="card-title">Categories</div>
-      <div class="card-actions">
-        <button class="card-action-btn" onclick="expandAll()" title="Expand All">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 15l-6-6-6 6"/>
-          </svg>
-        </button>
-        <button class="card-action-btn" onclick="collapseAll()" title="Collapse All">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 9l6 6 6-6"/>
-          </svg>
-        </button>
-      </div>
+<div class="ix-page files-page">
+
+  <!-- shared SVG: the folder gloss + built-in peeking characters -->
+  <svg class="files-sprite" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <!-- nothing of the character shows below the folder's bottom edge -->
+      <clipPath id="fiClip"><rect x="-20" y="-60" width="72" height="86"/></clipPath>
+      <linearGradient id="fdGloss" x1="0" y1="0" x2="0.35" y2="1">
+        <stop offset="0" stop-color="#fff" stop-opacity="0.5"/>
+        <stop offset="0.55" stop-color="#fff" stop-opacity="0.12"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </linearGradient>
+      <!-- original drawings (not based on any existing character) -->
+      <symbol id="pk-frog" viewBox="0 0 20 18">
+        <ellipse cx="10" cy="12" rx="9" ry="6.2" fill="#6cc070"/>
+        <circle cx="5.6" cy="6" r="3.6" fill="#6cc070"/>
+        <circle cx="14.4" cy="6" r="3.6" fill="#6cc070"/>
+        <circle cx="5.6" cy="6" r="2.3" fill="#fff"/>
+        <circle cx="14.4" cy="6" r="2.3" fill="#fff"/>
+        <circle cx="6" cy="6.4" r="1.2" fill="#1d2330"/>
+        <circle cx="14" cy="6.4" r="1.2" fill="#1d2330"/>
+        <path d="M7 12.4q3 2.3 6 0" stroke="#1d2330" stroke-width="1" fill="none" stroke-linecap="round"/>
+        <ellipse cx="4.2" cy="12.2" rx="1.4" ry=".8" fill="#ff9aa2" opacity=".85"/>
+        <ellipse cx="15.8" cy="12.2" rx="1.4" ry=".8" fill="#ff9aa2" opacity=".85"/>
+      </symbol>
+      <symbol id="pk-hamster" viewBox="0 0 20 18">
+        <circle cx="4.6" cy="4.6" r="2.6" fill="#d99a5b"/>
+        <circle cx="15.4" cy="4.6" r="2.6" fill="#d99a5b"/>
+        <circle cx="4.6" cy="4.8" r="1.4" fill="#f5c6c6"/>
+        <circle cx="15.4" cy="4.8" r="1.4" fill="#f5c6c6"/>
+        <ellipse cx="10" cy="11" rx="8.6" ry="7" fill="#e8b47a"/>
+        <ellipse cx="10" cy="13.3" rx="6.2" ry="4.4" fill="#fff4e6"/>
+        <circle cx="6.8" cy="9.6" r="1.1" fill="#1d2330"/>
+        <circle cx="13.2" cy="9.6" r="1.1" fill="#1d2330"/>
+        <ellipse cx="10" cy="11.7" rx="1" ry=".7" fill="#e86f7f"/>
+        <path d="M8.6 12.9q1.4 1 2.8 0" stroke="#1d2330" stroke-width=".8" fill="none" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="pk-chick" viewBox="0 0 20 18">
+        <path d="M9 3.6q.9-2.6 2.3-.3" stroke="#e8a800" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <circle cx="10" cy="11" r="7.8" fill="#ffd84d"/>
+        <circle cx="7" cy="9.6" r="1.1" fill="#1d2330"/>
+        <circle cx="13" cy="9.6" r="1.1" fill="#1d2330"/>
+        <path d="M8.6 11.5l1.4 1.7 1.4-1.7z" fill="#f28c28"/>
+        <ellipse cx="5" cy="12.6" rx="1.3" ry=".8" fill="#ff9aa2" opacity=".85"/>
+        <ellipse cx="15" cy="12.6" rx="1.3" ry=".8" fill="#ff9aa2" opacity=".85"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header class="ix-head">
+    <h2 class="ix-title">Files</h2>
+    <span class="ix-meta">{{ list_posts.size }} posts</span>
+  </header>
+
+  <!-- pinned to the top while scrolling -->
+  <div class="files-bar">
+    <label class="files-search">
+      <i class="fa fa-search" aria-hidden="true"></i>
+      <input type="search" id="files-q" placeholder="Search posts  ( / )" autocomplete="off" spellcheck="false" aria-label="Search posts">
+    </label>
+    <div class="ix-tabs files-views" role="group" aria-label="View">
+      <button type="button" data-view="tree" class="is-active" aria-pressed="true"><i class="fa fa-folder-o"></i> Folders</button>
+      <button type="button" data-view="kind" aria-pressed="false"><i class="fa fa-tags"></i> Kinds</button>
+      <button type="button" data-view="recent" aria-pressed="false"><i class="fa fa-clock-o"></i> Recent</button>
     </div>
-    <div class="tree-content">
-      <div id="category-tree" class="category-tree"></div>
+    <div class="files-tools">
+      <button type="button" class="files-tool" data-act="sort"><i class="fa fa-sort-amount-desc"></i> <span>Newest</span></button>
+      <span class="files-sep" aria-hidden="true"></span>
+      <button type="button" class="files-tool" data-layout="grid" title="Icons" aria-label="Icons"><i class="fa fa-th-large"></i></button>
+      <button type="button" class="files-tool" data-layout="list" title="List" aria-label="List"><i class="fa fa-list-ul"></i></button>
+      <button type="button" class="files-tool" data-act="expand" title="Expand all" aria-label="Expand all"><i class="fa fa-plus-square-o"></i></button>
+      <button type="button" class="files-tool" data-act="collapse" title="Collapse all" aria-label="Collapse all"><i class="fa fa-minus-square-o"></i></button>
     </div>
   </div>
 
-{%- endif -%}
+  <nav class="fg-crumbs" aria-label="Path"></nav>
+  <div class="files-list" id="files-list"></div>
+  <p class="ix-empty" hidden>No posts match.</p>
+</div>
 
-{%- comment -%} Styles: _sass/misc/page-card.scss (shared with the other index pages) {%- endcomment -%}
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const data = JSON.parse(document.getElementById('category-data').textContent);
-  const treeContainer = document.getElementById('category-tree');
-
-  function buildTree(posts) {
-    const tree = {};
-    posts.forEach(post => {
-      post.categories.forEach(category => {
-        const parts = category.split('/').filter(p => p.trim());
-        let current = tree;
-        parts.forEach((part, index) => {
-          if (!current[part]) {
-            current[part] = { __posts: [], __children: {} };
-          }
-          if (index === parts.length - 1) {
-            if (!current[part].__posts.find(p => p.url === post.url)) {
-              current[part].__posts.push(post);
-            }
-          }
-          current = current[part].__children;
-        });
-      });
-    });
-    return tree;
-  }
-
-  const icons = {
-    chevron: `<svg class="tree-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>`,
-    folder: `<svg class="tree-icon folder" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`,
-    folderOpen: `<svg class="tree-icon folder-open" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>`,
-    file: `<svg class="tree-icon file" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>`
-  };
-
-  function renderTree(node, container, depth = 0) {
-    const sortedKeys = Object.keys(node).sort((a, b) => {
-      const aHas = Object.keys(node[a].__children || {}).length > 0;
-      const bHas = Object.keys(node[b].__children || {}).length > 0;
-      if (aHas && !bHas) return -1;
-      if (!aHas && bHas) return 1;
-      return a.localeCompare(b);
-    });
-
-    sortedKeys.forEach(key => {
-      const item = node[key];
-      const hasChildren = Object.keys(item.__children).length > 0;
-      const posts = item.__posts || [];
-      const totalPosts = countAllPosts(item);
-
-      if (hasChildren || posts.length > 0) {
-        const folder = document.createElement('div');
-        folder.className = 'tree-folder';
-        if (depth === 0) folder.classList.add('expanded');
-
-        const header = document.createElement('div');
-        header.className = 'tree-folder-header';
-        header.innerHTML = `
-          ${icons.chevron}
-          <span class="folder-icon">${icons.folder}</span>
-          <span class="tree-label">${key}</span>
-          <span class="tree-count">${totalPosts}</span>
-        `;
-
-        header.addEventListener('click', function() {
-          folder.classList.toggle('expanded');
-          const folderIcon = header.querySelector('.folder-icon');
-          folderIcon.innerHTML = folder.classList.contains('expanded') ? icons.folderOpen : icons.folder;
-        });
-
-        folder.appendChild(header);
-
-        const children = document.createElement('div');
-        children.className = 'tree-children';
-
-        if (hasChildren) {
-          renderTree(item.__children, children, depth + 1);
-        }
-
-        if (posts.length > 0) {
-          const visibleLimit = 3;
-          posts.slice(0, visibleLimit).forEach(post => {
-            children.appendChild(createFileElement(post));
-          });
-
-          if (posts.length > visibleLimit) {
-            const hiddenPosts = posts.slice(visibleLimit);
-            const hiddenContainer = document.createElement('div');
-            hiddenContainer.className = 'hidden-files';
-            hiddenPosts.forEach(post => {
-              hiddenContainer.appendChild(createFileElement(post));
-            });
-
-            const showMoreContainer = document.createElement('div');
-            showMoreContainer.className = 'show-more-container';
-            const showMoreBtn = document.createElement('button');
-            showMoreBtn.className = 'show-more-btn';
-            showMoreBtn.textContent = `+ ${hiddenPosts.length} more`;
-            showMoreBtn.addEventListener('click', function(e) {
-              e.stopPropagation();
-              hiddenContainer.classList.toggle('visible');
-              showMoreBtn.textContent = hiddenContainer.classList.contains('visible')
-                ? '- collapse' : `+ ${hiddenPosts.length} more`;
-            });
-
-            showMoreContainer.appendChild(showMoreBtn);
-            children.appendChild(showMoreContainer);
-            children.appendChild(hiddenContainer);
-          }
-        }
-
-        folder.appendChild(children);
-        container.appendChild(folder);
-      }
-    });
-  }
-
-  function createFileElement(post) {
-    const file = document.createElement('div');
-    file.className = 'tree-file';
-    file.innerHTML = `
-      ${icons.file}
-      <a href="${post.url}">${post.title}</a>
-      <span class="tree-file-date">${post.date}</span>
-    `;
-    return file;
-  }
-
-  function countAllPosts(node) {
-    let count = (node.__posts || []).length;
-    Object.values(node.__children || {}).forEach(child => {
-      count += countAllPosts(child);
-    });
-    return count;
-  }
-
-  const tree = buildTree(data.posts);
-  renderTree(tree, treeContainer);
-
-  document.querySelectorAll('.tree-folder').forEach(folder => {
-    if (folder.parentElement === treeContainer) {
-      folder.classList.add('expanded');
-      const folderIcon = folder.querySelector('.folder-icon');
-      if (folderIcon) folderIcon.innerHTML = icons.folderOpen;
-    }
-  });
-});
-
-function expandAll() {
-  document.querySelectorAll('.tree-folder').forEach(folder => {
-    folder.classList.add('expanded');
-    const folderIcon = folder.querySelector('.folder-icon');
-    if (folderIcon) {
-      folderIcon.innerHTML = `<svg class="tree-icon folder-open" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>`;
-    }
-  });
-}
-
-function collapseAll() {
-  document.querySelectorAll('.tree-folder').forEach(folder => {
-    folder.classList.remove('expanded');
-    const folderIcon = folder.querySelector('.folder-icon');
-    if (folderIcon) {
-      folderIcon.innerHTML = `<svg class="tree-icon folder" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`;
-    }
-  });
+<script id="category-data" type="application/json">
+{
+  "peekers": {{ site.data.peekers | jsonify }},
+  "posts": [
+    {%- for post in list_posts -%}
+    {
+      "title": {{ post.title | jsonify }},
+      "url": {{ post.url | relative_url | jsonify }},
+      "date": "{{ post.date | date: '%Y-%m-%d' }}",
+      "categories": {{ post.categories | jsonify }}
+    }{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ]
 }
 </script>
+
+{%- endif -%}
+
+<script>
+(function () {   // runs as soon as it's parsed: the markup and data it uses are above
+  const dataEl = document.getElementById('category-data');
+  if (!dataEl) return;
+  const data = JSON.parse(dataEl.textContent);
+  const list = document.getElementById('files-list');
+  const crumbs = document.querySelector('.fg-crumbs');
+  const empty = document.querySelector('.ix-empty');
+  const qInput = document.getElementById('files-q');
+  const viewButtons = document.querySelectorAll('.files-views button');
+  const layoutButtons = document.querySelectorAll('[data-layout]');
+  const sortBtn = document.querySelector('[data-act="sort"]');
+  const listTools = document.querySelectorAll('[data-act="expand"], [data-act="collapse"]');
+  const baseurl = {{ site.baseurl | default: '' | jsonify }};
+  const keyOf = window.tagColorKey || (() => 'blue');
+
+  // ---- posts, with what every view needs
+  const KIND_RE = /^\[([^\]]+)\]\s*/;
+  const hasWord = s => /[\p{L}\p{N}]/u.test(s);
+  const posts = data.posts.map(p => {
+    const m = KIND_RE.exec(p.title);
+    const kindRaw = m ? m[1].replace(/\s*#?\d+(\.\d+)*\.?\s*$/, '').trim() : '';
+    const paths = (p.categories || []).map(c => c.split('/').map(s => s.trim()).filter(s => s && hasWord(s)));
+    return Object.assign({}, p, {
+      kind: kindRaw,
+      kindKey: kindRaw.toLowerCase(),
+      color: kindRaw ? keyOf(kindRaw) : 'gray',
+      paths: paths.length ? paths : [['Uncategorized']],
+      search: (p.title + ' ' + (p.categories || []).join(' ')).toLowerCase()
+    });
+  });
+
+  // ---- state (view, layout and order are remembered)
+  const state = { view: 'tree', layout: 'grid', sort: 'new', q: '', cwd: [], kindCwd: null };
+  try {
+    const v = localStorage.getItem('files-view'); if (v === 'tree' || v === 'kind' || v === 'recent') state.view = v;
+    const l = localStorage.getItem('files-layout'); if (l === 'grid' || l === 'list') state.layout = l;
+    const s = localStorage.getItem('files-sort'); if (s === 'new' || s === 'old') state.sort = s;
+  } catch (e) {}
+  const open = new Set();          // list layout: expanded group keys
+
+  // ---- helpers
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
+  function byDate(a, b) {
+    const d = a.date < b.date ? -1 : a.date > b.date ? 1 : a.title.localeCompare(b.title);
+    return state.sort === 'new' ? -d : d;
+  }
+  function matches(p) { return !state.q || p.search.indexOf(state.q) !== -1; }
+  function putTitle(parent, title) {
+    const m = /^(\[[^\]]*\])([\s\S]*)$/.exec(title);
+    if (m) { parent.appendChild(el('b', 't-kind', m[1])); parent.appendChild(document.createTextNode(m[2])); }
+    else parent.textContent = title;
+    return parent;
+  }
+
+  // ---- icons
+  const SVG = 'http://www.w3.org/2000/svg';
+  const peekers = (data.peekers && data.peekers.length) ? data.peekers : [{ builtin: 'hamster' }];
+  function svgEl(tag, attrs, parent) {
+    const e = document.createElementNS(SVG, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  // a two-layer folder in a key colour with a character tucked between the
+  // layers; hover the folder and it pops up over the front edge
+  function folderIcon(seed, color) {
+    const pk = peekers[(seed in peekerOf ? peekerOf[seed] : hash(seed)) % peekers.length];
+    const svg = svgEl('svg', { 'class': 'fi', viewBox: '0 0 32 28', 'aria-hidden': 'true' });
+    svg.style.setProperty('--fk', `var(--k-${color}-glow)`);
+    svgEl('path', { 'class': 'fi-back', d: 'M3 4.5A2.5 2.5 0 0 1 5.5 2H12l3 3h11.5A2.5 2.5 0 0 1 29 7.5v16a2.5 2.5 0 0 1-2.5 2.5h-21A2.5 2.5 0 0 1 3 23.5z' }, svg);
+    // the character sits behind the front layer, clipped at the folder's
+    // bottom edge (so it can be bigger than the front), and slides up on hover
+    const clip = svgEl('g', { 'clip-path': 'url(#fiClip)' }, svg);
+    const peek = svgEl('g', { 'class': 'fi-peek' }, clip);
+    if (pk.image) {
+      const src = /^https?:/.test(pk.image) ? pk.image : baseurl + pk.image;
+      svgEl('image', { href: src, x: 4, y: 9, width: 24, height: 22, preserveAspectRatio: 'xMidYMin meet' }, peek);
+    } else {
+      svgEl('use', { href: '#pk-' + (pk.builtin || 'hamster'), x: 6, y: 9.2, width: 20, height: 18 }, peek);
+    }
+    svgEl('rect', { 'class': 'fi-front', x: 3, y: 8.5, width: 26, height: 17.5, rx: 2.5 }, svg);
+    svgEl('rect', { 'class': 'fi-gloss', x: 3, y: 8.5, width: 26, height: 17.5, rx: 2.5 }, svg);
+    svgEl('path', { 'class': 'fi-shine', d: 'M6 11.2h20' }, svg);
+    return svg;
+  }
+  // a page with a folded corner, tinted with the post's kind colour
+  function fileIcon(color) {
+    const svg = svgEl('svg', { 'class': 'fdoc', viewBox: '0 0 40 48', 'aria-hidden': 'true' });
+    svg.style.setProperty('--fk', `var(--k-${color}-glow)`);
+    svgEl('path', { 'class': 'fd-page', d: 'M7 2h19l11 11v31a2.5 2.5 0 0 1-2.5 2.5H7A2.5 2.5 0 0 1 4.5 44V4.5A2.5 2.5 0 0 1 7 2z' }, svg);
+    svgEl('path', { 'class': 'fd-fold', d: 'M26 2v8.5a2.5 2.5 0 0 0 2.5 2.5H37z' }, svg);
+    svgEl('path', { 'class': 'fd-lines', d: 'M11 22h18M11 28h18M11 34h12' }, svg);
+    return svg;
+  }
+
+  // ---- the data behind the views
+  const tree = (function build() {
+    const root = { name: '', children: new Map(), files: [] };
+    posts.forEach(p => {
+      p.paths.forEach(parts => {
+        let node = root;
+        parts.forEach(part => {
+          if (!node.children.has(part)) node.children.set(part, { name: part, children: new Map(), files: [] });
+          node = node.children.get(part);
+        });
+        if (node.files.indexOf(p) === -1) node.files.push(p);
+      });
+    });
+    return root;
+  })();
+  // list layout starts fully folded: the + (expand all) button or a click on
+  // a folder opens it
+
+  const kinds = (function () {
+    const groups = new Map();
+    posts.forEach(p => {
+      if (!groups.has(p.kindKey)) groups.set(p.kindKey, { key: p.kindKey, label: p.kind, files: [] });
+      groups.get(p.kindKey).files.push(p);
+    });
+    return Array.from(groups.values())
+      .sort((a, b) => (a.key === '') - (b.key === '') || b.files.length - a.files.length || a.key.localeCompare(b.key));
+  })();
+
+  // which character each folder hides: siblings take consecutive entries
+  // (starting from an offset per parent), so neighbours always differ
+  const peekerOf = {};
+  (function assign(node, prefix) {
+    const off = hash(prefix || '/');
+    Array.from(node.children.values()).sort((a, b) => a.name.localeCompare(b.name)).forEach((c, i) => {
+      const key = prefix + '/' + c.name;
+      peekerOf[key] = off + i;
+      assign(c, key);
+    });
+  })(tree, '');
+  kinds.forEach((k, i) => { peekerOf['kind:' + k.key] = hash('kind') + i; });
+
+  function countIn(node) {
+    let n = node.files.filter(matches).length;
+    node.children.forEach(c => { n += countIn(c); });
+    return n;
+  }
+  function nodeAt(path) {
+    let node = tree;
+    for (const part of path) { node = node.children.get(part); if (!node) return null; }
+    return node;
+  }
+  function sortedChildren(node) {
+    return Array.from(node.children.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }
+  // a kind is shown by its name alone ("paper", not "[paper]")
+  function kindLabel(g) {
+    const s = el('span', 'fx-name');
+    if (g.key) s.appendChild(el('b', 't-kind', g.label));
+    else s.appendChild(el('span', 'fx-nokind', 'No kind'));
+    return s;
+  }
+
+  // ======================================================================
+  // Icons layout: a grid you click into
+  // ======================================================================
+  function tileFolder(name, labelNode, count, seed, color, onOpen) {
+    const t = el('button', 'fg-tile is-folder');
+    t.type = 'button';
+    const icon = el('span', 'fg-icon');
+    icon.appendChild(folderIcon(seed, color));
+    t.appendChild(icon);
+    const nm = el('span', 'fg-name');
+    nm.appendChild(labelNode || document.createTextNode(name));
+    t.appendChild(nm);
+    t.appendChild(el('span', 'fg-meta', count + (count === 1 ? ' post' : ' posts')));
+    t.addEventListener('click', onOpen);
+    return t;
+  }
+  function tileFile(p) {
+    const t = el('a', 'fg-tile is-file');
+    t.href = p.url;
+    const icon = el('span', 'fg-icon');
+    icon.appendChild(fileIcon(p.color));
+    t.appendChild(icon);
+    t.appendChild(putTitle(el('span', 'fg-name'), p.title));
+    t.appendChild(el('span', 'fg-meta', p.date.replace(/-/g, '.')));
+    return t;
+  }
+  function crumb(label, onClick) {
+    const b = el('button', 'fg-crumb', label);
+    b.type = 'button';
+    if (onClick) b.addEventListener('click', onClick); else b.disabled = true;
+    return b;
+  }
+  function setCrumbs(parts) {             // parts: [{label, go}]; last is current
+    crumbs.textContent = '';
+    parts.forEach((c, i) => {
+      if (i) crumbs.appendChild(el('i', 'fa fa-angle-right fg-crumb-sep'));
+      crumbs.appendChild(crumb(c.label, i < parts.length - 1 ? c.go : null));
+    });
+    crumbs.hidden = false;
+  }
+
+  function renderGrid() {
+    const grid = el('div', 'fg-grid');
+    if (state.q) {                         // search: matching posts, flat
+      setCrumbs([{ label: 'Search results' }]);
+      posts.filter(matches).sort(byDate).forEach(p => grid.appendChild(tileFile(p)));
+    } else if (state.view === 'tree') {
+      const node = nodeAt(state.cwd) || (state.cwd = [], tree);
+      const parts = [{ label: 'Files', go: () => { state.cwd = []; render(); } }];
+      state.cwd.forEach((name, i) => parts.push({ label: name, go: () => { state.cwd = state.cwd.slice(0, i + 1); render(); } }));
+      setCrumbs(parts);
+      sortedChildren(node).forEach(child => {
+        const n = countIn(child);
+        if (!n) return;
+        const path = state.cwd.concat(child.name);
+        grid.appendChild(tileFolder(child.name, null, n, '/' + path.join('/'), keyOf(child.name), () => { state.cwd = path; render(); }));
+      });
+      node.files.filter(matches).sort(byDate).forEach(p => grid.appendChild(tileFile(p)));
+    } else if (state.view === 'kind') {
+      const g = state.kindCwd === null ? null : kinds.find(k => k.key === state.kindCwd);
+      if (!g) {
+        state.kindCwd = null;
+        setCrumbs([{ label: 'Kinds' }]);
+        kinds.forEach(k => grid.appendChild(
+          tileFolder('', kindLabel(k), k.files.length, 'kind:' + k.key, k.key ? keyOf(k.label) : 'gray', () => { state.kindCwd = k.key; render(); })));
+      } else {
+        setCrumbs([{ label: 'Kinds', go: () => { state.kindCwd = null; render(); } }, { label: g.key ? g.label : 'No kind' }]);
+        g.files.slice().sort(byDate).forEach(p => grid.appendChild(tileFile(p)));
+      }
+    } else {
+      setCrumbs([{ label: 'Recent' }]);
+      posts.slice().sort(byDate).forEach(p => grid.appendChild(tileFile(p)));
+    }
+    if (grid.childNodes.length) list.appendChild(grid);
+  }
+
+  // ======================================================================
+  // List layout: rows that fold open in place (hover a folder: peek)
+  // ======================================================================
+  function fileRow(p, withPath) {
+    const a = el('a', 'fx-file');
+    a.href = p.url;
+    a.appendChild(fileIcon(p.color));
+    a.appendChild(putTitle(el('span', 'fx-title'), p.title));
+    if (withPath) a.appendChild(el('span', 'fx-path', p.paths[0].join(' › ')));
+    a.appendChild(el('span', 'fx-date', p.date.replace(/-/g, '.')));
+    return a;
+  }
+  function groupRow(key, labelNode, count, seed, color, depth) {
+    const wrap = el('div', 'fx-group');
+    wrap.dataset.depth = depth;
+    const head = el('button', 'fx-folder');
+    head.type = 'button';
+    const isOpen = state.q ? true : open.has(key);
+    head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    head.appendChild(el('i', 'fa fa-angle-right fx-chev'));
+    head.appendChild(folderIcon(seed, color));
+    head.appendChild(labelNode);
+    head.appendChild(el('span', 'fx-count', String(count)));
+    head.addEventListener('click', () => {
+      if (open.has(key)) open.delete(key); else open.add(key);
+      render();
+    });
+    wrap.appendChild(head);
+    const body = el('div', 'fx-children');
+    body.hidden = !isOpen;
+    wrap.appendChild(body);
+    return { wrap, body };
+  }
+  function renderTreeNode(node, container, depth, prefix) {
+    sortedChildren(node).forEach(child => {
+      const n = countIn(child);
+      if (!n) return;
+      const key = prefix + '/' + child.name;
+      const g = groupRow(key, el('span', 'fx-name', child.name), n, key, keyOf(child.name), depth);
+      renderTreeNode(child, g.body, depth + 1, key);
+      child.files.filter(matches).sort(byDate).forEach(p => g.body.appendChild(fileRow(p)));
+      container.appendChild(g.wrap);
+    });
+  }
+  function renderList() {
+    crumbs.hidden = true;
+    if (state.view === 'tree') renderTreeNode(tree, list, 0, '');
+    else if (state.view === 'kind') {
+      kinds.forEach(k => {
+        const files = k.files.filter(matches).sort(byDate);
+        if (!files.length) return;
+        const grp = groupRow('kind:' + k.key, kindLabel(k), files.length, 'kind:' + k.key, k.key ? keyOf(k.label) : 'gray', 0);
+        files.forEach(p => grp.body.appendChild(fileRow(p)));
+        list.appendChild(grp.wrap);
+      });
+    } else {
+      const box = el('div', 'fx-recent');
+      posts.filter(matches).sort(byDate).forEach(p => box.appendChild(fileRow(p, true)));
+      if (box.childNodes.length) list.appendChild(box);
+    }
+  }
+
+  // ======================================================================
+  function render() {
+    list.textContent = '';
+    list.dataset.layout = state.layout;
+    if (state.layout === 'grid') renderGrid(); else renderList();
+    empty.hidden = list.childNodes.length > 0;
+
+    viewButtons.forEach(b => {
+      const on = b.dataset.view === state.view;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    layoutButtons.forEach(b => b.classList.toggle('is-active', b.dataset.layout === state.layout));
+    sortBtn.querySelector('span').textContent = state.sort === 'new' ? 'Newest' : 'Oldest';
+    sortBtn.querySelector('i').className = 'fa ' + (state.sort === 'new' ? 'fa-sort-amount-desc' : 'fa-sort-amount-asc');
+    listTools.forEach(t => { t.hidden = state.layout !== 'list' || state.view === 'recent'; });
+    try {
+      localStorage.setItem('files-view', state.view);
+      localStorage.setItem('files-layout', state.layout);
+      localStorage.setItem('files-sort', state.sort);
+    } catch (e) {}
+  }
+
+  // ---- controls
+  viewButtons.forEach(b => b.addEventListener('click', () => { state.view = b.dataset.view; render(); }));
+  layoutButtons.forEach(b => b.addEventListener('click', () => { state.layout = b.dataset.layout; render(); }));
+  sortBtn.addEventListener('click', () => { state.sort = state.sort === 'new' ? 'old' : 'new'; render(); });
+  document.querySelector('[data-act="expand"]').addEventListener('click', () => {
+    (function addAll(node, prefix) {
+      node.children.forEach(c => { const k = prefix + '/' + c.name; open.add(k); addAll(c, k); });
+    })(tree, '');
+    kinds.forEach(k => open.add('kind:' + k.key));
+    render();
+  });
+  document.querySelector('[data-act="collapse"]').addEventListener('click', () => { open.clear(); render(); });
+
+  let qTimer;
+  qInput.addEventListener('input', () => {
+    clearTimeout(qTimer);
+    qTimer = setTimeout(() => { state.q = qInput.value.trim().toLowerCase(); render(); }, 80);
+  });
+  // "/" jumps to the search box; Escape clears it
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && document.activeElement !== qInput && !/input|textarea/i.test(document.activeElement.tagName)) {
+      e.preventDefault();
+      qInput.focus();
+    } else if (e.key === 'Escape' && document.activeElement === qInput && qInput.value) {
+      qInput.value = '';
+      state.q = '';
+      render();
+    }
+  });
+
+  render();
+})();
+</script>
+<div id="page-built" hidden></div>

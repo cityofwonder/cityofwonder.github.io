@@ -1,0 +1,232 @@
+/**
+ * Archives as a yearly recap (_layouts/archives.html)
+ *
+ * Same flat language as the tags and categories pages (shared chrome:
+ * misc/index-pages.scss; tags are the site's .post-tag chip): a rule between years,
+ * hairlines between months, no panels. Each year leads with a big number and
+ * a few figures, then a month bar strip (single series in the accent: thin
+ * bars, rounded tops on a shared baseline, the busiest month labelled, the
+ * rest on hover), its top tags, and the posts.
+ */
+.ar-nav { margin-left: auto; }
+
+.ar-year {
+  scroll-margin-top: 80px;
+  padding: 26px 0 34px;
+  border-top: 1px solid var(--c-line);
+
+  &:first-child { border-top: 0; padding-top: 8px; }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Recap head: the year + figures
+ * ------------------------------------------------------------------------- */
+.ar-recap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 40px;
+  margin-bottom: 22px;
+}
+
+.ar-year-num {
+  margin: 0;
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--c-ink);
+}
+
+.ar-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 32px;
+  padding-bottom: 4px;
+}
+
+.ar-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--c-ink);
+}
+
+.ar-stat-label {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--c-muted);
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Month strip
+ * ------------------------------------------------------------------------- */
+.ar-months {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 0 18px;
+}
+
+.ar-month {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+
+  &:is(button) { cursor: pointer; }
+}
+
+.ar-bar-track {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 84px;
+  border-bottom: 1px solid var(--c-line-strong);    // the shared baseline
+}
+
+.ar-bar {
+  position: relative;
+  width: 100%;
+  max-width: 24px;
+  border-radius: 4px 4px 0 0;                      // rounded data end, square at the baseline
+  background: var(--accent);
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+
+.ar-month:hover .ar-bar,
+.ar-month:focus-visible .ar-bar { opacity: 1; }
+
+.ar-val {
+  position: absolute;
+  bottom: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-ink);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.ar-month.is-peak .ar-val,
+.ar-month:hover .ar-val,
+.ar-month:focus-visible .ar-val { opacity: 1; }
+
+.ar-mlabel {
+  font-size: 11px;
+  color: var(--c-muted);
+}
+
+.ar-month.is-empty .ar-mlabel { color: var(--c-faint); }
+.ar-month.is-future { opacity: 0.4; }
+
+
+/* ---------------------------------------------------------------------------
+ * Top tags (the site's chips)
+ * ------------------------------------------------------------------------- */
+.ar-toptags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 22px;
+}
+
+.ar-row-label {
+  margin-right: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-muted);
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Posts, month by month
+ * ------------------------------------------------------------------------- */
+.ar-mblock {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 0 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--c-line);
+  scroll-margin-top: 80px;
+}
+
+.ar-mhead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding-top: 5px;
+}
+
+.ar-mname {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-ink);
+}
+
+.ar-mcount {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-muted);
+}
+
+.ar-posts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li { margin: 0; }
+}
+
+.ar-post {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 5px 6px;
+  color: inherit;
+  @extend %ix-row;
+
+  &:hover .ar-title { text-decoration: underline; }
+}
+
+.ar-day {
+  flex: none;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-muted);
+}
+
+.ar-title {
+  @extend %ix-ellipsis;
+  font-size: 14px;
+  color: var(--c-ink);
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Small screens
+ * ------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .ar-year-num { font-size: 42px; }
+  .ar-stats { gap: 8px 22px; }
+  .ar-stat-value { font-size: 20px; }
+  .ar-months { gap: 3px; }
+  .ar-bar-track { height: 64px; }
+  .ar-mlabel { font-size: 10px; }
+  .ar-mblock { grid-template-columns: minmax(0, 1fr); }
+  .ar-mhead { padding: 0 6px 4px; }
+}

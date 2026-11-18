@@ -1,0 +1,408 @@
+/**
+ * Categories page as a file browser (_layouts/categories.html)
+ *
+ * Same flat language as the tags page (shared chrome: misc/index-pages.scss): no panels, hairlines between groups, a search bar
+ * pinned under the header. Two layouts: an icon grid you click into (with a
+ * path bar) and a folding list. Folder and file icons take a key colour
+ * (--fk, set per icon by the script); folders hide a character between
+ * their two layers that pops up on hover.
+ */
+.files-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+
+
+/* ---------------------------------------------------------------------------
+ * Pinned bar: search, views, order
+ * ------------------------------------------------------------------------- */
+.files-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin: 0 0 6px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-page);
+  transition: top 0.2s;
+}
+
+/* the site header slides back in except while scrolling down */
+html:not([data-scroll-status="down"]) .files-bar { top: $header-height; }
+
+.files-search {
+  display: flex;
+  flex: 1 1 220px;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--c-muted);
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-size: 14px;
+    color: var(--c-ink);
+
+    &::placeholder { color: var(--c-faint); }
+  }
+
+  &:focus-within { color: var(--c-ink); }
+}
+
+.files-views { margin-left: 0; }
+
+.files-tools {
+  display: flex;
+  gap: 4px;
+}
+
+.files-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: none;
+  font-size: 13px;
+  color: var(--c-muted);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--c-ink);
+    background: var(--c-hover);
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Groups (folders / kinds) and rows
+ * ------------------------------------------------------------------------- */
+.fx-group[data-depth="0"] + .fx-group[data-depth="0"] {
+  border-top: 1px solid var(--c-line);
+}
+
+.fx-folder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 7px 6px;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: var(--c-ink);
+  cursor: pointer;
+  @extend %ix-row;
+}
+
+.fx-chev {
+  width: 10px;
+  font-size: 14px;
+  text-align: center;
+  color: var(--c-muted);
+  transition: transform 0.15s ease;
+}
+.fx-folder[aria-expanded="true"] .fx-chev { transform: rotate(90deg); }
+
+.fx-name {
+  @extend %ix-ellipsis;
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fx-nokind { color: var(--c-muted); }
+
+.fx-count {
+  flex: none;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-muted);
+}
+
+/* nested content hangs off a hairline guide */
+.fx-children {
+  margin-left: 17px;
+  padding-left: 12px;
+  border-left: 1px solid var(--c-line);
+}
+
+.fx-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px;
+  color: var(--c-text);
+  @extend %ix-row;
+
+  &:hover .fx-title { text-decoration: underline; }
+}
+
+.fx-title {
+  @extend %ix-ellipsis;
+  flex: 1;
+  font-size: 14px;
+  color: var(--c-ink);
+}
+
+.fx-path {
+  @extend %ix-ellipsis;
+  flex: none;
+  max-width: 30%;
+  font-size: 12px;
+  color: var(--c-muted);
+}
+
+.fx-date {
+  flex: none;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-muted);
+}
+
+/* Recent: one flat list, hairlines between rows */
+.fx-recent .fx-file + .fx-file { border-top: 1px solid var(--c-line); border-radius: 0; }
+
+/* ---------------------------------------------------------------------------
+ * Layout switch + path bar
+ * ------------------------------------------------------------------------- */
+.files-sep {
+  width: 1px;
+  height: 16px;
+  margin: 0 4px;
+  background: var(--c-line-strong);
+}
+
+.files-tool.is-active {
+  color: var(--c-ink);
+  background: var(--c-hover);
+}
+
+.fg-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+  margin: 6px 0 10px;
+  font-size: 14px;
+}
+
+.fg-crumb {
+  padding: 2px 4px;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: none;
+  font: inherit;
+  color: var(--c-muted);
+  cursor: pointer;
+
+  &:hover { color: var(--c-ink); background: var(--c-hover); }
+
+  &:disabled {
+    font-weight: 700;
+    color: var(--c-ink);
+    cursor: default;
+    background: none;
+  }
+}
+
+.fg-crumb-sep { color: var(--c-faint); }
+
+
+/* ---------------------------------------------------------------------------
+ * Icons layout: four across, big icons, names underneath (Explorer-style)
+ * ------------------------------------------------------------------------- */
+.fg-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0 4px;
+  align-items: start;
+}
+
+.fg-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  margin: 0;
+  padding: 30px 4px 10px;          // room above for the character to pop into
+  border: 0;
+  border-radius: var(--r-md);
+  background: none;
+  font: inherit;
+  text-align: center;
+  color: var(--c-text);
+  cursor: pointer;
+
+  &:hover { text-decoration: none; }
+}
+
+/* hover: no box -- the icon lifts and casts a shadow, like a directory card */
+.fg-icon {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 126px;
+  margin-bottom: 6px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.fg-tile:hover .fg-icon,
+.fg-tile:focus-visible .fg-icon {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 10px 12px rgba(20, 28, 48, 0.25));
+}
+
+html[data-theme="dark"] .fg-tile:hover .fg-icon,
+html[data-theme="dark"] .fg-tile:focus-visible .fg-icon {
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
+}
+
+.fg-tile .fi { width: 140px; height: 122.5px; }
+.fg-tile .fdoc { width: 84px; height: 100px; }
+
+.fg-name {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-width: 100%;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--c-ink);
+  word-break: break-word;
+}
+
+.fg-tile.is-folder .fg-name { font-weight: 600; }
+
+.fg-meta {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-muted);
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Icons
+ * ------------------------------------------------------------------------- */
+/* file: a page with a folded corner, washed in its kind's key colour */
+.fdoc {
+  flex: none;
+  width: 16px;
+  height: 19px;
+  overflow: visible;
+}
+
+.fd-page {
+  fill: color-mix(in srgb, var(--fk) 14%, var(--c-card));
+  stroke: color-mix(in srgb, var(--fk) 60%, transparent);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.fd-fold {
+  fill: color-mix(in srgb, var(--fk) 45%, var(--c-card));
+  stroke: color-mix(in srgb, var(--fk) 60%, transparent);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.fd-lines {
+  fill: none;
+  stroke: color-mix(in srgb, var(--fk) 55%, transparent);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+/* folder: back layer, a character hidden behind the front layer, front
+   layer + gloss. Hover and the character springs up over the front edge
+   while the front dips a little, as if the folder were being opened. */
+.fi {
+  flex: none;
+  width: 28px;
+  height: 24.5px;
+  overflow: visible;
+}
+
+.fi-back { fill: color-mix(in srgb, var(--fk) 66%, #000); }
+.fi-front { fill: var(--fk); }
+
+.fi-gloss {
+  fill: url(#fdGloss);
+  pointer-events: none;
+}
+
+.fi-shine {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.4);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+/* the pop: one smooth rise with a slight overshoot, then it stays put */
+.fi-peek {
+  transform: translateY(0);
+  transition: transform 0.3s cubic-bezier(0.3, 1.25, 0.6, 1);
+}
+
+.fi-front,
+.fi-gloss,
+.fi-shine {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform 0.25s ease;
+}
+
+/* (lengths are the icon's own 32x28 units) -- a small hop in the list, a
+   big one in the grid where the icons are large */
+.fx-folder { --hop: -12px; }
+.fg-tile.is-folder { --hop: -16px; }
+
+.fx-folder:is(:hover, :focus-visible) .fi-peek,
+.fg-tile.is-folder:is(:hover, :focus-visible) .fi-peek {
+  transform: translateY(var(--hop));
+}
+
+.fx-folder:hover :is(.fi-front, .fi-gloss, .fi-shine),
+.fg-tile.is-folder:hover :is(.fi-front, .fi-gloss, .fi-shine) { transform: scaleY(0.9); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fi-peek, .fi-front, .fi-gloss, .fi-shine, .fdoc { transition: none; }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Small screens
+ * ------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .files-bar { gap: 6px 12px; }
+  .files-search { flex-basis: 100%; }
+  .fx-path { display: none; }
+
+  .fg-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fg-tile { padding-top: 22px; }
+  .fg-tile .fi { width: 96px; height: 84px; }
+  .fg-tile .fdoc { width: 60px; height: 72px; }
+  .fg-icon { height: 88px; }
+}
+
+@media (max-width: 420px) {
+  .fg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

@@ -1,0 +1,111 @@
+/**
+ * Index pages -- tags, categories, archives (_layouts/{tags,categories,
+ * archives}.html) -- shared chrome: one flat look, no panels.
+ *
+ *   .ix-page      the page wrapper (each page adds its own class too)
+ *   .ix-section   stacked parts, separated by a single rule
+ *   .ix-head      title + count (+ tabs on the right)
+ *   .ix-tabs      text tabs, the current one underlined
+ *   .ix-empty     "nothing matches"
+ *   .t-kind       the "[paper #85]" part of a post title (bold, --c-kind)
+ *
+ * And two placeholders the page partials @extend:
+ *   %ix-row       a clickable row: hover tint, no underline on the row
+ *   %ix-ellipsis  one line, cut with an ellipsis
+ */
+.ix-page {
+  margin-top: 8px;
+
+  [hidden] { display: none !important; }
+}
+
+.ix-section + .ix-section {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--c-line);
+}
+
+.ix-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+  margin: 0 0 14px;
+}
+
+.ix-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--c-ink);
+}
+
+.ix-meta {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-muted);
+}
+
+.ix-tabs {
+  display: flex;
+  gap: 18px;
+  margin-left: auto;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font-size: 13px;
+    color: var(--c-muted);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+
+    &:hover { color: var(--c-ink); }
+
+    &.is-active {
+      font-weight: 600;
+      color: var(--c-ink);
+      border-bottom-color: currentColor;
+    }
+  }
+}
+
+.ix-empty {
+  margin: 0;
+  padding: 24px 6px;
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+/* "[paper #85] Title": the bracketed kind, bold, in --c-kind -- the title
+   colour nudged toward a key colour (ivory on dark, navy on light) */
+.t-kind {
+  font-weight: 700;
+  color: var(--c-kind);
+}
+
+%ix-row {
+  border-radius: var(--r-xs);
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    text-decoration: none;
+    background: var(--c-hover);
+  }
+}
+
+%ix-ellipsis {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .ix-tabs { margin-left: 0; width: 100%; }
+}

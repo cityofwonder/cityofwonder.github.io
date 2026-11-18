@@ -1,89 +1,194 @@
 ---
 layout: framework
-sidebar: archive-list
+# the index pages (tags, archives, categories, about) share one sidebar
+sidebar: common-list
 ---
+{%- comment -%}
+  Archives as a yearly recap. Each year opens with its number and a few
+  figures (posts, tags, busiest month, main kind), a month-by-month bar
+  strip and its top tags, then the posts month by month. Flat like the tags
+  and categories pages: rules between years and months, no panels.
+  Built from the post data below. Styles: _sass/misc/archives-page.scss.
+{%- endcomment -%}
 
-{%- if site.posts.size > 0 -%}
+{%- comment -%} Directories (layout: directory) live in the feed only {%- endcomment -%}
+{%- assign list_posts = site.posts | where_exp: "p", "p.layout != 'directory'" -%}
 
-  {% include functions.html func='log' level='debug' msg='Get datetimes value' %}
+{%- if list_posts.size > 0 -%}
 
-  {% assign filter = '%Y' %}
-  {% include functions.html func='get_datetimes' %}
-  {% assign datetimes = return %}
-  {% assign years = datetimes | reverse %}
+<div class="ix-page archives-page">
+  <header class="ix-head">
+    <h2 class="ix-title">Archives</h2>
+    <span class="ix-meta">{{ list_posts.size }} posts</span>
+    <nav class="ix-tabs ar-nav" aria-label="Years"></nav>
+  </header>
+  <div id="ar-years"></div>
+</div>
 
-  <!-- Archives Post List -->
-  <div class="page-card">
-    <div class="page-card-header">
-      <div class="card-title">Archives</div>
-      <div class="card-count">{{ site.posts.size }}</div>
-    </div>
-
-    <!-- Year Filter Pills -->
-    <div class="filter-bar">
-      <button class="filter-pill active" data-year="all">
-        <span class="pill-label">All</span>
-      </button>
-      {% for year in years %}
-        <button class="filter-pill" data-year="{{ year }}">
-          <span class="pill-label">{{ year }}</span>
-          <span class="pill-count" data-year-count="{{ year }}">0</span>
-        </button>
-      {% endfor %}
-    </div>
-
-    <!-- Posts Grid -->
-    <div class="card-content">
-      <div class="posts-grid">
-        {% for post in site.posts %}
-        <div class="post-item" data-year="{{ post.date | date: '%Y' }}">
-          <a href="{{ post.url | relative_url }}" class="post-link">
-            <span class="post-date">{{ post.date | date: "%m/%d" }}</span>
-            <span class="post-title">{{ post.title | escape }}</span>
-          </a>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
+<script id="archive-data" type="application/json">
+[
+  {%- for post in list_posts -%}
+  {
+    "title": {{ post.title | jsonify }},
+    "url": {{ post.url | relative_url | jsonify }},
+    "date": "{{ post.date | date: '%Y-%m-%d' }}",
+    "tags": {{ post.tags | jsonify }}
+  }{% unless forloop.last %},{% endunless %}
+  {%- endfor -%}
+]
+</script>
 
 {%- endif -%}
 
-{%- comment -%} Styles: _sass/misc/page-card.scss (shared with the other index pages) {%- endcomment -%}
-
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const filterPills = document.querySelectorAll('.filter-pill');
-  const postItems = document.querySelectorAll('.post-item');
+(function () {   // runs as soon as it's parsed: the markup and data it uses are above
+  const dataEl = document.getElementById('archive-data');
+  if (!dataEl) return;
+  const posts = JSON.parse(dataEl.textContent);
+  const root = document.getElementById('ar-years');
+  const nav = document.querySelector('.ar-nav');
+  const tagsBase = {{ '/tags/' | relative_url | jsonify }};
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+                  'August', 'September', 'October', 'November', 'December'];
+  const KIND_RE = /^\[([^\]]+)\]/;
 
-  // Calculate year counts
-  const yearCounts = {};
-  postItems.forEach(item => {
-    const year = item.dataset.year;
-    yearCounts[year] = (yearCounts[year] || 0) + 1;
-  });
-
-  // Update pill counts
-  document.querySelectorAll('[data-year-count]').forEach(el => {
-    el.textContent = yearCounts[el.dataset.yearCount] || 0;
-  });
-
-  function filterByYear(selectedYear) {
-    filterPills.forEach(pill => {
-      pill.classList.toggle('active', pill.dataset.year === selectedYear);
-    });
-
-    postItems.forEach(item => {
-      if (selectedYear === 'all' || item.dataset.year === selectedYear) {
-        item.classList.remove('hidden');
-      } else {
-        item.classList.add('hidden');
-      }
-    });
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function putTitle(parent, title) {
+    const m = /^(\[[^\]]*\])([\s\S]*)$/.exec(title);
+    if (m) { parent.appendChild(el('b', 't-kind', m[1])); parent.appendChild(document.createTextNode(m[2])); }
+    else parent.textContent = title;
+    return parent;
+  }
+  function kindOf(title) {
+    const m = KIND_RE.exec(title);
+    return m ? m[1].replace(/\s*#?\d+(\.\d+)*\.?\s*$/, '').trim() : '';
+  }
+  function topCounts(values, n) {
+    const c = new Map();
+    values.forEach(v => { if (v) c.set(v, (c.get(v) || 0) + 1); });
+    return Array.from(c.entries()).sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0]))).slice(0, n);
+  }
+  function stat(value, label) {
+    const s = el('div', 'ar-stat');
+    if (value instanceof Node) { const v = el('div', 'ar-stat-value'); v.appendChild(value); s.appendChild(v); }
+    else s.appendChild(el('div', 'ar-stat-value', String(value)));
+    s.appendChild(el('div', 'ar-stat-label', label));
+    return s;
   }
 
-  filterPills.forEach(pill => {
-    pill.addEventListener('click', () => filterByYear(pill.dataset.year));
+  // ---- group: year -> month -> posts (posts already come newest first)
+  const byYear = new Map();
+  posts.forEach(p => {
+    const y = p.date.slice(0, 4), m = +p.date.slice(5, 7) - 1;
+    if (!byYear.has(y)) byYear.set(y, { year: y, posts: [], months: Array.from({ length: 12 }, () => []) });
+    const g = byYear.get(y);
+    g.posts.push(p);
+    g.months[m].push(p);
   });
-});
+  const years = Array.from(byYear.values()).sort((a, b) => b.year.localeCompare(a.year));
+  const now = new Date();
+
+  years.forEach(g => {
+    // year tab
+    const tab = el('button', '', g.year);
+    tab.type = 'button';
+    tab.addEventListener('click', () => document.getElementById('y-' + g.year).scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    nav.appendChild(tab);
+
+    const sec = el('section', 'ar-year');
+    sec.id = 'y-' + g.year;
+
+    // -- recap: the year, then its figures
+    const head = el('div', 'ar-recap');
+    head.appendChild(el('h3', 'ar-year-num', g.year));
+    const stats = el('div', 'ar-stats');
+    const counts = g.months.map(m => m.length);
+    const busiest = counts.indexOf(Math.max.apply(null, counts));
+    const tagCount = new Set([].concat.apply([], g.posts.map(p => p.tags))).size;
+    const topKind = topCounts(g.posts.map(p => kindOf(p.title)), 1)[0];
+    stats.appendChild(stat(g.posts.length, g.posts.length === 1 ? 'post' : 'posts'));
+    stats.appendChild(stat(tagCount, tagCount === 1 ? 'tag' : 'tags'));
+    stats.appendChild(stat(MONTHS[busiest].slice(0, 3), 'busiest month · ' + counts[busiest]));
+    if (topKind) stats.appendChild(stat(el('b', 't-kind', '[' + topKind[0] + ']'), 'most written · ' + topKind[1]));
+    head.appendChild(stats);
+    sec.appendChild(head);
+
+    // -- month strip: one bar per month; the busiest month carries its value,
+    //    the rest show theirs on hover; a bar jumps to that month's list
+    const max = Math.max.apply(null, counts) || 1;
+    const strip = el('div', 'ar-months');
+    strip.setAttribute('role', 'list');
+    strip.setAttribute('aria-label', g.year + ' posts per month');
+    counts.forEach((n, i) => {
+      const future = +g.year === now.getFullYear() && i > now.getMonth();
+      const col = el(n ? 'button' : 'div', 'ar-month' + (n ? '' : ' is-empty') + (future ? ' is-future' : '') + (i === busiest && n ? ' is-peak' : ''));
+      col.setAttribute('role', 'listitem');
+      col.setAttribute('aria-label', MONTHS[i] + ' ' + g.year + ': ' + n + (n === 1 ? ' post' : ' posts'));
+      if (n) {
+        col.type = 'button';
+        col.addEventListener('click', () => {
+          const t = document.getElementById('m-' + g.year + '-' + (i + 1));
+          if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+      const track = el('span', 'ar-bar-track');
+      const bar = el('span', 'ar-bar');
+      bar.style.height = n ? Math.max(6, Math.round(n / max * 100)) + '%' : '0';
+      if (n) bar.appendChild(el('span', 'ar-val', String(n)));
+      track.appendChild(bar);
+      col.appendChild(track);
+      col.appendChild(el('span', 'ar-mlabel', MONTHS[i].slice(0, 3)));
+      strip.appendChild(col);
+    });
+    sec.appendChild(strip);
+
+    // -- top tags
+    const top = topCounts([].concat.apply([], g.posts.map(p => p.tags)), 8);
+    if (top.length) {
+      const row = el('div', 'ar-toptags');
+      row.appendChild(el('span', 'ar-row-label', 'Top tags'));
+      top.forEach(([t]) => {
+        const a = el('a', 'post-tag', '#' + t);
+        a.href = tagsBase + '#' + encodeURIComponent(t);
+        row.appendChild(a);
+      });
+      sec.appendChild(row);
+    }
+
+    // -- the posts, month by month (newest month first)
+    const list = el('div', 'ar-list');
+    for (let i = 11; i >= 0; i--) {
+      const ps = g.months[i];
+      if (!ps.length) continue;
+      const block = el('div', 'ar-mblock');
+      block.id = 'm-' + g.year + '-' + (i + 1);
+      const mh = el('div', 'ar-mhead');
+      mh.appendChild(el('span', 'ar-mname', MONTHS[i]));
+      mh.appendChild(el('span', 'ar-mcount', String(ps.length)));
+      block.appendChild(mh);
+      const ul = el('ol', 'ar-posts');
+      ps.forEach(p => {
+        const li = el('li');
+        const a = el('a', 'ar-post');
+        a.href = p.url;
+        a.appendChild(el('span', 'ar-day', p.date.slice(5).replace('-', '.')));
+        a.appendChild(putTitle(el('span', 'ar-title'), p.title));
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+      block.appendChild(ul);
+      list.appendChild(block);
+    }
+    sec.appendChild(list);
+    root.appendChild(sec);
+  });
+
+  if (window.colorTags) window.colorTags();
+})();
 </script>
+<div id="page-built" hidden></div>
