@@ -141,6 +141,30 @@ banner:
 `_posts/draft_*.md` 는 Jekyll 이 날짜 형식으로 인식하지 못해 **발행되지 않는다.**
 초안을 레포에 두되 공개하지 않을 때 쓴다.
 
+### Directory (보드) 글
+
+Notion 에서 `layout` 을 `directory` 로 둔 페이지는 `layout: directory` 글이 된다.
+여러 글을 heading 별 열(column)로 묶어 보여주는 보드 페이지다.
+
+```yaml
+---
+layout: directory
+title: "..."
+date: 2026-11-18 07:15:00 +0000   # 마지막 수정 시각 → 수정할 때마다 피드 맨 위
+permalink: /directory/<slug>/     # date 가 바뀌어도 URL 고정
+cover: "/assets/images/..."       # 선택. 피드 카드/헤더 배경
+directory:
+  - title: "A. ..."               # 열
+    items:
+      - id: "<notion id>"         # 이 notion_id 를 가진 글로 연결
+        title: "..."              # 그 글이 아직 없을 때만 표시 ("준비 중")
+---
+```
+
+- 피드 카드: `_includes/views/directory-card.html` (이미지 자리에 미니 보드)
+- 보드 페이지: `_layouts/directory.html`, 카드: `_includes/views/board-card.html`
+- 스타일: `_sass/misc/directory.scss`
+
 ## 빌드 확인
 
 ```bash
