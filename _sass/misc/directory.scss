@@ -1,0 +1,573 @@
+/**
+ * Directory
+ *
+ * Two surfaces share these tokens:
+ *   .directory-item  the card a directory gets in the home feed
+ *                    (_includes/views/directory-card.html)
+ *   .directory-page  the board it opens (_layouts/directory.html,
+ *                    cards from _includes/views/board-card.html)
+ */
+.directory-item,
+.directory-page {
+  // The site-wide tokens (misc/tokens.scss) were taken from this view; these
+  // names stay as aliases so the rules below read the way they always have.
+  --dir-surface: var(--c-surface);   // column + mini-board background
+  --dir-card: var(--c-card);
+  --dir-line: var(--c-line);
+  --dir-ink: var(--c-ink);
+  --dir-muted: var(--c-muted);
+  --dir-ghost: rgba(55, 53, 47, 0.62); // a post's own text behind its card
+  --dir-tile: var(--c-card);
+  --dir-tile-ink: var(--c-text);
+}
+
+html[data-theme="dark"] {
+  .directory-item,
+  .directory-page {
+    --dir-ghost: rgba(255, 255, 255, 0.4);
+    --dir-tile: #26262a;               // a step above the dark card
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Feed card: the image slot is a miniature of the board
+ * ------------------------------------------------------------------------- */
+.pagination .directory-item .dir-cover > div {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 14px 0;
+  box-sizing: border-box;
+  line-height: 1.3;           // .post-image sets line-height: 0 for photos
+  background-color: var(--dir-surface);
+  background-image: radial-gradient(var(--dir-line) 1px, transparent 1px);
+  background-size: 14px 14px;
+  overflow: hidden;
+}
+
+/* A cover image (Notion `banner`) goes under a scrim; tiles stay legible */
+.pagination .directory-item .dir-cover.has-image > div {
+  background-size: cover;
+  background-position: center;
+}
+.pagination .directory-item .dir-cover.has-image > div::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 12, 0.55);
+}
+.pagination .directory-item .dir-cover.has-image .dir-mini-head { color: rgba(255, 255, 255, 0.8); }
+.pagination .directory-item .dir-cover.has-image .dir-mini-more { color: rgba(255, 255, 255, 0.7); }
+
+/* the cover is one big link full of text: the theme's a:hover underline
+   would run under every tile, so the zoom below is the only hover cue */
+.pagination .directory-item .dir-cover:hover {
+  text-decoration: none;
+}
+
+/* gentler than a photo's 1.07 zoom: this one is full of text */
+.pagination .post-item.directory-item:hover .dir-cover > div {
+  transform: scale(1.025);
+  filter: none;
+}
+
+.dir-chip {
+  position: relative;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--dir-surface);
+  background: var(--dir-ink);
+}
+
+.dir-mini-board {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--dir-cols, 3), minmax(0, 1fr));
+  gap: 8px;
+  align-items: start;
+  /* the columns run off the bottom edge like a board that keeps going */
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+          mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+
+.dir-mini-col {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.dir-mini-head,
+.dir-mini-tile,
+.dir-mini-more {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 10px;
+}
+
+.dir-mini-head {
+  font-weight: 700;
+  color: var(--dir-muted);
+  padding: 0 2px 1px;
+}
+
+.dir-mini-tile {
+  padding: 5px 7px;
+  border-radius: var(--r-xs);
+  color: var(--dir-tile-ink);
+  background: var(--dir-tile);
+  border: 1px solid var(--dir-line);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  &.is-pending {
+    color: var(--dir-muted);
+    background: transparent;
+    border-style: dashed;
+    box-shadow: none;
+  }
+}
+
+.dir-mini-more {
+  color: var(--dir-muted);
+  padding-left: 2px;
+}
+
+/* Card body: sections with counts */
+.pagination .directory-item .dir-card-subtitle {
+  margin: -2px 0 6px;
+  color: var(--dir-muted);
+}
+
+.pagination .directory-item .dir-sections {
+  list-style: none;
+  margin: 4px 0 10px;
+  padding: 0;
+
+  > li {
+    margin: 0;
+    border-top: 1px solid var(--dir-line);
+  }
+  > li:first-child { border-top: 0; }
+}
+
+.pagination .directory-item .dir-sec {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  color: var(--dir-ink);
+  text-decoration: none;
+
+  &:hover .dir-sec-name { text-decoration: underline; }
+}
+
+.pagination .directory-item .dir-sec-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pagination .directory-item .dir-sec-count {
+  flex: none;
+  min-width: 22px;
+  padding: 0 7px;
+  border-radius: var(--r-pill);
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--dir-muted);
+  background: var(--dir-surface);
+}
+
+/* Featured card only: a few posts under each section */
+.pagination .directory-item .dir-sec-items {
+  list-style: none;
+  margin: -2px 0 8px;
+  padding: 0 0 0 12px;
+  border-left: 2px solid var(--dir-line);
+
+  li {
+    margin: 0;
+    padding: 1px 0;
+    font-size: 0.92em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  a { color: var(--dir-muted); }
+  a:hover { color: var(--dir-ink); }
+  .is-pending { color: var(--dir-muted); opacity: 0.6; }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Board page
+ * ------------------------------------------------------------------------- */
+.directory-page {
+  margin-top: 8px;
+}
+
+/* Header: the board's own text, faded behind the title like a banner image */
+.dir-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  min-height: 300px;
+  padding: 56px 48px 40px;
+  border-radius: var(--r-lg);
+  color: #fff;
+  background: #141416;
+}
+
+html[data-theme="dark"] .dir-hero {
+  background: #161618;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.dir-hero-cover {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.35;
+}
+
+.dir-hero-text {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 28px 32px;
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.24);
+  /* strongest at the top right, gone by the bottom left where the title sits */
+  -webkit-mask-image: radial-gradient(130% 120% at 100% 0%, #000 25%, transparent 72%);
+          mask-image: radial-gradient(130% 120% at 100% 0%, #000 25%, transparent 72%);
+
+  p { margin: 0 0 10px; }
+  b {
+    margin-right: 12px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.42);
+  }
+  span + span::before {
+    content: "·";
+    margin: 0 0.55em;
+  }
+}
+
+.dir-hero-inner {
+  position: relative;
+  max-width: 760px;
+  text-align: left;
+
+  .dir-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .dir-title {
+    margin: 0 0 10px;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.22;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+
+  .dir-subtitle {
+    margin: 0 0 12px;
+    font-size: 17px;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .dir-intro {
+    max-width: 62ch;
+    margin: 0 0 12px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .post-meta {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.62);
+  }
+  .left-vsplit:before { background: #e3e3e388; }
+
+  .post-tags { margin-top: 12px; }
+  .post-tag {
+    display: inline-block;
+    margin: 0 6px 6px 0;
+    padding: 2px 10px;
+    border-radius: var(--r-pill);
+    font-size: 12px;
+    color: #fff;
+    text-decoration: none;
+    /* tag-colors.js adds a highlighter class meant for light pages; on the
+       dark hero a plain glass pill reads better */
+    background: rgba(255, 255, 255, 0.12) !important;
+    background-image: none !important;
+    mix-blend-mode: normal !important;
+  }
+}
+
+/* Board: one column per section, side by side; scrolls sideways past ~3 */
+.dir-board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(300px, 1fr);
+  gap: 16px;
+  align-items: start;
+  margin-top: 28px;
+  padding-bottom: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+
+  /* The edge that has more columns past it fades into the page background
+     (a mask, so it matches either theme). The classes come from the script
+     in _layouts/directory.html; scrolled to an end, that end stops fading.
+     A second, solid layer keeps the scrollbar strip at the bottom
+     (--scrollbar-size, misc/scrollbar.scss) out of the fade. */
+  &.is-clipped-left,
+  &.is-clipped-right {
+    -webkit-mask-image: var(--dir-fade), linear-gradient(#000, #000);
+            mask-image: var(--dir-fade), linear-gradient(#000, #000);
+    -webkit-mask-size: 100% 100%, 100% var(--scrollbar-size, 10px);
+            mask-size: 100% 100%, 100% var(--scrollbar-size, 10px);
+    -webkit-mask-position: 0 0, 0 100%;
+            mask-position: 0 0, 0 100%;
+    -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+  }
+  &.is-clipped-right {
+    --dir-fade: linear-gradient(to right, #000 calc(100% - 140px), transparent);
+  }
+  &.is-clipped-left {
+    --dir-fade: linear-gradient(to right, transparent, #000 140px);
+  }
+  &.is-clipped-left.is-clipped-right {
+    --dir-fade: linear-gradient(to right, transparent, #000 140px, #000 calc(100% - 140px), transparent);
+  }
+}
+
+.dir-col {
+  min-width: 0;
+  padding: 12px;
+  border-radius: var(--r-lg);
+  background: var(--dir-surface);
+  scroll-snap-align: start;
+  scroll-margin-top: 80px;   // #dir-section-N links land below the header
+}
+
+.dir-col-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 4px 4px 12px;
+
+  h2 {
+    flex: 1;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--dir-ink);
+  }
+}
+
+.dir-count {
+  flex: none;
+  margin-top: 1px;
+  padding: 1px 9px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--dir-muted);
+  background: var(--dir-card);
+  border: 1px solid var(--dir-line);
+}
+
+.dir-col-note {
+  margin: -4px 4px 12px;
+  font-size: 13px;
+  color: var(--dir-muted);
+}
+
+.dir-col-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dir-col-label {
+  padding: 8px 4px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--dir-muted);
+}
+
+/* Card: the post's body text is the "image", fading into the title block */
+.board-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 176px;
+  padding: 16px 16px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--dir-line);
+  background: var(--dir-card);
+  color: var(--dir-ink);
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+a.board-card:hover {
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+html[data-theme="dark"] a.board-card:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+.board-card-bg {
+  position: absolute;
+  inset: 12px 14px 0;
+  z-index: -1;
+  overflow: hidden;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--dir-ghost);
+  word-break: break-word;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 28%, transparent 58%);
+          mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 28%, transparent 58%);
+  transition: opacity 0.25s ease;
+  opacity: 0.85;
+}
+a.board-card:hover .board-card-bg { opacity: 1; }
+
+.board-card-fg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.board-card-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.38;
+  color: var(--dir-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.board-card-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: var(--r-xs);
+  vertical-align: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--k-yellow);              // 작성중: same tag as .post-badge
+  background: var(--k-yellow-bg);
+}
+
+.board-card-subtitle,
+.board-card-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--dir-muted);
+}
+
+.board-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin-top: 6px;
+
+  .post-tag {
+    padding: 1px 4px;
+    border-radius: var(--r-xs);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--c-text);
+  }
+}
+
+.board-card.is-pending {
+  min-height: 0;
+  justify-content: flex-start;
+  background: transparent;
+  border-style: dashed;
+
+  .board-card-title {
+    font-weight: 600;
+    color: var(--dir-muted);
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Small screens: hero tightens, columns stack
+ * ------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .dir-hero {
+    min-height: 240px;
+    padding: 36px 20px 26px;
+    border-radius: var(--r-md);
+  }
+
+  .dir-hero-text {
+    padding: 18px 20px;
+    font-size: 13px;
+  }
+
+  .dir-hero-inner .dir-title { font-size: 26px; }
+  .dir-hero-inner .dir-subtitle { font-size: 15px; }
+
+  .dir-board {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: minmax(0, 1fr);
+    overflow-x: visible;
+    margin-top: 20px;
+  }
+}

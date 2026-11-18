@@ -1,0 +1,112 @@
+---
+layout: default
+---
+{%- comment -%}
+  A directory: an index page synced from Notion (`layout: directory` in the
+  database). Its front matter holds the board --
+
+    directory:
+      - title: "A. ..."           one column per section
+        note: "..."               optional
+        items:
+          - id: "<notion id>"     -> the post with that notion_id
+            title: "..."          shown only while that post is unpublished
+          - label: "..."          a sub-heading inside the column
+
+  `date` is the directory's last edit, which is what floats it to the top of
+  the feed; `permalink` is fixed so that moving date never moves the URL.
+  No theme banner: the hero below is the header, built from the board's own
+  text the way a post banner is built from its image.
+{%- endcomment -%}
+{%- assign date_format = site.yat.date_format | default: "%b %-d, %Y" -%}
+{%- assign total = 0 -%}
+{%- for section in page.directory -%}
+  {%- assign entries = section.items | where_exp: "i", "i.id" -%}
+  {%- assign total = total | plus: entries.size -%}
+{%- endfor -%}
+
+<div class="directory-page">
+  <header class="dir-hero">
+    {%- if page.cover and page.cover != "" -%}
+    <div class="dir-hero-cover" style="background-image: url({{ page.cover | relative_url }})"></div>
+    {%- endif -%}
+    <div class="dir-hero-text tex2jax_ignore" aria-hidden="true">
+      {%- for section in page.directory -%}
+      <p>
+        {%- if section.title != "" -%}<b>{{ section.title | escape }}</b>{%- endif -%}
+        {%- for item in section.items -%}
+        <span>{{ item.title | default: item.label | escape }}</span>
+        {%- endfor -%}
+      </p>
+      {%- endfor -%}
+    </div>
+    <div class="dir-hero-inner">
+      <span class="dir-kicker"><i class="fa fa-folder-open"></i> Directory</span>
+      <h1 class="dir-title">{{ page.title | escape }}</h1>
+      {%- if page.subtitle and page.subtitle != "" -%}
+      <p class="dir-subtitle">{{ page.subtitle | escape }}</p>
+      {%- endif -%}
+      {%- if page.intro -%}
+      <p class="dir-intro">{{ page.intro | escape }}</p>
+      {%- endif -%}
+      <div class="post-meta">
+        <span><i class="fa fa-refresh"></i> Updated {{ page.date | date: date_format }}</span>
+        <span class="left-vsplit"><i class="fa fa-file-text-o"></i> {{ total }} posts</span>
+        <span class="left-vsplit"><i class="fa fa-th-large"></i> {{ page.directory.size }} sections</span>
+      </div>
+      {%- if page.tags.size > 0 -%}
+      <div class="post-tags">
+        {%- for tag in page.tags -%}
+        <a class="post-tag" href="{{ '/tags/' | relative_url }}#{{ tag }}">#{{ tag }}</a>
+        {%- endfor -%}
+      </div>
+      {%- endif -%}
+    </div>
+  </header>
+
+  <div class="dir-board">
+    {%- for section in page.directory -%}
+    {%- assign entries = section.items | where_exp: "i", "i.id" -%}
+    <section class="dir-col" id="dir-section-{{ forloop.index }}">
+      <header class="dir-col-head">
+        <h2>{{ section.title | default: page.title | escape }}</h2>
+        <span class="dir-count">{{ entries.size }}</span>
+      </header>
+      {%- if section.note -%}
+      <p class="dir-col-note">{{ section.note | escape }}</p>
+      {%- endif -%}
+      <div class="dir-col-body">
+        {%- for item in section.items -%}
+          {%- if item.label -%}
+          <div class="dir-col-label">{{ item.label | escape }}</div>
+          {%- else -%}
+          {%- assign linked = site.posts | where: "notion_id", item.id | first -%}
+          {%- include views/board-card.html -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </section>
+    {%- endfor -%}
+  </div>
+</div>
+
+<script>
+  // Mark which edges of the board have columns scrolled out of view, so the
+  // CSS can fade them (directory.scss, .dir-board.is-clipped-*). Stacked on
+  // small screens there is no overflow and neither class is set.
+  (function () {
+    var board = document.querySelector('.dir-board');
+    if (!board) return;
+    function update() {
+      var max = board.scrollWidth - board.clientWidth;
+      board.classList.toggle('is-clipped-left', board.scrollLeft > 2);
+      board.classList.toggle('is-clipped-right', board.scrollLeft < max - 2);
+    }
+    board.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    window.addEventListener('load', update);
+    update();
+  })();
+</script>
+
+{%- include extensions/tag-colors.html -%}

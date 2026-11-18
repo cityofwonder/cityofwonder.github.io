@@ -44,12 +44,13 @@
 .pagination .post-title .post-link {
   display: inline-block;
   transition: all 0.2s ease;
-  color: #333;
+  color: var(--c-ink);
 }
 
 .pagination .post-item:hover .post-title .post-link {
-  color: #555;
+  color: var(--c-text);
 }
+
 
 /* Header image (rounded; the only "boxed" element now) */
 .pagination .post-image {
@@ -57,7 +58,7 @@
   width: 100%;
   overflow: hidden;
   line-height: 0;
-  border-radius: 10px;
+  border-radius: var(--r-md);
 }
 
 .pagination .post-image > div {
@@ -138,7 +139,7 @@
   flex: 0 0 100%;
   margin-top: 16px;
   font-size: 0.85em;
-  color: #888;
+  color: var(--c-muted);
   line-height: 1.9;
 }
 .pagination .post-item.featured .post-foot .post-foot-tags { display: inline; }
@@ -147,11 +148,9 @@
   font-size: 12px;
   font-weight: 500;
   vertical-align: baseline;
-  color: #444;
+  color: var(--c-text);
   text-decoration: none;
 }
-html[data-theme="dark"] .pagination .post-item.featured .post-foot { color: #999; }
-html[data-theme="dark"] .pagination .post-item.featured .post-foot .post-tag { color: #ddd; }
 
 .pagination .post-item.featured .post-image {
   flex: 0 0 52%;
@@ -190,7 +189,7 @@ html[data-theme="dark"] .pagination .post-item.featured .post-foot .post-tag { c
   right: 0;
   bottom: 0;
   height: 64px;
-  background: linear-gradient(rgba(255, 255, 255, 0), #fff);
+  background: linear-gradient(transparent, var(--c-page)); /* fade to the page bg */
   pointer-events: none;
 }
 
@@ -213,8 +212,13 @@ html[data-theme="dark"] .pagination .post-item.featured .post-foot .post-tag { c
   line-height: 1.4;
 }
 
-html[data-theme="dark"] .pagination .post-item.featured .post-body::after {
-  background: linear-gradient(rgba(14, 14, 14, 0), #0e0e0e); /* fade to the dark page bg */
+/* No banner image: no image slot is rendered, so drop the gap that sat
+   under (compact) / beside (featured) it and start the text at the top */
+.pagination .post-item.no-image .post-body {
+  padding-top: 0;
+}
+.pagination .post-item.featured.no-image .post-body {
+  padding: 0 4px;
 }
 
 /* Compact grid cards: tighter title, preview trimmed to keep them short */
@@ -236,7 +240,7 @@ html[data-theme="dark"] .pagination .post-item.featured .post-body::after {
   margin-top: 12px;
   max-height: 37.5cqw;
   overflow: hidden;
-  color: #666;
+  color: var(--c-muted);
 }
 
 .pagination .post-text p {
@@ -245,13 +249,13 @@ html[data-theme="dark"] .pagination .post-item.featured .post-body::after {
 }
 
 .pagination .post-text .read_more {
-  color: #888;
+  color: var(--c-muted);
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .pagination .post-item:hover .read_more {
-  color: #555;
+  color: var(--c-text);
 }
 
 /* small, even gaps between preview → date → tags (no divider line) */
@@ -268,9 +272,9 @@ html[data-theme="dark"] .pagination .post-item.featured .post-body::after {
 /* Tags as highlighter marks (colour added per-tag by JS via .highlight-*) */
 .pagination .post-tags .post-tag {
   display: inline-block;
-  color: #444;
+  color: var(--c-text); /* bg comes from the .highlight-* class */
   padding: 1px 4px;
-  border-radius: 2px;
+  border-radius: var(--r-xs);
   font-size: 12px;
   font-weight: 500;
   text-decoration: none;
@@ -278,47 +282,26 @@ html[data-theme="dark"] .pagination .post-item.featured .post-body::after {
   margin: 0 6px 6px 0;
 }
 
-/* Dark Theme Support (flat cards — no card surface/border to theme) */
-html[data-theme="dark"] .pagination .post-title .post-link {
-  color: #e0e0e0;
-}
-
-html[data-theme="dark"] .pagination .post-item:hover .post-title .post-link {
-  color: #fff;
-}
-
-html[data-theme="dark"] .pagination .post-text {
-  color: #aaa;
-}
-
-html[data-theme="dark"] .pagination .post-text .read_more {
-  color: #888;
-}
-
-html[data-theme="dark"] .pagination .post-text:hover .read_more {
-  color: #bbb;
-}
-
-html[data-theme="dark"] .pagination .post-tags .post-tag {
-  color: #ddd; /* bg comes from the .highlight-* class */
-}
-
-/* TOP Badge - Override Orange to Gray */
+/* Badges as Notion-style tags: TOP gray, 작성중 yellow, 작성완료 green */
 .pagination .post-badge {
-  background-color: #555 !important;
-  color: #fff !important;
-  border-radius: 4px;
+  border-radius: var(--r-xs);
   padding: 1px 6px;
   font-size: 10px;
 }
 
 .pagination .post-badge.badge-top {
-  background-color: #333 !important;
+  background-color: var(--k-gray-bg) !important;
+  color: var(--k-gray) !important;
 }
 
-/* 작성중(draft) badge keeps its amber colour on the index */
 .pagination .post-badge.badge-draft {
-  background-color: #c8860d !important;
+  background-color: var(--k-yellow-bg) !important;
+  color: var(--k-yellow) !important;
+}
+
+.pagination .post-badge.badge-done {
+  background-color: var(--k-green-bg) !important;
+  color: var(--k-green) !important;
 }
 
 /* Space above the Prev / Next paginator */
@@ -328,30 +311,13 @@ html[data-theme="dark"] .pagination .post-tags .post-tag {
 
 /* Paginator Links - Override Brand Color */
 .pagination .paginator a {
-  color: #555;
+  color: var(--c-text);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .pagination .paginator a:hover {
-  color: #333;
-}
-
-/* Dark Theme - Badge & Paginator */
-html[data-theme="dark"] .pagination .post-badge {
-  background-color: #666 !important;
-}
-
-html[data-theme="dark"] .pagination .post-badge.badge-top {
-  background-color: #555 !important;
-}
-
-html[data-theme="dark"] .pagination .paginator a {
-  color: #aaa;
-}
-
-html[data-theme="dark"] .pagination .paginator a:hover {
-  color: #fff;
+  color: var(--c-ink);
 }
 
 /* Mobile Responsive */
@@ -437,7 +403,11 @@ html[data-theme="dark"] .pagination .paginator a:hover {
         {%- else -%}
           {%- assign post_item_class = "top-post compact" -%}
         {%- endif -%}
-        {%- include views/pagination-item.html -%}
+        {%- if post.layout == 'directory' -%}
+          {%- include views/directory-card.html -%}
+        {%- else -%}
+          {%- include views/pagination-item.html -%}
+        {%- endif -%}
       {%- endfor -%}
     {%- endif -%}
 
@@ -464,7 +434,16 @@ html[data-theme="dark"] .pagination .paginator a:hover {
       {%- else -%}
         {%- assign post_item_class = "compact" -%}
       {%- endif -%}
-      {%- include views/pagination-item.html -%}
+      {%- comment -%}
+        A directory is an ordinary post as far as the paginator knows: its
+        `date` is its last edit, so it sorts to the top after every update.
+        Only the card it gets is different.
+      {%- endcomment -%}
+      {%- if post.layout == 'directory' -%}
+        {%- include views/directory-card.html -%}
+      {%- else -%}
+        {%- include views/pagination-item.html -%}
+      {%- endif -%}
     {%- endfor -%}
   </ul>
 

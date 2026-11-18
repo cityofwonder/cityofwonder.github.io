@@ -1,0 +1,47 @@
+{%- comment -%}
+  One card on a directory board.
+
+    item    the directory entry (id, title, optional note)
+    linked  the post whose notion_id matches item.id, or nil when that page
+            is not published (yet) -- then the card is a muted placeholder
+            under the title the directory last saw.
+
+  The post's own text sits behind the card like a banner image and fades out
+  under the left-aligned title / subtitle / tags. `markdownify` first: a post
+  rendered after the directory still holds raw markdown in `content`, and
+  links/images would otherwise leak into the text as `[..](..)` syntax.
+  `tex2jax_ignore` keeps MathJax from typesetting the $..$ in that backdrop.
+{%- endcomment -%}
+{%- if linked -%}
+{%- assign backdrop = linked.content | markdownify | strip_html | normalize_whitespace | truncate: 700 -%}
+<a class="board-card" href="{{ linked.url | relative_url }}">
+  <div class="board-card-bg tex2jax_ignore" aria-hidden="true">{{ backdrop | escape_once }}</div>
+  <div class="board-card-fg">
+    <h3 class="board-card-title">{{ linked.title | escape }}
+      {%- if linked.draft or linked.status == '작성중' or linked.status == '진행 중' -%}
+      <span class="board-card-badge">작성중</span>
+      {%- endif -%}
+    </h3>
+    {%- if linked.subtitle and linked.subtitle != "" -%}
+    <p class="board-card-subtitle">{{ linked.subtitle | escape }}</p>
+    {%- endif -%}
+    {%- if item.note -%}
+    <p class="board-card-note">{{ item.note | escape }}</p>
+    {%- endif -%}
+    {%- if linked.tags.size > 0 -%}
+    <div class="board-card-tags">
+      {%- for tag in linked.tags -%}
+      <span class="post-tag">#{{ tag }}</span>
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+  </div>
+</a>
+{%- else -%}
+<div class="board-card is-pending">
+  <div class="board-card-fg">
+    <h3 class="board-card-title">{{ item.title | escape }}</h3>
+    <p class="board-card-subtitle">준비 중</p>
+  </div>
+</div>
+{%- endif -%}
