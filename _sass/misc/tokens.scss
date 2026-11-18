@@ -1,0 +1,111 @@
+/**
+ * Design tokens -- the one place the site's colours and corner radii live.
+ * Everything else should read these variables instead of writing literals.
+ *
+ * KEY COLOURS: six of Notion's colours, with Notion's own light / dark
+ * values -- gray, red, orange, yellow, green, blue. Notion's remaining three
+ * fold into the nearest of the six, so a colour picked in Notion always
+ * lands on one of them:
+ *     purple -> blue      pink -> red      brown -> orange
+ * Nothing outside Notion's palette is used (no cyan / lime / teal / indigo).
+ * Each key colour has a text tone (--k-*) and a background tone (--k-*-bg).
+ * The accent (links, focus) is red, the blog's brand colour.
+ *
+ * NEUTRALS: the directory view's (misc/directory.scss) -- warm paper
+ * surfaces with hairline borders, Notion's gray for secondary text.
+ *
+ * RADII: five steps. Pick by the size of the thing, not by taste:
+ *     --r-xs   4px  tags, badges, inline code, tiny tiles
+ *     --r-sm   8px  buttons, inputs, list rows, callouts, toggles
+ *     --r-md  12px  cards, code blocks, images, embeds
+ *     --r-lg  16px  panels: page cards, board columns, hero, banners
+ *     --r-pill      chips and pills; circles stay 50%
+ */
+
+// Sass copies, for the few places that need a colour at compile time
+// (lighten(), rgba($c, a), ...). Keep in sync with the variables below.
+// (Keys are quoted: bare `red`, `gray` ... would be parsed as colours.)
+$k-light: (
+  "gray":   #787774,
+  "red":    #d44c47,
+  "orange": #d9730d,
+  "yellow": #cb912f,
+  "green":  #448361,
+  "blue":   #337ea9,
+);
+$k-dark: (
+  "gray":   #9b9b9b,
+  "red":    #df5452,
+  "orange": #c77d48,
+  "yellow": #ca9849,
+  "green":  #529e72,
+  "blue":   #379ad3,
+);
+
+:root {
+  /* radii */
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+
+  /* neutrals */
+  --c-page: #ffffff;                    // page background
+  --c-surface: #f4f3f0;                 // panels, board columns, header strips
+  --c-card: #ffffff;                    // a card sitting on a surface
+  --c-hover: rgba(55, 53, 47, 0.06);    // row / button hover tint
+  --c-line: rgba(15, 15, 15, 0.08);     // hairline borders, dividers
+  --c-line-strong: rgba(15, 15, 15, 0.16);
+  --c-ink: #1d1d1f;                     // headings, strong text
+  --c-text: #37352f;                    // body text
+  --c-muted: #787774;                   // secondary text, meta, counts
+  --c-faint: rgba(55, 53, 47, 0.45);    // placeholders, disabled
+
+  /* key colours: text tone / background tone */
+  --k-gray: #787774;    --k-gray-bg: #f1f1ef;
+  --k-red: #d44c47;     --k-red-bg: #fdebec;
+  --k-orange: #d9730d;  --k-orange-bg: #fbecdd;
+  --k-yellow: #cb912f;  --k-yellow-bg: #fbf3db;
+  --k-green: #448361;   --k-green-bg: #edf3ec;
+  --k-blue: #337ea9;    --k-blue-bg: #e7f3f8;
+
+  --accent: var(--k-red);
+
+  /* code blocks: an always-dark surface (the syntax theme is a dark one) */
+  --c-code-bg: #1f1f22;
+}
+
+/* Code blocks are dark in both themes, so inside them the key colours use
+   their dark tones (diff lines, the copied state, ...). */
+pre {
+  @each $name, $value in $k-dark {
+    --k-#{$name}: #{$value};
+  }
+  --k-gray-bg: #2f2f2f;
+  --k-red-bg: #522e2a;
+  --k-orange-bg: #5c3b23;
+  --k-yellow-bg: #564328;
+  --k-green-bg: #243d30;
+  --k-blue-bg: #143a4e;
+}
+
+html[data-theme="dark"] {
+  --c-page: #0e0e0e;
+  --c-surface: #18181a;
+  --c-card: #1f1f22;
+  --c-hover: rgba(255, 255, 255, 0.055);
+  --c-line: rgba(255, 255, 255, 0.08);
+  --c-line-strong: rgba(255, 255, 255, 0.16);
+  --c-ink: #e8e8e8;
+  --c-text: #d4d4d4;
+  --c-muted: #9b9b9b;
+  --c-faint: rgba(255, 255, 255, 0.4);
+
+  --k-gray: #9b9b9b;    --k-gray-bg: #2f2f2f;
+  --k-red: #df5452;     --k-red-bg: #522e2a;
+  --k-orange: #c77d48;  --k-orange-bg: #5c3b23;
+  --k-yellow: #ca9849;  --k-yellow-bg: #564328;
+  --k-green: #529e72;   --k-green-bg: #243d30;
+  --k-blue: #379ad3;    --k-blue-bg: #143a4e;
+}

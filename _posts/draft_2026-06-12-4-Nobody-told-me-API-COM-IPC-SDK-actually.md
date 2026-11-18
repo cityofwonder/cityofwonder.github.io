@@ -27,7 +27,7 @@ banner:
 - <span class="highlight-yellow">하드웨어로써의 서버</span> := CPU + RAM + 저장장치 + 네트워크 카드 + OS
   - 우리 컴퓨터와 동일함(노트북, 모니터 등 입출력 장치가 없지만, 터미널은 있음)
 - <span class="highlight-yellow">서비스/프로그램으로서의 서버</span>: nginx, MySQL, Apache 같은 프로그램
-- ➡ 하드웨어 + 그 위에 돌아가고 있는 프로그램이 통칭하는 서버. <span class="highlight-indigo"><span class="text-red text-bold">사실 프로그램 자체</span>에 더 가까움</span>
+- ➡ 하드웨어 + 그 위에 돌아가고 있는 프로그램이 통칭하는 서버. <span class="highlight-blue"><span class="text-red text-bold">사실 프로그램 자체</span>에 더 가까움</span>
   - 웹서버 설치함 == nginx를 설치함
   - DB 서버 연결함 == MySQL 프로세스에 연결함
 

@@ -9,18 +9,17 @@ $theme-colors: (
   "snowwhite": #ffffff,
 );
 
-// Default brand colors
+// Brand color: Notion red, the same value as --k-red / --accent in
+// _sass/misc/tokens.scss. Only Notion's palette is used on this site, so the
+// theme's stock brand colours (orangered, greatgold, ...) are gone.
 $brand-colors: (
-  "orangered": #ff5100,
-  "greatgold": #f2cb05,
-  "greenblue": #389092,
-  "vividred":  #ff3b30,
+  "notionred": #d44c47,
 );
 
 $theme-name: "{{ site.theme_color }}";
 $brand-name: "{{ site.brand_color }}";
 $theme-color: map-get($theme-colors, "snowwhite");
-$brand-color: map-get($brand-colors, "vividred");
+$brand-color: map-get($brand-colors, "notionred");
 
 @if map-has-key($theme-colors, $theme-name) {
   $theme-color: map-get($theme-colors, $theme-name);
@@ -31,7 +30,7 @@ $brand-color: map-get($brand-colors, "vividred");
 @if map-has-key($brand-colors, $brand-name) {
   $brand-color: map-get($brand-colors, $brand-name);
 } @else if str-index($brand-name, "#") == 1 {
-  $brand-color: {{ site.brand_color | default: '#ff5100' }};
+  $brand-color: {{ site.brand_color | default: '#d44c47' }};
 }
 
 $content-width: {{ site.content_width | default: '800px' }};
@@ -50,7 +49,8 @@ $selection-background-color: unquote("{{ site.selection.background_color }}");
   $selection-color: inherit;
 }
 @if $selection-background-color == "" {
-  $selection-background-color: rgba(invert($brand-color), 0.3);
+  // Notion blue (--k-blue); the old default inverted the brand red into cyan
+  $selection-background-color: unquote("color-mix(in srgb, var(--k-blue) 28%, transparent)");
 }
 
 @import "yat";

@@ -7,12 +7,12 @@
   transition: .3s cubic-bezier(.4,.03,0,1);
 
   label, .toggle {
-    border-radius: 100px;
+    border-radius: var(--r-pill);
   }
 
   label {
     display: block;
-    background-color: rgba(120,120,120,.15);
+    background-color: var(--c-hover);
     cursor: pointer;
   }
 
@@ -20,7 +20,7 @@
     position: absolute;
     width: 50%;
     height: 100%;
-    background-color: #fff;
+    background-color: var(--c-card);
     box-shadow: 0 2px 15px rgba(0,0,0,.15);
     transition: transform .2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
@@ -43,30 +43,31 @@
   }
 
   label .light {
-    color: #868686;
+    color: var(--c-muted);
     margin-left: -0.2em;
   }
 
   label .dark {
-    color: #b9b9b9;
+    color: var(--c-faint);
   }
 
   [type="checkbox"] {
     display: none;
   }
 
-  /* Toggle */
+  /* Toggle (checked = dark theme; the knob sits a step above --c-card
+     there, or it would vanish into the dark track) */
   [type="checkbox"]:checked ~ label .toggle {
     transform: translateX(100%);
-    background-color: #34323D;
+    background-color: color-mix(in srgb, var(--c-card), #fff 10%);
   }
 
   [type="checkbox"]:checked ~ label .dark {
-    color: #ddd;
+    color: var(--c-ink);
   }
 
   [type="checkbox"]:checked ~ label .light {
-    color: #ccc;
+    color: var(--c-text);
   }
 
   @include media-query(1024px) {

@@ -23,7 +23,7 @@ html {
 
         @include media-query($on-laptop) {
           .page-link {
-            color: $header-text-color;
+            color: var(--c-ink);
           }
 
           .menu-icon {
@@ -40,7 +40,7 @@ html {
       background-color: transparent;
 
       .site-footer-inner {
-        border-top: solid 1px #eee;
+        border-top: solid 1px var(--c-line);
       }
     }
   }
@@ -60,7 +60,7 @@ html {
  * Site header
  */
 .site-header {
-  background-color: $header-background-color;
+  background-color: var(--c-page);
   height: $header-height;
   width: 100%;
   transition: height 0.2s, text-shadow 0.2s, top 0.2s;
@@ -102,7 +102,7 @@ html {
     transition: 0.1s filter color;
 
     &, &:visited {
-      color: $header-text-color;
+      color: var(--c-ink);
     }
 
     .site-favicon {
@@ -130,11 +130,11 @@ html {
 
   .page-link {
     line-height: $base-line-height;
-    color: $header-text-color;
+    color: var(--c-ink);
     transition: all 0.2s ease-in-out;
     font-weight: normal;
     padding: 4px 8px;
-    border-radius: 4px;
+    border-radius: var(--r-xs);
 
     // Gaps between nav items, but not on the last one
     &:not(:last-child) {
@@ -143,8 +143,8 @@ html {
 
     &:hover {
       font-weight: bold;
-      color: darken($header-text-color, 20%);
-      background-color: rgba($header-text-color, 0.08);
+      color: var(--c-ink);
+      background-color: var(--c-hover);
     }
   }
 
@@ -165,7 +165,7 @@ html {
       text-align: center;
 
       > svg {
-        fill: rgba($header-text-color, 80%);
+        fill: var(--c-text);
         transition: 0.1s fill;
       }
     }
@@ -173,19 +173,19 @@ html {
     input ~ .trigger {
       clear: both;
       display: none;
-      border-radius: 3px;
+      border-radius: var(--r-xs);
       box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, .06);
     }
 
     input:checked ~ .trigger {
       display: block;
-      background: $header-background-color;
+      background: var(--c-page);
     }
 
     .page-link {
       display: block;
       padding: 8px 10px;
-      color: rgba($header-text-color, 80%);
+      color: var(--c-text);
       margin: 0 25px;
       transition: all 0.2s ease-in-out;
 
@@ -199,7 +199,7 @@ html {
 
       &:hover {
         font-weight: bold;
-        color: $header-text-color;
+        color: var(--c-ink);
       }
     }
   }
@@ -210,8 +210,8 @@ html {
  */
 .site-footer {
   @include relative-font-size(1.0);
-  color: $footer-text-color;
-  background-color: $footer-background-color;
+  color: var(--c-text);
+  background-color: var(--c-surface);
   text-align: left;
   transition: background-color 0.2s;
 
@@ -221,11 +221,11 @@ html {
   }
 
   a {
-    $a-color: $brand-color;
-    color: $a-color;
+    color: var(--accent);
 
     &:hover {
-      color: lighten($a-color, 10%);
+      // was lighten($brand-color, 10%); lighten() can't take a var()
+      color: color-mix(in srgb, var(--accent) 80%, #fff);
     }
   }
 }
@@ -294,7 +294,7 @@ html {
       padding-bottom: 30px;
 
       &:not(:last-child) {
-        border-bottom: 1px solid #e3e3e3;
+        border-bottom: 1px solid var(--c-line);
       }
     }
   }
@@ -311,11 +311,11 @@ html {
   .post-link {
     @include relative-font-size(1.65);
     font-weight: $base-font-weight * 1.5;
-    color: #333;
+    color: var(--c-ink);
   }
 
   .post-meta {
-    color: $grey-color;
+    color: var(--c-muted);
     font-size: $base-font-size;
     margin-bottom: $spacing-unit * 0.5;
   }
@@ -370,7 +370,7 @@ html {
   }
 
   .post-text {
-    color: $grey-color;
+    color: var(--c-muted);
     word-break: break-word;
     overflow-wrap: break-word;
     flex: 1;
@@ -380,7 +380,7 @@ html {
     display: inline-block;
     text-decoration: none;
     padding: 1px 4px;
-    border-radius: 2px;
+    border-radius: var(--r-xs);
     transition: color 0.2s;
     margin-bottom: 8px;
     /* background comes from the per-tag .highlight-* class (set by JS) */
@@ -395,7 +395,7 @@ html {
 
     & > .previous:before {
       content: ' ';
-      border: solid #787878;
+      border: solid var(--c-muted);
       border-width: 0 2px 2px 0;
       display: inline-block;
       padding: 4px;
@@ -406,7 +406,7 @@ html {
 
     & > .next:after {
       content: ' ';
-      border: solid #787878;
+      border: solid var(--c-muted);
       border-width: 0 2px 2px 0;
       display: inline-block;
       padding: 4px;
@@ -416,7 +416,7 @@ html {
     }
 
     .previous span, .next span {
-      color: #b3b3b3;
+      color: var(--c-faint);  // no prev/next page: disabled
     }
 
     .indicator {
@@ -435,7 +435,7 @@ html {
   .post-header {
     margin: 50px auto 60px;
     padding: 0 0 20px;
-    border-bottom: 1px solid #ebebeb;
+    border-bottom: 1px solid var(--c-line);
 
     .post-title {
       margin-bottom: 6px;
@@ -446,7 +446,7 @@ html {
     }
 
     .post-meta {
-      color: $grey-color;
+      color: var(--c-muted);
       padding-bottom: 15px;
     }
   }
@@ -504,7 +504,7 @@ html {
 
     hr {
       height: 1px;
-      background-color: #ebebeb;
+      background-color: var(--c-line);
       border: none;
       margin: 60px 0;
     }
@@ -513,7 +513,7 @@ html {
   .post-related {
     &>*:first-child {
       @include relative-font-size(1.425);
-      color: #333;
+      color: var(--c-ink);
       margin-bottom: 14px;
     }
 
@@ -523,10 +523,10 @@ html {
 
     .post-link {
       @include relative-font-size(1.075);
-      color: $grey-color;
+      color: var(--c-muted);
 
       &:hover {
-        color: darken($grey-color, 50%);
+        color: var(--c-ink);
       }
     }
   }
@@ -548,7 +548,7 @@ html {
 
   a {
     @include relative-font-size(1.125);
-    color: $grey-color;
+    color: var(--c-muted);
     max-width: 45%;
     display: flex;
     align-items: center;
@@ -562,7 +562,7 @@ html {
 
   .previous:before {
     content: ' ';
-    border: solid #787878;
+    border: solid var(--c-muted);
     border-width: 0 2px 2px 0;
     display: inline-block;
     padding: 4px;
@@ -573,7 +573,7 @@ html {
 
   .next:after {
     content: ' ';
-    border: solid #787878;
+    border: solid var(--c-muted);
     border-width: 0 2px 2px 0;
     display: inline-block;
     padding: 4px;
@@ -604,7 +604,7 @@ html {
 
   .post-meta {
     font-size: $small-font-size;
-    color: $grey-color;
+    color: var(--c-muted);
   }
 }
 
@@ -794,7 +794,7 @@ html {
 
   .post-meta {
     font-size: $small-font-size;
-    color: $grey-color;
+    color: var(--c-muted);
   }
 
   li a {
@@ -802,10 +802,10 @@ html {
       margin-left: 5px;
     }
 
-    color: #303030;
+    color: var(--c-text);
 
     &:hover {
-      color: #000;
+      color: var(--c-ink);
     }
   }
 }
@@ -816,7 +816,7 @@ html {
   width: 1px;
   height: 10px;
   margin: 0 10px;
-  background-color: #e3e3e3e3;
+  background-color: var(--c-line-strong);  // a 10px tick: --c-line is too faint
   vertical-align: baseline;
 }
 
@@ -843,14 +843,15 @@ html {
   bottom: 0.1em;
 }
 
+/* Notion-style tags: key colour on its own background tone. TOP is gray. */
 .post-badge {
   display: none;
   padding: 0px 3px;
-  background-color: $brand-color;
-  color: #fff;
+  background-color: var(--k-gray-bg);
+  color: var(--k-gray);
   font-size: 10px;
   font-weight: 600;
-  border-radius: 2px;
+  border-radius: var(--r-xs);
   transition-duration: $base-transition-duration;
 }
 
@@ -870,9 +871,11 @@ html {
 }
 
 .post-badge.badge-draft {
-  background-color: #c8860d; /* amber — distinct from TOP */
+  background-color: var(--k-yellow-bg); /* yellow — in progress */
+  color: var(--k-yellow);
 }
 
 .post-badge.badge-done {
-  background-color: #2e7d32; /* green — finished, not yet committed */
+  background-color: var(--k-green-bg); /* green — finished, not yet committed */
+  color: var(--k-green);
 }

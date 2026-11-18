@@ -40,9 +40,9 @@
 </div>
 
 <style>
-/* Activity Sticky Note - Grayscale with Green Accent */
+/* Activity Sticky Note - Grayscale with Accent */
 .sticky-note-widget.activity-sticky .sticky-content {
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  background: var(--c-surface);
 }
 
 .sticky-note-widget.activity-sticky .sticky-corner.activity-corner {
@@ -50,21 +50,21 @@
 }
 
 .sticky-note-widget.activity-sticky .sticky-title {
-  color: #444;
-  border-bottom-color: rgba(0, 0, 0, 0.1);
+  color: var(--c-text);
+  border-bottom-color: var(--c-line);
 }
 
 /* Heatmap Wrapper */
 .heatmap-wrapper {
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 8px;
+  background: var(--c-card);
+  border-radius: var(--r-sm);
   padding: 10px;
-  border: 1px dashed #ccc;
+  border: 1px dashed var(--c-line-strong);
   overflow: hidden;
   position: relative;
 }
 
-/* fade the clipped left edge into the page background (white / black) */
+/* fade the clipped left edge into the page background */
 .heatmap-wrapper::before {
   content: "";
   position: absolute;
@@ -74,10 +74,7 @@
   width: 34px;
   z-index: 2;
   pointer-events: none;
-  background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0));
-}
-html[data-theme="dark"] .heatmap-wrapper::before {
-  background: linear-gradient(to right, #0e0e0e, rgba(14, 14, 14, 0));
+  background: linear-gradient(to right, var(--c-page), transparent);
 }
 
 .heatmap-months {
@@ -85,7 +82,7 @@ html[data-theme="dark"] .heatmap-wrapper::before {
   gap: 0;
   margin-bottom: 3px;
   font-size: 9px;
-  color: #666;
+  color: var(--c-muted);
   height: 12px;
 }
 
@@ -105,7 +102,7 @@ html[data-theme="dark"] .heatmap-wrapper::before {
 .heatmap-cell {
   width: 8px;
   height: 8px;
-  border-radius: 2px;
+  border-radius: calc(var(--r-xs) / 2); /* a full --r-xs would round the 8px cells into dots */
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -116,12 +113,12 @@ html[data-theme="dark"] .heatmap-wrapper::before {
   z-index: 10;
 }
 
-/* Vivid-red accent for heatmap (desaturated so it isn't harsh) */
-.heatmap-cell.level-0 { background-color: #ebebeb; }
-.heatmap-cell.level-1 { background-color: #ffd2cc; }
-.heatmap-cell.level-2 { background-color: #ff9d92; }
-.heatmap-cell.level-3 { background-color: #fa5a4c; }
-.heatmap-cell.level-4 { background-color: #e11900; }
+/* Accent-red heatmap: one key colour stepped over transparent */
+.heatmap-cell.level-0, .legend-box.level-0 { background-color: var(--c-line); }
+.heatmap-cell.level-1, .legend-box.level-1 { background-color: color-mix(in srgb, var(--accent) 25%, transparent); }
+.heatmap-cell.level-2, .legend-box.level-2 { background-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.heatmap-cell.level-3, .legend-box.level-3 { background-color: color-mix(in srgb, var(--accent) 70%, transparent); }
+.heatmap-cell.level-4, .legend-box.level-4 { background-color: var(--accent); }
 
 /* Activity Legend */
 .activity-legend {
@@ -131,7 +128,7 @@ html[data-theme="dark"] .heatmap-wrapper::before {
   gap: 6px;
   margin-top: 10px;
   font-size: 9px;
-  color: #666;
+  color: var(--c-muted);
 }
 
 .legend-boxes {
@@ -142,55 +139,14 @@ html[data-theme="dark"] .heatmap-wrapper::before {
 .legend-box {
   width: 10px;
   height: 10px;
-  border-radius: 2px;
+  border-radius: calc(var(--r-xs) / 2); /* matches the cells */
 }
 
-.legend-box.level-0 { background-color: #ebebeb; }
-.legend-box.level-1 { background-color: #ffd2cc; }
-.legend-box.level-2 { background-color: #ff9d92; }
-.legend-box.level-3 { background-color: #fa5a4c; }
-.legend-box.level-4 { background-color: #e11900; }
-
-/* Dark Theme */
-html[data-theme="dark"] .sticky-note-widget.activity-sticky .sticky-content {
-  background: linear-gradient(135deg, #2a2a2a 0%, #222 100%);
-}
-
+/* Dark Theme (colours come from the tokens; only the decorative folded
+   corner keeps its own dark value) */
 html[data-theme="dark"] .sticky-note-widget.activity-sticky .sticky-corner.activity-corner {
   border-color: transparent transparent #1a1a1a transparent;
 }
-
-html[data-theme="dark"] .sticky-note-widget.activity-sticky .sticky-title {
-  color: #ddd;
-  border-bottom-color: rgba(255, 255, 255, 0.1);
-}
-
-html[data-theme="dark"] .heatmap-wrapper {
-  background: rgba(0, 0, 0, 0.3);
-  border-color: #444;
-}
-
-html[data-theme="dark"] .heatmap-months,
-html[data-theme="dark"] .activity-legend {
-  color: #888;
-}
-
-html[data-theme="dark"] .heatmap-cell.level-0,
-html[data-theme="dark"] .legend-box.level-0 {
-  background-color: #333;
-}
-
-html[data-theme="dark"] .heatmap-cell.level-1,
-html[data-theme="dark"] .legend-box.level-1 { background-color: #5c1a14; }
-
-html[data-theme="dark"] .heatmap-cell.level-2,
-html[data-theme="dark"] .legend-box.level-2 { background-color: #99241a; }
-
-html[data-theme="dark"] .heatmap-cell.level-3,
-html[data-theme="dark"] .legend-box.level-3 { background-color: #d6362a; }
-
-html[data-theme="dark"] .heatmap-cell.level-4,
-html[data-theme="dark"] .legend-box.level-4 { background-color: #ff5e52; }
 
 /* Mobile */
 @media (max-width: 768px) {

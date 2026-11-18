@@ -7,7 +7,7 @@
 .toc-inline-title {
   font-size: 12px;
   font-weight: 600;
-  color: #999;
+  color: var(--c-muted);
   margin-bottom: 8px;
 }
 .toc-tree ul {
@@ -19,12 +19,12 @@
   margin: 4px 0;
 }
 .toc-tree li a {
-  color: #888;                /* text-gray */
+  color: var(--c-muted);      /* text-gray */
   text-decoration: none;
   font-size: 0.9em;
   transition: color 0.15s ease;
 }
-.toc-tree li a:hover { color: #555; text-decoration: underline; } /* underline on hover only */
+.toc-tree li a:hover { color: var(--c-text); text-decoration: underline; } /* underline on hover only */
 /* strip the file-tree rail/node markers inherited from .post-content li */
 .toc-tree li::before,
 .toc-tree li::after { content: none !important; display: none !important; }
@@ -34,10 +34,6 @@
 .toc-tree li.h-h4 { padding-left: 32px; }
 .toc-tree li.h-h5 { padding-left: 48px; }
 .toc-tree li.h-h6 { padding-left: 64px; }
-
-html[data-theme="dark"] .toc-inline-title { color: #888; }
-html[data-theme="dark"] .toc-tree li a { color: #999; }
-html[data-theme="dark"] .toc-tree li a:hover { color: #ccc; }
 
 /* ===== Simplified sidebar widgets =====
    Flatten the post-it look into a clean card: no shadow/tape/folded-corner/
@@ -65,11 +61,11 @@ html[data-theme="dark"] .toc-tree li a:hover { color: #ccc; }
   display: block;
   font-size: 13px;
   font-weight: 600;
-  color: #555;
+  color: var(--c-text);
   margin-bottom: 10px;
   padding: 0 0 0 9px;
   border: 0;
-  border-left: 3px solid #c9c9c9; /* the | symbol */
+  border-left: 3px solid var(--c-line-strong); /* the | symbol */
   line-height: 1.25;
 }
 /* heatmap sits directly on the page bg → the left black/white fade blends */
@@ -94,7 +90,7 @@ html[data-theme="dark"] .toc-tree li a:hover { color: #ccc; }
   padding: 3px 0 !important;
   text-align: left;
 }
-.sidebar .visitor-stat .stat-label { font-size: 13px; color: #666; }
+.sidebar .visitor-stat .stat-label { font-size: 13px; color: var(--c-muted); }
 .sidebar .visitor-stat .stat-value { font-weight: 700; font-size: 14px; font-family: inherit !important; }
 
 /* "Posts" notepad: no box either, just content */
@@ -122,29 +118,20 @@ html[data-theme="dark"] .toc-tree li a:hover { color: #ccc; }
   text-align: left !important;
   font-size: 13px !important;
   font-weight: 600 !important;
-  color: #555 !important;
-  border-left: 3px solid #c9c9c9 !important;
+  color: var(--c-text) !important;
+  border-left: 3px solid var(--c-line-strong) !important;
   padding: 0 0 0 9px !important;
   margin: 0 0 10px !important;
 }
 .sidebar .notepad-section { margin-bottom: 8px; }
-.sidebar .section-header { margin: 8px 0 4px; font-size: 12px; color: #888; }
+.sidebar .section-header { margin: 8px 0 4px; font-size: 12px; color: var(--c-muted); }
 
 /* The three widgets are separated by a divider line (no boxes) */
 .sidebar .activity-sticky,
 .sidebar .notepad-widget {
-  border-top: 1px solid #e5e5e5 !important;
+  border-top: 1px solid var(--c-line) !important;
   margin-top: 18px !important;
   padding-top: 18px !important;
-}
-
-/* Dark theme */
-html[data-theme="dark"] .sidebar .sticky-title { color: #ccc; border-left-color: #555; }
-html[data-theme="dark"] .sidebar .visitor-stat .stat-label { color: #aaa; }
-html[data-theme="dark"] .sidebar .notepad-title { color: #ccc !important; border-left-color: #555 !important; }
-html[data-theme="dark"] .sidebar .activity-sticky,
-html[data-theme="dark"] .sidebar .notepad-widget {
-  border-top-color: #333 !important;
 }
 </style>
 

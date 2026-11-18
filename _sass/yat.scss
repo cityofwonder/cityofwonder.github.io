@@ -78,6 +78,7 @@ $on-laptop:        800px !default;
 
 // Import partials.
 @import
+  "misc/tokens",
   "yat/base",
   "yat/layout",
   "yat/dark",
@@ -86,5 +87,8 @@ $on-laptop:        800px !default;
   "misc/common-list",
   "misc/google-translate",
   "misc/gitment",
-  "misc/click-to-top"
+  "misc/click-to-top",
+  "misc/directory",
+  "misc/page-card",
+  "misc/scrollbar"
 ;

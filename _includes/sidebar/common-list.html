@@ -54,21 +54,21 @@
 <style>
 /* Cute Notepad Widget - Grayscale with Accent */
 .notepad-widget {
-  background: #fafafa;
-  border-radius: 12px;
+  background: var(--c-surface);
+  border-radius: var(--r-md);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   margin-bottom: 20px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--c-line);
   position: relative;
 }
 
 /* Notepad Header with Rings */
 .notepad-header {
-  background: linear-gradient(180deg, #555 0%, #444 100%);
+  background: var(--c-surface);
   padding: 12px 16px 8px;
   position: relative;
-  border-bottom: 2px solid #333;
+  border-bottom: 2px solid var(--c-line-strong);
 }
 
 .notepad-rings {
@@ -93,7 +93,7 @@
   text-align: center;
   font-size: 14px;
   font-weight: 700;
-  color: #fff;
+  color: var(--c-text); /* was white on the old dark header strip */
   letter-spacing: 1px;
 }
 
@@ -103,7 +103,7 @@
   background: repeating-linear-gradient(
     transparent,
     transparent 23px,
-    #eee 24px
+    var(--c-line) 24px
   );
   background-size: 100% 24px;
   background-position: 0 8px;
@@ -124,16 +124,16 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 8px;
+  background: color-mix(in srgb, var(--c-hover) 50%, transparent); /* half the hover tint */
+  border-radius: var(--r-sm);
   text-decoration: none;
-  color: #444;
+  color: var(--c-text);
   transition: all 0.2s ease;
-  border: 1px dashed #999;
+  border: 1px dashed var(--c-line-strong);
 }
 
 .notepad-item.all-posts:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--c-hover);
   transform: translateX(3px);
 }
 
@@ -148,12 +148,12 @@
 }
 
 .notepad-item .item-count {
-  background: #555;
-  color: white;
+  background: var(--c-card);
+  color: var(--c-muted);
   font-size: 11px;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: var(--r-pill);
 }
 
 /* Section Headers */
@@ -163,7 +163,7 @@
   gap: 6px;
   margin-bottom: 8px;
   padding-bottom: 4px;
-  border-bottom: 1px dotted #ccc;
+  border-bottom: 1px dotted var(--c-line-strong);
 }
 
 .section-icon {
@@ -173,7 +173,7 @@
 .section-title {
   font-size: 12px;
   font-weight: 600;
-  color: #666;
+  color: var(--c-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -195,15 +195,15 @@
   justify-content: space-between;
   padding: 6px 8px;
   text-decoration: none;
-  color: #555;
+  color: var(--c-text);
   font-size: 12px;
-  border-radius: 4px;
+  border-radius: var(--r-xs);
   transition: all 0.2s ease;
 }
 
 .recent-item a:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #333;
+  background: var(--c-hover);
+  color: var(--c-ink);
 }
 
 .recent-title {
@@ -215,7 +215,7 @@
 
 .recent-date {
   font-size: 10px;
-  color: #999;
+  color: var(--c-muted);
   margin-left: 8px;
   flex-shrink: 0;
 }
@@ -237,21 +237,21 @@
   gap: 8px;
   padding: 6px 8px;
   text-decoration: none;
-  color: #555;
+  color: var(--c-text);
   font-size: 12px;
-  border-radius: 4px;
+  border-radius: var(--r-xs);
   transition: all 0.2s ease;
 }
 
 .hot-item a:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #333;
+  background: var(--c-hover);
+  color: var(--c-ink);
 }
 
 .hot-rank {
   font-size: 10px;
   font-weight: 700;
-  color: #555;
+  color: var(--c-muted);
   min-width: 20px;
 }
 
@@ -269,7 +269,7 @@
 
 .placeholder-text {
   font-size: 11px;
-  color: #aaa;
+  color: var(--c-faint);
   font-style: italic;
 }
 
@@ -277,92 +277,23 @@
 .notepad-footer {
   padding: 8px;
   text-align: center;
-  border-top: 1px dashed #ddd;
+  border-top: 1px dashed var(--c-line);
 }
 
 .notepad-doodle {
   font-size: 12px;
-  color: #ccc;
+  color: var(--c-faint);
 }
 
-/* Dark Theme */
+/* Dark Theme (colours come from the tokens; only the shadow and the
+   decorative ring holes still need their own dark values) */
 html[data-theme="dark"] .notepad-widget {
-  background: #1e1e1e;
-  border-color: #333;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-html[data-theme="dark"] .notepad-header {
-  background: linear-gradient(180deg, #333 0%, #222 100%);
-  border-bottom-color: #444;
 }
 
 html[data-theme="dark"] .notepad-rings .ring {
   background: linear-gradient(180deg, #555 0%, #333 100%);
   border-color: #666;
-}
-
-html[data-theme="dark"] .notepad-content {
-  background: repeating-linear-gradient(
-    transparent,
-    transparent 23px,
-    #2a2a2a 24px
-  );
-  background-size: 100% 24px;
-  background-position: 0 8px;
-}
-
-html[data-theme="dark"] .notepad-item.all-posts {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: #666;
-  color: #ddd;
-}
-
-html[data-theme="dark"] .notepad-item.all-posts:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-html[data-theme="dark"] .notepad-item .item-count {
-  background: #666;
-}
-
-html[data-theme="dark"] .section-header {
-  border-bottom-color: #444;
-}
-
-html[data-theme="dark"] .section-title {
-  color: #aaa;
-}
-
-html[data-theme="dark"] .recent-item a,
-html[data-theme="dark"] .hot-item a {
-  color: #ccc;
-}
-
-html[data-theme="dark"] .recent-item a:hover,
-html[data-theme="dark"] .hot-item a:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-}
-
-html[data-theme="dark"] .recent-date {
-  color: #777;
-}
-
-html[data-theme="dark"] .hot-rank {
-  color: #aaa;
-}
-
-html[data-theme="dark"] .placeholder-text {
-  color: #666;
-}
-
-html[data-theme="dark"] .notepad-footer {
-  border-top-color: #333;
-}
-
-html[data-theme="dark"] .notepad-doodle {
-  color: #444;
 }
 
 /* Mobile Responsive */

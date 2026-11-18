@@ -1,16 +1,16 @@
 .gitment-container {
-  color: #787878 !important;
+  color: var(--c-muted) !important;
 }
 
 .gitment-editor-header {
-  background-color: #fefefe;
+  background-color: var(--c-surface);
 }
 
 .gitment-comment-main, .gitment-editor-main {
-  background-color: #fff;
-  border-radius: 3px !important;
+  background-color: var(--c-card);
+  border-radius: var(--r-xs) !important;
 }
 
 .gitment-heart-icon {
-  fill: #ff0808;
+  fill: var(--k-red);
 }
