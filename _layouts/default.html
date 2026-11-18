@@ -7,7 +7,11 @@
 
     {%- include views/header.html -%}
 
-    {%- include views/banner.html -%}
+    {%- if page.hero -%}
+      {%- include views/home-hero.html -%}
+    {%- else -%}
+      {%- include views/banner.html -%}
+    {%- endif -%}
 
     {%- include extensions/hashlocate.html -%}
 

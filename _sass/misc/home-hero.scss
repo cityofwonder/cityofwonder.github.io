@@ -1,0 +1,112 @@
+/**
+ * Home hero (_includes/views/home-hero.html), in place of the photo banner.
+ *
+ * One flat colour -- the paper surface -- fading into the page, with the
+ * directory board's dot grid fading out over it. Big type, the topics as
+ * Notion-style tags. Tokens only (misc/tokens.scss), so both themes come
+ * for free.
+ *
+ * The site header is position: fixed on every page, so the hero reserves
+ * its height at the top; while the page sits at the top the header takes
+ * the hero's surface colour so the two read as one band.
+ */
+.home-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: calc(#{$header-height} + 72px) 0 56px;
+  background: linear-gradient(to bottom, var(--c-surface) 0%, var(--c-surface) 35%, var(--c-page) 100%);
+}
+
+/* dot grid, strongest at the top-right, gone before the bottom edge */
+.home-hero-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(var(--c-line-strong) 1px, transparent 1px);
+  background-size: 16px 16px;
+  -webkit-mask-image: radial-gradient(120% 100% at 85% 0%, #000 20%, transparent 70%);
+          mask-image: radial-gradient(120% 100% at 85% 0%, #000 20%, transparent 70%);
+}
+
+/* Left edge lines up with the feed below: `.articles` is padded 1.5% of the
+   main column, which is the wrapper minus the 320px sidebar and its 15px
+   margin (_layouts/framework.html). */
+.home-hero-inner {
+  max-width: 820px;
+  padding-left: calc((100% - 335px) * 0.015);
+}
+
+.home-hero-title {
+  margin: 0 0 18px;
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: var(--c-ink);
+}
+
+.home-hero-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+}
+
+/* the site's chip shape (.post-tag), a size up for the hero */
+.home-hero-topic {
+  margin: 0;
+  padding: 0 7px;
+  border-radius: var(--r-xs);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.7;
+
+  @each $key in ("gray", "red", "orange", "yellow", "green", "blue") {
+    &.is-#{$key} {
+      color: var(--k-#{$key});
+      background: var(--k-#{$key}-bg);
+    }
+  }
+}
+
+.home-hero-meta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--c-muted);
+
+  span + span::before {
+    content: "·";
+    margin: 0 0.6em;
+  }
+
+  .fa { margin-right: 2px; }
+}
+
+/* the main content no longer needs to clear the fixed header itself */
+.home-hero ~ .page-content {
+  padding-top: 16px;
+}
+
+/* at the very top the header is part of the hero band */
+html:has(.home-hero)[data-scroll-status="top"] .site-header {
+  background-color: var(--c-surface);
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .home-hero {
+    padding: calc(#{$header-height} + 40px) 0 36px;
+  }
+
+  .home-hero-inner { padding-left: 0; }   // .articles has no side padding here
+
+  .home-hero-title {
+    font-size: 34px;
+    letter-spacing: -0.02em;
+  }
+
+  .home-hero-topic { font-size: 13px; }
+}

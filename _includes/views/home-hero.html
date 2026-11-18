@@ -1,0 +1,40 @@
+{%- comment -%}
+  Home hero: replaces the photo banner on pages with `hero: true` (index.html).
+  Typography on a flat surface that fades into the page, over a faint dot
+  grid -- the directory board's paper, at full width. Title and subtitle are
+  the page's `heading` / `subheading`; the subtitle's " | "-separated parts
+  become topic tags in the key colours. Styles: _sass/misc/home-hero.scss.
+{%- endcomment -%}
+{%- assign hero_title = page.heading | default: site.title -%}
+{%- assign hero_topics = page.subheading | split: '|' -%}
+{%- assign hero_keys = "blue,red,yellow,green,orange,gray" | split: ',' -%}
+{%- assign hero_dirs = site.posts | where: "layout", "directory" -%}
+{%- assign hero_date_format = site.yat.date_format | default: "%b %-d, %Y" -%}
+<section class="home-hero">
+  <div class="home-hero-grid" aria-hidden="true"></div>
+  <div class="wrapper">
+    <div class="home-hero-inner">
+      <h1 class="home-hero-title">{{ hero_title | escape }}</h1>
+      {%- if hero_topics.size > 0 -%}
+      <ul class="home-hero-topics">
+        {%- for topic in hero_topics -%}
+        {%- assign t = topic | strip -%}
+        {%- if t != "" -%}
+        {%- assign k = forloop.index0 | modulo: hero_keys.size -%}
+        <li class="home-hero-topic is-{{ hero_keys[k] }}">{{ t | escape }}</li>
+        {%- endif -%}
+        {%- endfor -%}
+      </ul>
+      {%- endif -%}
+      <p class="home-hero-meta">
+        <span><i class="fa fa-file-text-o"></i> {{ site.posts.size }} posts</span>
+        {%- if hero_dirs.size > 0 -%}
+        <span><i class="fa fa-folder-open-o"></i> {{ hero_dirs.size }} directories</span>
+        {%- endif -%}
+        {%- if site.posts.size > 0 -%}
+        <span><i class="fa fa-refresh"></i> Updated {{ site.posts.first.date | date: hero_date_format }}</span>
+        {%- endif -%}
+      </p>
+    </div>
+  </div>
+</section>
