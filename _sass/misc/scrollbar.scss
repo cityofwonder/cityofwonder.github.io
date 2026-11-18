@@ -1,0 +1,55 @@
+/**
+ * Scrollbars
+ *
+ * One rule for every scroll container on the site: code blocks, the
+ * directory board, the tags / archives / categories card lists, the posting
+ * heatmap, the page itself. Chromium only for now (::-webkit-scrollbar).
+ *
+ * Do NOT set `scrollbar-width` or `scrollbar-color` anywhere: once either
+ * applies to an element (and scrollbar-color inherits), Chrome 121+ drops
+ * every ::-webkit-scrollbar rule for it and this file stops working there.
+ *
+ * Transparent track, semi-transparent knob. The knob colour is a variable so
+ * a container can take the one that reads on its own background -- code
+ * blocks are dark (#282c34) in both themes, so they always use the dark one.
+ */
+$scrollbar-size: 10px;   // gutter; the knob is inset 2px on each side -> 6px
+
+:root {
+  --scrollbar-size: #{$scrollbar-size};
+  --scrollbar-thumb: rgba(60, 64, 72, 0.32);        // slate ink on light pages
+  --scrollbar-thumb-hover: rgba(60, 64, 72, 0.55);
+}
+
+html[data-theme="dark"],
+pre {
+  --scrollbar-thumb: rgba(226, 230, 238, 0.28);     // pale silver on dark
+  --scrollbar-thumb-hover: rgba(226, 230, 238, 0.48);
+}
+
+::-webkit-scrollbar {
+  width: $scrollbar-size;
+  height: $scrollbar-size;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;   // insets the knob from the gutter edges
+  border-radius: var(--r-pill);
+  background-color: var(--scrollbar-thumb);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--scrollbar-thumb-hover);
+}
