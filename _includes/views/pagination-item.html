@@ -9,14 +9,6 @@
 {%- assign article_excerpt = return -%}
 {%- assign post_url = post.url | relative_url -%}
 
-{%- assign name = 'excerpt.image_width' -%}
-{%- include functions.html func='get_value' -%}
-{%- assign image_width = return | default: '38.2%' -%}
-
-{%- assign name = 'excerpt.image_height' -%}
-{%- include functions.html func='get_value' -%}
-{%- assign image_height = return | default: '160px' -%}
-
 {%- assign name = 'excerpt.default_image' -%}
 {%- include functions.html func='get_value' -%}
 {%- assign default_image = return -%}
