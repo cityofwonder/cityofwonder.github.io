@@ -42,8 +42,10 @@
       themeData.nightShift = nightShift;
       saveThemeData(themeData);
       html.dataset.theme = nightShift ? 'dark' : 'light';
+      // set the switch right away: setting it later made it slide across
+      // on every page load (the theme itself is already set in <head>)
+      sw.checked = nightShift ? true : false;
       setTimeout(function() {
-        sw.checked = nightShift ? true : false;
         document.dispatchEvent(new Event('theme-changed'));
       }, 50);
     }

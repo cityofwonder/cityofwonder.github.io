@@ -1,0 +1,41 @@
+/**
+ * Page-to-page transitions (same site): instead of the browser swapping one
+ * page for the next in a single frame, the old page fades out and the new one
+ * fades in, in place. The header has its own transition name, so it stays
+ * perfectly still while the content underneath cross-fades.
+ *
+ * Browsers without cross-document view transitions just navigate as before.
+ * Pairs with extensions/theme-init.html (theme set before the first paint)
+ * and the render-blocking "#page-built" marker on pages whose content is
+ * built by a script -- so what fades in is already the finished page.
+ */
+@view-transition {
+  navigation: auto;
+}
+
+.site-header { view-transition-name: site-header; }
+
+/* the sidebar too: tags, archives, categories and about share one, so it
+   stays put between them instead of fading and sliding with the content */
+.framework > .sidebar { view-transition-name: site-sidebar; }
+
+::view-transition-old(root) {
+  animation: 0.18s ease-in both page-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 0.32s ease-out 0.06s both page-fade-in;
+}
+
+@keyframes page-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
+}

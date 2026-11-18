@@ -1,0 +1,39 @@
+{%- comment -%}
+  Runs in <head>, before the stylesheet and before anything paints: puts the
+  right theme (and the initial scroll state) on <html> straight away. Both
+  used to be set by scripts in the body, so every page could paint once in
+  the wrong theme / header state and then switch -- a blink on every
+  navigation. Reads the same storage and rules as extensions/theme-toggle.html
+  (which still owns the switch and saves changes); keep the two in step.
+{%- endcomment -%}
+{%- assign name = 'night_mode' -%}
+{%- include functions.html func='get_value' default='auto' -%}
+{%- assign night_mode = return -%}
+<script>
+  (function () {
+    var html = document.documentElement;
+    var option = ({{ night_mode | jsonify }} || 'auto').toLowerCase();
+    var data = {};
+    try {
+      var storage = option === 'manual' ? localStorage : sessionStorage;
+      data = JSON.parse(storage.getItem('theme') || '{}') || {};
+    } catch (e) {}
+
+    var night;
+    if (option === 'auto') {
+      var now = new Date(), hours = now.getHours();
+      var shift = hours >= 19 || hours <= 7;
+      var at = new Date();
+      if (shift) { if (hours > 7) at.setDate(at.getDate() + 1); at.setHours(7); }
+      else at.setHours(19);
+      at.setMinutes(0, 0, 0);
+      night = at.getTime() > (data.autoToggleAt || 0) ? shift : data.nightShift;
+    } else if (option === 'manual') {
+      night = data.nightShift;
+    } else {
+      night = data.nightShift === undefined ? option === 'on' : data.nightShift;
+    }
+    html.dataset.theme = night ? 'dark' : 'light';
+    if (!html.dataset.scrollStatus) html.dataset.scrollStatus = 'top';
+  })();
+</script>
