@@ -1,23 +1,318 @@
 ---
 layout: about
 title: About
+
+# ── Edit these two lists ──────────────────────────────────────────────────
+# Featured posts, shown as feed cards in this order. Use the post's URL path
+# (what follows cityofwonder.github.io in the address bar).
+featured_posts:
+  - /2026/08/31/how-to-read-a-research-paper/
+  - /2026/07/30/p4-darpa-crs/
+  - /2026/08/20/p5-MLA-USENIX2026/
+  - /2025/12/08/1CykorCTF2025-Recap/
+
+# Repositories, shown as cards with GitHub's preview image. `repo` is
+# owner/name; description and tags are optional (an empty description falls
+# back to the one on GitHub). Language and stars are read from GitHub.
+repos:
+  - repo: cityofwonder/ai-infra-teardowns
+    description: "AI infrastructure vulnerability teardowns: reproduced PoCs for AI orchestrators such as Langflow and Dify."
+    tags: [AI infra, PoC, CVE]
 ---
 
-<h1>About</h1>
+<header class="about-hero">
+  <span class="about-kicker"><i class="fa fa-user-circle-o"></i> About</span>
+  <h1 class="about-name">Dani Lee <small>Dayeon Lee</small></h1>
+  <p class="about-tagline">Security researcher working at the intersection of AI Security and Security for AI.</p>
+  <p class="about-affil">
+    <span>Undergraduate in Cyber Defense at Korea University</span>
+    <span>Research intern at AiRLab, Korea University Graduate School of Information Security</span>
+    <span>BoB (Best of the Best) graduate</span>
+  </p>
+  <div class="about-links">
+    <a class="about-link" href="mailto:d4n1l2e@gmail.com"><i class="fa fa-envelope-o"></i> d4n1l2e@gmail.com</a>
+    <a class="about-link" href="https://github.com/cityofwonder" target="_blank" rel="noopener"><i class="fa fa-github"></i> cityofwonder</a>
+    <a class="about-link" href="https://www.linkedin.com/in/d4n1-l2e" target="_blank" rel="noopener"><i class="fa fa-linkedin"></i> d4n1-l2e</a>
+  </div>
+</header>
 
-<h2>🔶 Education</h2>
-<ul>
-  <li>🔸 B.S. in Smart Security, Korea University, Rep. of Korea, 2023.03 ~ current</li>
-</ul>
+<section class="about-section" id="interests">
+  <div class="about-section-head"><h2>Research Interests</h2></div>
+  <ul class="about-items">
+    <li class="is-blue">
+      <span class="about-item-title">AI Infrastructure Security</span>
+      <ul>
+        <li>Automated fuzzing of AI infrastructure</li>
+        <li>Vulnerability research on AI infrastructure (PoCs, CVEs)</li>
+      </ul>
+    </li>
+    <li class="is-red">
+      <span class="about-item-title">AI Compilation Backdoors</span>
+      <ul>
+        <li>Backdoors injected during ML model compilation</li>
+      </ul>
+    </li>
+    <li class="is-yellow">
+      <span class="about-item-title">Side-Channel Attacks on DNNs</span>
+      <ul>
+        <li>Hardware-based model extraction</li>
+      </ul>
+    </li>
+  </ul>
+</section>
 
-<h2>🔶 Competitions & Speaks</h2>
-<ul>
-  <li>🔸 team '인력거', 20th place, CykorCTF2025</li>
-  <li>🔸 KITRI 정보보안 컨퍼런스 BISC – junior session, ‘아무것도 몰라도 버티는법, 배우는법, 질문하는법’</li>
-</ul>
+{%- if page.repos.size > 0 -%}
+{%- assign og_version = site.time | date: '%Y%m%d' -%}
+<section class="about-section" id="repos">
+  <div class="about-section-head"><h2>Repositories</h2><span class="about-count">{{ page.repos.size }}</span></div>
+  <div class="pagination">
+    <ul class="post-list">
+      {%- for r in page.repos -%}
+      {%- assign repo_parts = r.repo | split: '/' -%}
+      {%- assign repo_url = 'https://github.com/' | append: r.repo -%}
+      <li class="post-item compact repo-item" data-repo="{{ r.repo }}">
+        <a class="post-image" href="{{ repo_url }}" target="_blank" rel="noopener" aria-label="{{ r.repo }}">
+          <div data-og="https://opengraph.githubassets.com/{{ og_version }}/{{ r.repo }}">
+            <span class="repo-fallback"><i class="fa fa-github"></i> <span>{{ repo_parts[0] }}/<b>{{ repo_parts[1] }}</b></span></span>
+          </div>
+        </a>
+        <div class="post-body">
+          <h2 class="post-title">
+            <a class="post-link" href="{{ repo_url }}" target="_blank" rel="noopener">{{ repo_parts[1] }}</a>
+          </h2>
+          <a class="post-text" href="{{ repo_url }}" target="_blank" rel="noopener">
+            <p data-repo-desc>{{ r.description | escape }}</p>
+          </a>
+          <div class="post-meta">
+            <span><i class="fa fa-github"></i> {{ repo_parts[0] }}</span>
+            <span class="left-vsplit" data-repo-lang style="display: none"><i class="fa fa-code"></i> <span></span></span>
+            <span class="left-vsplit" data-repo-stars style="display: none"><i class="fa fa-star-o"></i> <span></span></span>
+          </div>
+          {%- if r.tags.size > 0 -%}
+          <div class="post-tags">
+            {%- for tag in r.tags -%}<span class="post-tag">#{{ tag }}</span>{%- endfor -%}
+          </div>
+          {%- endif -%}
+        </div>
+      </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+{%- endif -%}
 
-<h2>🔶 Activities</h2>
-<ul>
-  <li>🔸 'TS 보안 허점을 찾아라!', 한국도로공단, 2025</li>
-  <li>🔸 '차세대보안리더양성프로그램 Best of Best 11기', KITRI, 2022.03 ~ 2023.03</li>
-</ul>
+<section class="about-section" id="experience">
+  <div class="about-section-head"><h2>Experience</h2></div>
+  <ol class="about-timeline">
+    <li class="about-entry">
+      <div class="about-when">Feb. 2026 – Present</div>
+      <div class="about-what">
+        <h3>Undergraduate Research Intern</h3>
+        <p class="about-where"><span>AiRLab, Korea University</span><span>Seoul, South Korea</span></p>
+        <ul>
+          <li>Implemented fuzzing techniques in the lab’s Cyber Reasoning System (CRS), adapting designs from top AIxCC finalists (Team Atlanta, Trail of Bits’ Buttercup, FuzzingBrain)</li>
+          <li>Wrote 10+ PoC exploits for MCP (Model Context Protocol) tool poisoning and command injection in a lab pentesting project</li>
+        </ul>
+      </div>
+    </li>
+    <li class="about-entry">
+      <div class="about-when">Jul. 2022 – Feb. 2023</div>
+      <div class="about-what">
+        <h3>Trainee, Digital Forensics Track</h3>
+        <p class="about-where"><span>Best of the Best (BoB), KITRI</span><span>Seoul, South Korea</span></p>
+        <ul>
+          <li>Selected from about 1,500 applicants for the Digital Forensics track of BoB, a Korean security talent program</li>
+        </ul>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section class="about-section" id="projects">
+  <div class="about-section-head"><h2>Projects</h2></div>
+  <ol class="about-timeline">
+    <li class="about-entry">
+      <div class="about-when">Oct. 2026 – Present</div>
+      <div class="about-what">
+        <h3>Automated Vulnerability Detection for AI Orchestrators</h3>
+        <p class="about-where"><span>Python</span><span>LLM Agents</span></p>
+        <ul>
+          <li>Reproduced public PoCs for vulnerabilities in AI orchestrators (e.g., Langflow, Dify), including unsandboxed code execution and authentication bypass (CVE-2025-3248, CVE-2026-33017), confirming exploitation end to end</li>
+          <li>Building an LLM-based agentic tool that automates the full flow, from vulnerability localization to PoC generation</li>
+        </ul>
+      </div>
+    </li>
+    <li class="about-entry">
+      <div class="about-when">Feb. 2026 – Jun. 2026</div>
+      <div class="about-what">
+        <h3><a href="{{ '/directory/dnn-model-stealing-via-side-channel-dlsca/' | relative_url }}">SoK: DNN Model Stealing via Side-Channel Attacks</a></h3>
+        <p class="about-where"><span>Capstone</span></p>
+        <ul>
+          <li>Surveyed 20+ papers on hardware-based ML model extraction and classified them along 5 dimensions (leakage source, stolen target, threat model, target hardware, recovery fidelity)</li>
+          <li>Validated key attacks (e.g., Cache Telepathy, GANRED, BitShield); recognized by the faculty advisor for depth in a systematic yet narrow field</li>
+        </ul>
+      </div>
+    </li>
+    <li class="about-entry">
+      <div class="about-when">Jul. 2022 – Feb. 2023</div>
+      <div class="about-what">
+        <h3>Forensic Triage Tool for Data Exfiltration via Portable Devices <span class="about-tag is-green">Outstanding project</span></h3>
+        <p class="about-where"><span>Python</span><span>C++</span><span>BoB</span></p>
+        <ul>
+          <li>Led the tool design and researched Windows 10 artifacts left by portable devices (e.g., USB), verifying through experiments how exfiltration traces are recorded</li>
+          <li>Developed artifact parsers and the backend, and delivered the project presentations</li>
+          <li>Selected as an outstanding project in the BoB program</li>
+        </ul>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section class="about-section" id="education">
+  <div class="about-section-head"><h2>Education</h2></div>
+  <ol class="about-timeline">
+    <li class="about-entry">
+      <div class="about-when">Expected Feb. 2028</div>
+      <div class="about-what">
+        <h3>Korea University</h3>
+        <p class="about-where"><span>B.S. in Cyber Defense</span><span>Seoul, South Korea</span></p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section class="about-section" id="teaching">
+  <div class="about-section-head"><h2>Teaching</h2></div>
+  <ol class="about-timeline">
+    <li class="about-entry">
+      <div class="about-when">Jan. 2024 – Aug. 2024</div>
+      <div class="about-what">
+        <h3>Coding Instructor</h3>
+        <p class="about-where"><span>Gangnam International School</span><span>Seoul, South Korea</span></p>
+        <ul>
+          <li>Taught C and Java in English to 20+ Grade 10–12 students at a U.S.-accredited (WASC) K–12 international school</li>
+        </ul>
+      </div>
+    </li>
+    <li class="about-entry">
+      <div class="about-when">Jan. 2023 – Aug. 2023</div>
+      <div class="about-what">
+        <h3>Freelance Programming Tutor</h3>
+        <p class="about-where"><span>Private Tutoring</span><span>Seoul, South Korea</span></p>
+        <ul>
+          <li>Taught a humanities graduate student to analyze a Korean text corpus (NIKL Modu Corpus) using KoBERT, a Korean BERT model (Python, KoNLPy, pandas)</li>
+        </ul>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section class="about-section" id="activities">
+  <div class="about-section-head"><h2>Competitions &amp; Talks</h2></div>
+  <ol class="about-timeline">
+    <li class="about-entry">
+      <div class="about-when">2025</div>
+      <div class="about-what">
+        <h3>CykorCTF 2025 — 20th place</h3>
+        <p class="about-where"><span>Team '인력거'</span></p>
+      </div>
+    </li>
+    <li class="about-entry">
+      <div class="about-when">2025</div>
+      <div class="about-what">
+        <h3>'TS 보안 허점을 찾아라!'</h3>
+        <p class="about-where"><span>한국도로공단</span></p>
+      </div>
+    </li>
+    <li class="about-entry">
+      <div class="about-when"></div>
+      <div class="about-what">
+        <h3>‘아무것도 몰라도 버티는법, 배우는법, 질문하는법’</h3>
+        <p class="about-where"><span>KITRI 정보보안 컨퍼런스 BISC</span><span>Junior session</span></p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section class="about-section" id="skills">
+  <div class="about-section-head"><h2>Skills</h2></div>
+  <dl class="about-skills">
+    <dt>Languages</dt>
+    <dd>
+      <span class="about-chip">Python</span><span class="about-chip">C/C++</span><span class="about-chip">Java</span><span class="about-chip">Rust</span>
+    </dd>
+    <dt>Security &amp; AI</dt>
+    <dd>
+      <span class="about-chip">Binary exploitation</span><span class="about-chip">Linux kernel internals</span><span class="about-chip">Side-channel analysis (CPA)</span><span class="about-chip">Fuzzing</span><span class="about-chip">ML model extraction</span><span class="about-chip">LLM / prompt-injection security</span><span class="about-chip">Digital forensics</span><span class="about-chip">Vulnerability research (PoC, CVE)</span>
+    </dd>
+    <dt>Tools</dt>
+    <dd>
+      <span class="about-chip">Git</span><span class="about-chip">Linux</span><span class="about-chip">Docker</span><span class="about-chip">NumPy</span><span class="about-chip">pandas</span>
+    </dd>
+    <dt>Spoken</dt>
+    <dd>
+      <span class="about-chip">Korean (native)</span><span class="about-chip">English (CEFR B2)</span>
+    </dd>
+  </dl>
+</section>
+
+{%- assign featured = "" | split: "" -%}
+{%- for url in page.featured_posts -%}
+  {%- assign hit = site.posts | where: "url", url | first -%}
+  {%- if hit -%}{%- assign featured = featured | push: hit -%}{%- endif -%}
+{%- endfor -%}
+{%- if featured.size > 0 -%}
+<section class="about-section" id="featured">
+  <div class="about-section-head"><h2>Featured Posts</h2><span class="about-count">{{ featured.size }}</span></div>
+  <div class="pagination">
+    <ul class="post-list">
+      {%- for post in featured -%}
+        {%- assign post_item_class = "compact" -%}
+        {%- if post.layout == 'directory' -%}
+          {%- include views/directory-card.html -%}
+        {%- else -%}
+          {%- include views/pagination-item.html -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+{%- endif -%}
+
+<script>
+  // Repo cards: GitHub's preview image replaces the name placeholder once it
+  // loads (it stays if GitHub is unreachable), and language / stars / a
+  // missing description are filled in from the public GitHub API.
+  (function () {
+    var cards = document.querySelectorAll('.repo-item[data-repo]');
+    Array.prototype.forEach.call(cards, function (card) {
+      var box = card.querySelector('[data-og]');
+      if (box) {
+        var img = new Image();
+        img.onload = function () {
+          box.style.backgroundImage = 'url("' + img.src + '")';
+          card.classList.add('has-preview');
+        };
+        img.src = box.getAttribute('data-og');
+      }
+
+      if (!window.fetch) return;
+      fetch('https://api.github.com/repos/' + card.getAttribute('data-repo'))
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (!d) return;
+          var desc = card.querySelector('[data-repo-desc]');
+          if (desc && !desc.textContent.trim() && d.description) desc.textContent = d.description;
+          function fill(sel, value) {
+            var el = card.querySelector(sel);
+            if (!el || value === null || value === undefined || value === '') return;
+            el.querySelector('span').textContent = value;
+            el.style.display = '';
+          }
+          fill('[data-repo-lang]', d.language);
+          fill('[data-repo-stars]', d.stargazers_count);
+        })
+        .catch(function () {});
+    });
+  })();
+</script>
