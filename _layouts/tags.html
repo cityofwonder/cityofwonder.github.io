@@ -12,11 +12,6 @@ sidebar: tag-list
   <!-- Tag Graph Visualization -->
   <div class="page-card">
     <div class="page-card-header">
-      <div class="card-buttons">
-        <span class="card-btn btn-close"></span>
-        <span class="card-btn btn-minimize"></span>
-        <span class="card-btn btn-maximize"></span>
-      </div>
       <div class="card-title">Tag Relations</div>
     </div>
     <div class="graph-content">
@@ -47,11 +42,6 @@ sidebar: tag-list
   <!-- Tags Post List -->
   <div class="page-card">
     <div class="page-card-header">
-      <div class="card-buttons">
-        <span class="card-btn btn-close"></span>
-        <span class="card-btn btn-minimize"></span>
-        <span class="card-btn btn-maximize"></span>
-      </div>
       <div class="card-title">All Posts</div>
       <div class="card-count">{{ site.posts.size }}</div>
     </div>
@@ -87,475 +77,7 @@ sidebar: tag-list
 
 {%- endif -%}
 
-<style>
-  /* ===== Unified Page Card Style ===== */
-  .page-card {
-    background: #fff;
-    border-radius: 8px;
-    border: 1px solid #e5e5e5;
-    margin-bottom: 24px;
-    overflow: hidden;
-  }
-
-  .page-card-header {
-    background: linear-gradient(180deg, #fafafa 0%, #f0f0f0 100%);
-    padding: 8px 14px;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #e5e5e5;
-  }
-
-  .card-buttons {
-    display: flex;
-    gap: 6px;
-  }
-
-  .card-btn {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
-  .btn-close { background: #ff5f57; }
-  .btn-minimize { background: #febc2e; }
-  .btn-maximize { background: #28c840; }
-
-  .card-title {
-    flex: 1;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 500;
-    color: #666;
-  }
-
-  .card-count {
-    font-size: 11px;
-    color: #999;
-    background: #eee;
-    padding: 2px 8px;
-    border-radius: 10px;
-  }
-
-  /* ===== Graph Content ===== */
-  .graph-content {
-    position: relative;
-    background: #fafafa;
-  }
-
-  #tag-graph {
-    width: 100%;
-    height: 350px;
-    display: block;
-    /* One finger scrolls the page; panning the graph takes two (or a mouse
-       drag). Without this the graph swallowed every touch and the page could
-       not be scrolled past it on a phone. */
-    touch-action: pan-y;
-    cursor: grab;
-  }
-
-  #tag-graph:active {
-    cursor: grabbing;
-  }
-
-  /* Zoom controls: the graph is laid out on a fixed virtual canvas and scaled
-     to fit, so on a narrow screen everything shrinks. These make zooming
-     discoverable without relying on a gesture. */
-  .graph-controls {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    z-index: 2;
-  }
-
-  .graph-btn {
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    font-size: 15px;
-    line-height: 1;
-    color: #555;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
-  }
-
-  .graph-btn:hover {
-    background: #fff;
-    color: #222;
-  }
-
-  html[data-theme="dark"] .graph-btn {
-    color: #bbb;
-    background: rgba(40, 40, 40, 0.92);
-    border-color: #444;
-  }
-
-  html[data-theme="dark"] .graph-btn:hover {
-    background: #333;
-    color: #fff;
-  }
-
-  .graph-link {
-    stroke: #999;
-    stroke-opacity: 0.3;
-    fill: none;
-    transition: stroke-opacity 0.2s ease;
-  }
-
-  .graph-link.highlighted {
-    stroke: #555;
-    stroke-opacity: 0.7;
-  }
-
-  .graph-link.dimmed {
-    stroke-opacity: 0.1;
-  }
-
-  .graph-node {
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .graph-node circle {
-    fill: #888;
-    stroke: #fff;
-    stroke-width: 2px;
-    transition: all 0.2s ease;
-  }
-
-  .graph-node:hover circle {
-    fill: #555;
-  }
-
-  .graph-node.dimmed circle {
-    fill: #ccc;
-    opacity: 0.5;
-  }
-
-  .graph-node.highlighted circle {
-    fill: #333;
-  }
-
-  .node-label {
-    font-size: 10px;
-    font-weight: 500;
-    fill: #555;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    text-anchor: middle;
-  }
-
-  .graph-node:hover .node-label,
-  .graph-node.highlighted .node-label {
-    opacity: 1;
-  }
-
-  .tag-tooltip {
-    position: absolute;
-    padding: 8px 12px;
-    background: #fff;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-    font-size: 12px;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    z-index: 100;
-    border: 1px solid #e5e5e5;
-  }
-
-  .tag-tooltip.visible {
-    opacity: 1;
-  }
-
-  .tag-tooltip .tag-name {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 2px;
-  }
-
-  .tag-tooltip .tag-count {
-    color: #888;
-    font-size: 11px;
-  }
-
-  /* ===== Filter Bar ===== */
-  .filter-bar {
-    padding: 12px 14px;
-    background: #fafafa;
-    border-bottom: 1px solid #e5e5e5;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .filter-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 14px;
-    font-size: 11px;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .filter-pill:hover {
-    border-color: #999;
-    color: #333;
-  }
-
-  .filter-pill.active {
-    background: #555;
-    border-color: #555;
-    color: #fff;
-  }
-
-  .filter-pill .pill-count {
-    font-size: 10px;
-    opacity: 0.7;
-  }
-
-  .filter-pill.active .pill-count {
-    opacity: 0.8;
-  }
-
-  /* ===== Card Content ===== */
-  .card-content {
-    padding: 14px;
-    background: #fff;
-    max-height: 500px;
-    overflow-y: auto;
-  }
-
-  .posts-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .post-item {
-    transition: all 0.15s ease;
-  }
-
-  .post-item.hidden {
-    display: none;
-  }
-
-  .post-link {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    background: #fafafa;
-    border-radius: 6px;
-    text-decoration: none;
-    transition: all 0.15s ease;
-  }
-
-  .post-link:hover {
-    background: #f0f0f0;
-    transform: translateX(3px);
-  }
-
-  .post-date {
-    font-size: 11px;
-    font-weight: 500;
-    color: #888;
-    flex-shrink: 0;
-  }
-
-  .post-title {
-    font-size: 12px;
-    color: #333;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .post-link:hover .post-title {
-    color: #111;
-  }
-
-  /* ===== Scrollbar ===== */
-  .card-content::-webkit-scrollbar,
-  .filter-bar::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  .card-content::-webkit-scrollbar-track,
-  .filter-bar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .card-content::-webkit-scrollbar-thumb,
-  .filter-bar::-webkit-scrollbar-thumb {
-    background: #ddd;
-    border-radius: 2px;
-  }
-
-  /* ===== Dark Theme ===== */
-  html[data-theme="dark"] .page-card {
-    background: #1e1e1e;
-    border-color: #333;
-  }
-
-  html[data-theme="dark"] .page-card-header {
-    background: linear-gradient(180deg, #2a2a2a 0%, #222 100%);
-    border-bottom-color: #333;
-  }
-
-  html[data-theme="dark"] .card-title {
-    color: #aaa;
-  }
-
-  html[data-theme="dark"] .card-count {
-    background: #333;
-    color: #888;
-  }
-
-  html[data-theme="dark"] .graph-content {
-    background: #1a1a1a;
-  }
-
-  html[data-theme="dark"] .graph-link {
-    stroke: #666;
-  }
-
-  html[data-theme="dark"] .graph-link.highlighted {
-    stroke: #999;
-  }
-
-  html[data-theme="dark"] .graph-node circle {
-    fill: #777;
-    stroke: #1e1e1e;
-  }
-
-  html[data-theme="dark"] .graph-node:hover circle {
-    fill: #aaa;
-  }
-
-  html[data-theme="dark"] .graph-node.highlighted circle {
-    fill: #ccc;
-  }
-
-  html[data-theme="dark"] .node-label {
-    fill: #ccc;
-  }
-
-  html[data-theme="dark"] .tag-tooltip {
-    background: #2a2a2a;
-    border-color: #444;
-  }
-
-  html[data-theme="dark"] .tag-tooltip .tag-name {
-    color: #ddd;
-  }
-
-  html[data-theme="dark"] .tag-tooltip .tag-count {
-    color: #888;
-  }
-
-  html[data-theme="dark"] .filter-bar {
-    background: #1a1a1a;
-    border-bottom-color: #333;
-  }
-
-  html[data-theme="dark"] .filter-pill {
-    background: #2a2a2a;
-    border-color: #444;
-    color: #aaa;
-  }
-
-  html[data-theme="dark"] .filter-pill:hover {
-    border-color: #666;
-    color: #ddd;
-  }
-
-  html[data-theme="dark"] .filter-pill.active {
-    background: #555;
-    border-color: #555;
-    color: #fff;
-  }
-
-  html[data-theme="dark"] .card-content {
-    background: #1e1e1e;
-  }
-
-  html[data-theme="dark"] .post-link {
-    background: #252525;
-  }
-
-  html[data-theme="dark"] .post-link:hover {
-    background: #2a2a2a;
-  }
-
-  html[data-theme="dark"] .post-date {
-    color: #777;
-  }
-
-  html[data-theme="dark"] .post-title {
-    color: #ccc;
-  }
-
-  html[data-theme="dark"] .post-link:hover .post-title {
-    color: #fff;
-  }
-
-  html[data-theme="dark"] .card-content::-webkit-scrollbar-thumb {
-    background: #444;
-  }
-
-  /* ===== Mobile ===== */
-  @media (max-width: 768px) {
-    .page-card {
-      margin-bottom: 16px;
-    }
-
-    #tag-graph {
-      height: 340px;
-    }
-
-    .graph-btn {
-      width: 32px;
-      height: 32px;
-      font-size: 16px;
-    }
-
-    .filter-bar {
-      padding: 10px 12px;
-    }
-
-    .card-content {
-      padding: 10px;
-      max-height: 400px;
-    }
-
-    .posts-grid {
-      grid-template-columns: 1fr;
-      gap: 6px;
-    }
-
-    .post-link {
-      padding: 6px 8px;
-    }
-
-    .post-title {
-      font-size: 11px;
-    }
-  }
-</style>
+{%- comment -%} Styles: _sass/misc/page-card.scss (shared with the other index pages) {%- endcomment -%}
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
@@ -661,12 +183,15 @@ sidebar: tag-list
     // Everything the zoom moves lives in here.
     const viewport = svg.append('g').attr('class', 'graph-viewport');
 
+    // Created stopped: the layout is settled up front (see the bottom of this
+    // script) and the simulation only runs live while a node is dragged.
     const simulation = d3.forceSimulation(nodes)
       .force('link', d3.forceLink(links).id(d => d.id).distance(60).strength(0.5))
       .force('charge', d3.forceManyBody().strength(-80))
       .force('x', d3.forceX(width / 2).strength(0.15))
       .force('y', d3.forceY(height / 2).strength(0.15))
-      .force('collision', d3.forceCollide().radius(d => d.radius + 8).strength(0.9));
+      .force('collision', d3.forceCollide().radius(d => d.radius + 8).strength(0.9))
+      .stop();
 
     const link = viewport.append('g').selectAll('line')
       .data(links).join('line').attr('class', 'graph-link')
@@ -711,14 +236,23 @@ sidebar: tag-list
       filterByTag(d.id);
     });
 
-    simulation.on('tick', () => {
+    // Keep every node inside the virtual canvas.
+    function clampToCanvas() {
       nodes.forEach(d => {
         d.x = Math.max(d.radius + 5, Math.min(width - d.radius - 5, d.x));
         d.y = Math.max(d.radius + 5, Math.min(height - d.radius - 5, d.y));
       });
+    }
+
+    function render() {
       link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
           .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
       node.attr('transform', d => `translate(${d.x},${d.y})`);
+    }
+
+    simulation.on('tick', () => {
+      clampToCanvas();
+      render();
     });
 
     function dragstarted(event, d) {
@@ -763,10 +297,27 @@ sidebar: tag-list
         .translate(width / 2, height / 2)
         .scale(scale)
         .translate(-(minX + maxX) / 2, -(minY + maxY) / 2);
-      svg.transition().duration(duration || 0).call(zoom.transform, transform);
+      // A zero-length transition still waits for the next timer frame, so the
+      // unfitted drawing would flash first; apply an instant fit directly.
+      if (duration) svg.transition().duration(duration).call(zoom.transform, transform);
+      else svg.call(zoom.transform, transform);
     }
 
-    simulation.on('end', () => fitToContent(0));
+    // Settle the layout before the first paint, then frame it once. The graph
+    // used to animate into place and then snap to the fitted zoom when the
+    // simulation ended -- and again after every drag, since each drag ends
+    // with the simulation cooling down. Now the first frame is the finished,
+    // framed picture, and only the reset button re-frames it.
+    // (simulation.tick() fires no 'tick' event, hence the explicit clamp.)
+    const settleTicks = Math.ceil(
+      Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())
+    );
+    for (let i = 0; i < settleTicks; i++) {
+      simulation.tick();
+      clampToCanvas();
+    }
+    render();
+    fitToContent(0);
 
     document.querySelectorAll('.graph-btn').forEach(btn => {
       btn.addEventListener('click', () => {

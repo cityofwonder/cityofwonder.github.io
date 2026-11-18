@@ -1,0 +1,475 @@
+/**
+ * Page cards -- the panels on the tags, archives and categories pages.
+ *
+ * Built like a directory board column (misc/directory.scss): a paper
+ * surface panel with a plain heading and a count pill, holding white tiles /
+ * a white inner card. No window chrome. Colours and radii come from
+ * misc/tokens.scss, so there are no dark-mode overrides here.
+ *
+ * Everything is scoped under .page-card: the class names inside (.post-link,
+ * .post-title, .post-item) are also used by the home feed and post pages.
+ */
+.page-card {
+  margin: 20px 0 32px;
+  padding: 12px;
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+
+  & ~ & { margin-top: 0; }
+}
+
+/* Heading: title on the left, count / actions on the right */
+.page-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 4px 12px;
+}
+
+.page-card .card-title {
+  flex: 1;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: left;
+  color: var(--c-ink);
+}
+
+.page-card .card-count {
+  flex: none;
+  padding: 1px 9px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-muted);
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+}
+
+.page-card .card-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.page-card .card-action-btn {
+  padding: 4px;
+  border: none;
+  border-radius: var(--r-sm);
+  color: var(--c-muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    color: var(--c-ink);
+    background: var(--c-hover);
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Filter pills (tags, archives): chips on the surface, the active one inked
+ * like the directory chip
+ * ------------------------------------------------------------------------- */
+.page-card .filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 4px 12px;
+}
+
+.page-card .filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  color: var(--c-muted);
+  background: var(--c-card);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: var(--c-ink);
+    border-color: var(--c-line-strong);
+  }
+
+  &.active {
+    color: var(--c-surface);
+    background: var(--c-ink);
+    border-color: var(--c-ink);
+  }
+
+  .pill-count {
+    font-size: 10px;
+    opacity: 0.7;
+  }
+
+  &.active .pill-count { opacity: 0.8; }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Post tiles (tags, archives): white tiles on the surface, two per row
+ * ------------------------------------------------------------------------- */
+.page-card .card-content {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* minmax(0, ...) and min-width: 0: a nowrap title's full width would
+   otherwise become the column's minimum and push column 2 off the card */
+.page-card .posts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.page-card .post-item {
+  min-width: 0;
+  transition: all 0.15s ease;
+
+  &.hidden { display: none; }
+}
+
+.page-card .post-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  background: var(--c-card);
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    text-decoration: none;
+    border-color: var(--c-line-strong);
+  }
+}
+
+.page-card .post-date {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-muted);
+}
+
+.page-card .post-title {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--c-text);
+}
+
+.page-card .post-link:hover .post-title { color: var(--c-ink); }
+
+
+/* ---------------------------------------------------------------------------
+ * Tag graph (tags): the drawing sits in a white inner card
+ * ------------------------------------------------------------------------- */
+.page-card .graph-content {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-card);
+}
+
+#tag-graph {
+  display: block;
+  width: 100%;
+  height: 350px;
+  /* One finger scrolls the page; panning the graph takes two (or a mouse
+     drag). Without this the graph swallowed every touch and the page could
+     not be scrolled past it on a phone. */
+  touch-action: pan-y;
+  cursor: grab;
+
+  &:active { cursor: grabbing; }
+}
+
+/* Zoom controls: the graph is laid out on a fixed virtual canvas and scaled
+   to fit, so on a narrow screen everything shrinks. These make zooming
+   discoverable without relying on a gesture. */
+.page-card .graph-controls {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.page-card .graph-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--c-text);
+  background: var(--c-card);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    color: var(--c-ink);
+    background: var(--c-surface);
+  }
+}
+
+.graph-link {
+  fill: none;
+  stroke: var(--c-muted);
+  stroke-opacity: 0.3;
+  transition: stroke-opacity 0.2s ease;
+
+  &.highlighted {
+    stroke: var(--c-text);
+    stroke-opacity: 0.7;
+  }
+
+  &.dimmed { stroke-opacity: 0.1; }
+}
+
+.graph-node {
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  circle {
+    fill: var(--c-muted);
+    stroke: var(--c-card);
+    stroke-width: 2px;
+    transition: all 0.2s ease;
+  }
+
+  &:hover circle { fill: var(--c-text); }
+
+  &.dimmed circle {
+    fill: var(--c-line-strong);
+    opacity: 0.5;
+  }
+
+  &.highlighted circle { fill: var(--c-ink); }
+}
+
+.node-label {
+  font-size: 10px;
+  font-weight: 500;
+  fill: var(--c-text);
+  text-anchor: middle;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.graph-node:hover .node-label,
+.graph-node.highlighted .node-label {
+  opacity: 1;
+}
+
+.tag-tooltip {
+  position: absolute;
+  z-index: 100;
+  padding: 8px 12px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  background: var(--c-card);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  &.visible { opacity: 1; }
+
+  .tag-name {
+    margin-bottom: 2px;
+    font-weight: 600;
+    color: var(--c-ink);
+  }
+
+  .tag-count {
+    font-size: 11px;
+    color: var(--c-muted);
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Category tree (categories): a white inner card with a file tree
+ * ------------------------------------------------------------------------- */
+.page-card .tree-content {
+  max-height: 550px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+.category-tree {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--c-text);
+}
+
+.tree-folder { margin-bottom: 2px; }
+
+.tree-folder-header {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: var(--r-xs);
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover { background: var(--c-hover); }
+}
+
+.tree-chevron {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+  color: var(--c-muted);
+  transition: transform 0.15s;
+}
+
+.tree-folder.expanded > .tree-folder-header .tree-chevron {
+  transform: rotate(90deg);
+}
+
+.tree-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+
+  &.folder,
+  &.folder-open { color: var(--k-yellow); }
+  &.file { color: var(--c-muted); }
+}
+
+.tree-label {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--c-text);
+}
+
+.tree-count {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  font-size: 10px;
+  color: var(--c-muted);
+  background: var(--c-surface);
+}
+
+.tree-children {
+  display: none;
+  margin-left: 18px;
+  padding-left: 8px;
+  border-left: 1px solid var(--c-line);
+}
+
+.tree-folder.expanded > .tree-children { display: block; }
+
+.tree-file {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1px;
+  padding: 3px 8px;
+  border-radius: var(--r-xs);
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--c-hover);
+    transform: translateX(2px);
+  }
+
+  a {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 11px;
+    color: var(--c-text);
+    text-decoration: none;
+  }
+
+  a:hover { color: var(--c-ink); }
+}
+
+.tree-file-date {
+  flex-shrink: 0;
+  margin-left: 8px;
+  font-size: 10px;
+  color: var(--c-muted);
+}
+
+.show-more-container { padding: 2px 8px; }
+
+.show-more-btn {
+  width: 100%;
+  padding: 3px 10px;
+  border: 1px dashed var(--c-line-strong);
+  border-radius: var(--r-xs);
+  font-size: 10px;
+  color: var(--c-muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    color: var(--c-ink);
+    background: var(--c-hover);
+  }
+}
+
+.hidden-files { display: none; }
+.hidden-files.visible { display: block; }
+
+
+/* ---------------------------------------------------------------------------
+ * Small screens
+ * ------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .page-card {
+    margin: 10px 0 20px;
+    padding: 10px;
+  }
+
+  #tag-graph { height: 340px; }
+
+  .page-card .graph-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .page-card .card-content { max-height: 400px; }
+
+  .page-card .posts-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .page-card .post-link { padding: 6px 8px; }
+
+  .page-card .post-title { font-size: 11px; }
+}
