@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "dh-flip-and-probe"
+title: "[pwn-wargame] dh-flip-and-probe"
 subtitle: "fast bin  dup"
 categories: ["📂/"]
 tags: ["pwn"]
 notion: true
 notion_id: "3fbbb540-e5fe-807c-a475-e1b34d27209f"
-notion_synced: "2026-10-17T03:50:00.000Z"
+notion_synced: "2026-11-18T14:15:00.000Z"
 banner:
   image: ""
   opacity: 0.5

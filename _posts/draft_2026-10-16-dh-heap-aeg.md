@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "dh-heap-aeg"
+title: "[pwn-wargame] dh-heap-aeg"
 subtitle: "tcache poisoning, exploit code 및 flag 미포함"
 categories: ["📂/wargame/pwn/"]
 tags: ["pwn", "tcache poisoning", "AAR"]
 notion: true
 notion_id: "3fbbb540-e5fe-80bd-8f62-fe75be6b76e8"
-notion_synced: "2026-10-16T19:49:00.000Z"
+notion_synced: "2026-11-18T14:15:00.000Z"
 banner:
   image: ""
   opacity: 0.5
