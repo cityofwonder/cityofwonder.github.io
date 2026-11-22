@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "[paper #67] TokenPrint: A Calibrated Token-Space Fingerprint for Language-Model Provenance"
+title: "[paper] TokenPrint: A Calibrated Token-Space Fingerprint for Language-Model Provenance"
 subtitle: "Yuqi Wu 등. Arxiv2026"
-categories: ["📂/paper-review/fingerprint/"]
+categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-814e-ae82-c117a5b38064"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:34:00.000Z"
 banner:
-  image: "/assets/images/2026-10-11/paper-54-tokenprint-a-calibrated-token-space-fingerprint-for-language-model-provenance-banner.png"
+  image: "/assets/images/2026-10-11/paper-tokenprint-a-calibrated-token-space-fingerprint-for-language-model-provenance-banner.png"
   opacity: 0.5
   background: "rgba(0, 0, 0, 0.7)"
 ---

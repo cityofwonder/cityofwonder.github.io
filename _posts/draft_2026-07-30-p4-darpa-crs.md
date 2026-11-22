@@ -1,13 +1,13 @@
 ---
 layout: post
-title: "[paper #28] SoK: DARPA's AI Cyber Challenge (AIxCC): Competition Design, Architectures, and Lessons Learned"
+title: "[paper] SoK: DARPA's AI Cyber Challenge (AIxCC): Competition Design, Architectures, and Lessons Learned"
 subtitle: "Cen Zhang 등. USENIX2026"
 categories: ["📂/paper-review/AI-for-Sec/CRS/"]
 tags: ["paper review", "USENIX2026", "AI for Sec", "careers", "CRS", "SoK", "paper reference"]
 status: "진행 중"
 notion: true
 notion_id: "3c8bb540-e5fe-80a4-8192-c52ff716dfb4"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:14:00.000Z"
 banner:
   image: "/assets/images/2026-07-30/p4-darpa-crs-banner.png"
   opacity: 0.5

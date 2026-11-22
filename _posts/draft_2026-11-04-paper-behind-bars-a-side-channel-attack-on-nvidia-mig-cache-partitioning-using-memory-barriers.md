@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #78] Behind Bars: A Side-Channel Attack on NVIDIA MIG Cache Partitioning Using Memory Barriers"
+title: "[paper] Behind Bars: A Side-Channel Attack on NVIDIA MIG Cache Partitioning Using Memory Barriers"
 subtitle: "Cheng Gu 등. USENIX2026"
-categories: ["📂/paper-review/HW/SCA/"]
+categories: ["📂/paper-review/DLSCA/C. GPU microarchitectural/"]
 tags: ["paper review", "AISEC", "DLSCA", "USENIX2026"]
 notion: true
 notion_id: "41cbb540-e5fe-81ea-9578-de36c233acd3"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5

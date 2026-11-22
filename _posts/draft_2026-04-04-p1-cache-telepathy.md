@@ -1,13 +1,13 @@
 ---
 layout: post
-title: "[paper #13] Cache Telepathy: Leveraging Shared Resource Attacks to Learn DNN Architectures"
+title: "[paper] Cache Telepathy: Leveraging Shared Resource Attacks to Learn DNN Architectures"
 subtitle: "Mengjia Yan 등. USENIX2020"
-categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
+categories: ["📂/paper-review/DLSCA/A. CPU cache·timing·TEE/"]
 tags: ["paper review", "USENIX2020", "AISEC", "DLSCA"]
 status: "커밋완료"
 notion: true
 notion_id: "3c8bb540-e5fe-8046-ba9e-f2affe8cb867"
-notion_synced: "2026-11-18T11:47:00.000Z"
+notion_synced: "2026-11-22T04:06:00.000Z"
 banner:
   image: "/assets/images/2026-04-04/p1-cache-telepathy-banner.png"
   opacity: 0.5

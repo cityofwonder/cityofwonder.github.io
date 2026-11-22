@@ -7,7 +7,7 @@ tags: ["pwn", "__free_hook", "overwriting"]
 status: "진행 중"
 notion: true
 notion_id: "3f1bb540-e5fe-807a-84f0-c83609e56001"
-notion_synced: "2026-11-18T14:15:00.000Z"
+notion_synced: "2026-11-22T04:14:00.000Z"
 banner:
   image: "/assets/images/2026-10-08/dh-uniqdb-banner.png"
   opacity: 0.5
@@ -385,14 +385,14 @@ print("final caught=", caught is not None)
 
   1. --cap-add=SYS_PTRACE
   1. 디버거가 프로세스 메모리를 들여다봐야함 : ptrace 권한
-    1. --security-opt seccomp=unconfined
+     1. --security-opt seccomp=unconfined
   1. 디버그 통신이 컨테이너 밖으로 나와야 함 : 포트 노출
-    1. -p 1234:1234
-      1. gdbserver(빌드 시점엔 없지만)가 컨테이너 안에서 1234 포트를 연다고 가정
-      1. pwndbg는 컨테이너 밖에 있으므로 target remote localhost:1234가 가능하게끔
+     1. -p 1234:1234
+        1. gdbserver(빌드 시점엔 없지만)가 컨테이너 안에서 1234 포트를 연다고 가정
+        1. pwndbg는 컨테이너 밖에 있으므로 target remote localhost:1234가 가능하게끔
   1. 서비스 자체도 돌아야 함 : 앱 포트
-    1. -p 8080:8080
-      1. 아래 dockerfile에 expose 8080이고, 해당 포트에서는 app이 돌고 있음. 따라서 HTTP 엔드 포인트를 접하기 위해서 포트를 노출
+     1. -p 8080:8080
+        1. 아래 dockerfile에 expose 8080이고, 해당 포트에서는 app이 돌고 있음. 따라서 HTTP 엔드 포인트를 접하기 위해서 포트를 노출
   1. 편의: 백그라운드 실행, exec / attach 실행을 위해, 이름 uniqdb-dbg → `docker exec -it uniqdb-dbg bash`
 
   ```c

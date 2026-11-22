@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "[paper #51] Real Money, Fake Models: Deceptive Model Claims in Shadow APIs"
+title: "[paper] Real Money, Fake Models: Deceptive Model Claims in Shadow APIs"
 subtitle: "Yage Zhang 등. CCS2026"
-categories: ["📂/paper-review/fingerprint/"]
+categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
 tags: ["paper review", "AISEC", "fingerprint", "CCS2026"]
 notion: true
 notion_id: "41cbb540-e5fe-818a-abbc-dea50d274e02"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
-  image: "/assets/images/2026-09-10/paper-40-real-money-fake-models-deceptive-model-claims-in-shadow-apis-banner.png"
+  image: "/assets/images/2026-09-10/paper-real-money-fake-models-deceptive-model-claims-in-shadow-apis-banner.png"
   opacity: 0.5
   background: "rgba(0, 0, 0, 0.7)"
 ---

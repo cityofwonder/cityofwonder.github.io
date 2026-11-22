@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #4] Attacks on Approximate Caches in Text-to-Image Diffusion Models"
+title: "[paper] Attacks on Approximate Caches in Text-to-Image Diffusion Models"
 subtitle: "Desen Sun 등. USENIX2026"
-categories: ["📂/paper-review/SCA/"]
+categories: ["📂/paper-review/HW-attacks-on-AI/B. LLM·생성모델 입력·출력 유출 (side-channel)/"]
 tags: ["paper review", "AISEC", "USENIX2026"]
 notion: true
 notion_id: "41cbb540-e5fe-811c-9fe2-e3ee4f08acb6"
-notion_synced: "2026-11-18T11:47:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5

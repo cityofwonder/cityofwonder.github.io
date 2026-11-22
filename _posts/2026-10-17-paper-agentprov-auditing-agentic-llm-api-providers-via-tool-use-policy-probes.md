@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "[paper #70] AgentProv: Auditing Agentic LLM API Providers via Tool-use Policy Probes"
+title: "[paper] AgentProv: Auditing Agentic LLM API Providers via Tool-use Policy Probes"
 subtitle: "Xun Wang 등. EMNLP2026"
-categories: ["📂/paper-review/fingerprint/"]
+categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
 tags: ["paper review", "AISEC", "fingerprint", "EMNLP2026"]
 notion: true
 notion_id: "41cbb540-e5fe-8106-adf2-e786fcc13eb6"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
-  image: "/assets/images/2026-10-17/paper-57-agentprov-auditing-agentic-llm-api-providers-via-tool-use-policy-probes-banner.png"
+  image: "/assets/images/2026-10-17/paper-agentprov-auditing-agentic-llm-api-providers-via-tool-use-policy-probes-banner.png"
   opacity: 0.5
   background: "rgba(0, 0, 0, 0.7)"
 ---

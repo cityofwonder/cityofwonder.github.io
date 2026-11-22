@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "[paper #85] Say Shibboleth: Fingerprinting the LLMs and Harnesses Behind Agentic Attacks"
+title: "[paper] Say Shibboleth: Fingerprinting the LLMs and Harnesses Behind Agentic Attacks"
 subtitle: "Dario Pasquini 등. Arxiv2026"
-categories: ["📂/paper-review/fingerprint/"]
+categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-81cc-b201-eeb551bacd9a"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
-  image: "/assets/images/2026-11-17/paper-71-say-shibboleth-fingerprinting-the-llms-and-harnesses-behind-agentic-attacks-banner.png"
+  image: "/assets/images/2026-11-17/paper-say-shibboleth-fingerprinting-the-llms-and-harnesses-behind-agentic-attacks-banner.png"
   opacity: 0.5
   background: "rgba(0, 0, 0, 0.7)"
 ---

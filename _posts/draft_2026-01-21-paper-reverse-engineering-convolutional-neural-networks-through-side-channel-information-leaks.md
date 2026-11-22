@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #3] Reverse Engineering Convolutional Neural Networks Through Side-channel Information Leaks"
+title: "[paper] Reverse Engineering Convolutional Neural Networks Through Side-channel Information Leaks"
 subtitle: "Weizhe Hua 등. DAC2018"
-categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
+categories: ["📂/paper-review/DLSCA/B. Memory·bus·DRAM/"]
 tags: ["paper review", "AISEC", "DLSCA", "DAC2018"]
 notion: true
 notion_id: "41cbb540-e5fe-81a1-af4c-d152a07a9417"
-notion_synced: "2026-11-18T11:47:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5

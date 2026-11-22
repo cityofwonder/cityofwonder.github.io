@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "[paper #74] Beyond QA Matching: Perturbation-Response Fingerprinting via Probability Distributions for Large Language Models"
+title: "[paper] Beyond QA Matching: Perturbation-Response Fingerprinting via Probability Distributions for Large Language Models"
 subtitle: "Jichao Zeng 등. Arxiv2026"
-categories: ["📂/paper-review/fingerprint/"]
+categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-81e0-a5fb-cb512c262e09"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
-  image: "/assets/images/2026-10-26/paper-61-beyond-qa-matching-perturbation-response-fingerprinting-via-probability-distributions-for-large-language-models-banner.png"
+  image: "/assets/images/2026-10-26/paper-beyond-qa-matching-perturbation-response-fingerprinting-via-probability-distributions-for-large-language-models-banner.png"
   opacity: 0.5
   background: "rgba(0, 0, 0, 0.7)"
 ---

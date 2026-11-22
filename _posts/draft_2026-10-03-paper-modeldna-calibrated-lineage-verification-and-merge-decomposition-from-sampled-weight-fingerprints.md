@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #62] modelDNA: Calibrated Lineage Verification and Merge Decomposition from Sampled Weight Fingerprints"
+title: "[paper] modelDNA: Calibrated Lineage Verification and Merge Decomposition from Sampled Weight Fingerprints"
 subtitle: "Muhammad Awais Bin Adil 등. Arxiv2026"
-categories: ["📂/paper-review/fingerprint/"]
+categories: ["📂/paper-review/LLM-lineage/B. 가중치·내부 표현으로 판별 (white-box)/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-81a5-9813-c82b3ddf02b4"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5

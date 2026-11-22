@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #69] CloakLM: Obfuscating GPU Memory Layout to Mitigate Model Ex-filtration for Serving"
+title: "[paper] CloakLM: Obfuscating GPU Memory Layout to Mitigate Model Ex-filtration for Serving"
 subtitle: "Kunal Jain 등. Arxiv2026"
-categories: ["📂/paper-review/ml-stealing/HW/"]
+categories: ["📂/paper-review/DLSCA/F. 방어/"]
 tags: ["paper review", "AISEC", "DLSCA"]
 notion: true
 notion_id: "41cbb540-e5fe-81a1-abc6-f8a6434b3fc3"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5

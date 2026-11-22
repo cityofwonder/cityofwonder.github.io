@@ -1033,7 +1033,7 @@ OFFSET           TYPE              VALUE
 
 GOT 배치 확인 (순서 고정, 베이스만 이동):
 
-```plain text
+```
 +018 free / +020 puts / +028 __stack_chk_fail / +030 system / +038 printf / +040 read / +048 malloc ...
 ```
 

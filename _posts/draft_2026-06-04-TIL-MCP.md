@@ -1,13 +1,13 @@
 ---
 layout: post
-title: "[TIL #01] MCP"
+title: "[TIL] MCP"
 subtitle: ""
 categories: ["📂/magazine/AI/"]
 tags: ["magazine", "TIL"]
 status: "진행 중"
 notion: true
 notion_id: "3ccbb540-e5fe-80ac-93db-e582e11b2a88"
-notion_synced: "2026-10-08T01:49:00.000Z"
+notion_synced: "2026-11-22T04:14:00.000Z"
 banner:
   image: "/assets/images/2026-06-04/TIL-MCP-banner.png"
   opacity: 0.5

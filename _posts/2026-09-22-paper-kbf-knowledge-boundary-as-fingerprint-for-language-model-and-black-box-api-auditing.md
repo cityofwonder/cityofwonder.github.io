@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "[paper #56] KBF: Knowledge Boundary as Fingerprint for Language Model and Black-Box API Auditing"
+title: "[paper] KBF: Knowledge Boundary as Fingerprint for Language Model and Black-Box API Auditing"
 subtitle: "Yijia Fang 등. Arxiv2026"
-categories: ["📂/paper-review/fingerprint/"]
+categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
 tags: ["paper review", "AISEC", "fingerprint"]
 notion: true
 notion_id: "41cbb540-e5fe-816b-8998-dadb45ca38f1"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
-  image: "/assets/images/2026-09-22/paper-45-kbf-knowledge-boundary-as-fingerprint-for-language-model-and-black-box-api-auditing-banner.png"
+  image: "/assets/images/2026-09-22/paper-kbf-knowledge-boundary-as-fingerprint-for-language-model-and-black-box-api-auditing-banner.png"
   opacity: 0.5
   background: "rgba(0, 0, 0, 0.7)"
 ---

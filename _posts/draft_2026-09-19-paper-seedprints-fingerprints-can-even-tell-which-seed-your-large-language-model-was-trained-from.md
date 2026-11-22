@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #55] SeedPrints: Fingerprints Can Even Tell Which Seed Your Large Language Model Was Trained From"
+title: "[paper] SeedPrints: Fingerprints Can Even Tell Which Seed Your Large Language Model Was Trained From"
 subtitle: "Yao Tong 등. ICLR2026"
-categories: ["📂/paper-review/fingerprint/"]
+categories: ["📂/paper-review/LLM-lineage/B. 가중치·내부 표현으로 판별 (white-box)/"]
 tags: ["paper review", "AISEC", "fingerprint", "ICLR2026"]
 notion: true
 notion_id: "41cbb540-e5fe-8118-8b8d-f072c0c58440"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #11] CacheSolidarity: Preventing Prefix Caching Side Channels in Multi-tenant LLM Serving Systems"
+title: "[paper] CacheSolidarity: Preventing Prefix Caching Side Channels in Multi-tenant LLM Serving Systems"
 subtitle: "Panagiotis Georgios Pennas 등. Arxiv2026"
-categories: ["📂/paper-review/SCA/"]
+categories: ["📂/paper-review/HW-attacks-on-AI/C. 방어 (prompt 유출)/"]
 tags: ["paper review", "AISEC"]
 notion: true
 notion_id: "41cbb540-e5fe-8103-8357-cd07f43be40e"
-notion_synced: "2026-11-18T11:47:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #27] HuffDuff: Stealing Pruned DNNs from Sparse Accelerators"
+title: "[paper] HuffDuff: Stealing Pruned DNNs from Sparse Accelerators"
 subtitle: "Dingqing Yang 등. ASPLOS2023"
-categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
+categories: ["📂/paper-review/DLSCA/B. Memory·bus·DRAM/"]
 tags: ["paper review", "AISEC", "DLSCA", "ASPLOS2023"]
 notion: true
 notion_id: "41cbb540-e5fe-81e7-b09a-d6215997e8b4"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5

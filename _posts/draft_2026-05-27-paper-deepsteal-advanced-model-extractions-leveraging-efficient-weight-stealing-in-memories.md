@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #19] DeepSteal: Advanced Model Extractions Leveraging Efficient Weight Stealing in Memories"
+title: "[paper] DeepSteal: Advanced Model Extractions Leveraging Efficient Weight Stealing in Memories"
 subtitle: "Adnan Siraj Rakin 등. S&P2022"
-categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
+categories: ["📂/paper-review/DLSCA/B. Memory·bus·DRAM/"]
 tags: ["paper review", "AISEC", "DLSCA", "S&P2022"]
 notion: true
 notion_id: "41cbb540-e5fe-81f6-84eb-df5b0aefaa11"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5

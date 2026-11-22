@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #10] Hermes Attack: Steal DNN Models with Lossless Inference Accuracy"
+title: "[paper] Hermes Attack: Steal DNN Models with Lossless Inference Accuracy"
 subtitle: "Yuankun Zhu 등. USENIX2021"
-categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
+categories: ["📂/paper-review/DLSCA/B. Memory·bus·DRAM/"]
 tags: ["paper review", "AISEC", "DLSCA", "USENIX2021"]
 notion: true
 notion_id: "41cbb540-e5fe-811a-b841-e5beab6edf0c"
-notion_synced: "2026-11-18T11:47:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5

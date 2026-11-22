@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "[paper #46] Activation Functions Considered Harmful: Recovering Neural Network Weights through Controlled Channels"
+title: "[paper] Activation Functions Considered Harmful: Recovering Neural Network Weights through Controlled Channels"
 subtitle: "Jesse Spielman 등. Arxiv2025"
-categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
+categories: ["📂/paper-review/DLSCA/A. CPU cache·timing·TEE/"]
 tags: ["paper review", "AISEC", "DLSCA"]
 notion: true
 notion_id: "41cbb540-e5fe-81a1-9da9-c3e22d6ad63e"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
-  image: "/assets/images/2026-08-28/paper-35-activation-functions-considered-harmful-recovering-neural-network-weights-through-controlled-channels-banner.png"
+  image: "/assets/images/2026-08-28/paper-activation-functions-considered-harmful-recovering-neural-network-weights-through-controlled-channels-banner.png"
   opacity: 0.5
   background: "rgba(0, 0, 0, 0.7)"
 ---

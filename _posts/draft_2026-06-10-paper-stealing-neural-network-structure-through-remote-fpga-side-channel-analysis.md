@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #20] Stealing Neural Network Structure through Remote FPGA Side-channel Analysis"
+title: "[paper] Stealing Neural Network Structure through Remote FPGA Side-channel Analysis"
 subtitle: "Yicheng Zhang 등. TIFS2021"
-categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
+categories: ["📂/paper-review/DLSCA/D. Power·EM·magnetic (physical)/"]
 tags: ["paper review", "AISEC", "DLSCA", "TIFS2021"]
 notion: true
 notion_id: "41cbb540-e5fe-81c3-bf3e-f58e568aebd3"
-notion_synced: "2026-11-18T11:48:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5

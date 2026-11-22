@@ -1,12 +1,12 @@
 ---
 layout: post
-title: "[paper #7] CSI NN: Reverse Engineering of Neural Network Architectures Through Electromagnetic Side Channel"
+title: "[paper] CSI NN: Reverse Engineering of Neural Network Architectures Through Electromagnetic Side Channel"
 subtitle: "Lejla Batina 등. USENIX2019"
-categories: ["📂/paper-review/ml-stealing/HW/SCA/"]
+categories: ["📂/paper-review/DLSCA/D. Power·EM·magnetic (physical)/"]
 tags: ["paper review", "AISEC", "DLSCA", "USENIX2019"]
 notion: true
 notion_id: "41cbb540-e5fe-8116-b1c2-e695eca32251"
-notion_synced: "2026-11-18T11:47:00.000Z"
+notion_synced: "2026-11-22T04:33:00.000Z"
 banner:
   image: ""
   opacity: 0.5
