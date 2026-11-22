@@ -163,22 +163,6 @@ paginate: 8
 #    right: 100
 
 
-# Giscus comments (GitHub Discussions based, supports theme switching)
-# See https://giscus.app/ for setup
-# 1. Enable Discussions on your repo
-# 2. Install Giscus app: https://github.com/apps/giscus
-# 3. Get your repo_id and category_id from https://giscus.app/
-giscus:
-  repo: "cityofwonder/cityofwonder.github.io"
-  repo_id: "R_kgDOQWjasw"
-  category: "Q&A"
-  category_id: "DIC_kwDOQWjas84CzpPL"
-  mapping: "pathname"
-  reactions_enabled: "1"
-  emit_metadata: "0"
-  input_position: "bottom"
-  lang: "ko"
-
 # Local serve settings (WSL on /mnt/c can't use inotify, so force polling)
 # These only affect `jekyll serve`; GitHub Pages builds ignore them.
 livereload: true
