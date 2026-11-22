@@ -103,9 +103,11 @@ sidebar:
     <div class="post-comments">
       {%- if page.comments != false -%}
 
-      {%- comment -%} giscus is the comment system (disqus / gitment /
-          utterances support was removed: none was configured) {%- endcomment -%}
-      {%- if site.giscus.repo -%}
+      {%- comment -%} Waline is the comment system (_data/waline.yml); giscus
+          stays as the fallback while that file is absent. {%- endcomment -%}
+      {%- if site.data.waline.server_url -%}
+      {%- include extensions/comments/waline.html -%}
+      {%- elsif site.giscus.repo -%}
       {%- include extensions/comments/giscus.html -%}
       {%- endif -%}
 

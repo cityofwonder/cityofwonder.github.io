@@ -1,0 +1,36 @@
+# Waline comments -- the server is the Vercel project `waline-server`
+# (storage: MongoDB Atlas). Used by _includes/extensions/comments/waline.html
+# (the comment box) and _includes/views/post-header.html (the badges).
+# Comments are keyed by the post's URL path, so a post keeps its comments only
+# while its URL stays the same.
+server_url: https://waline-server-kappa-six.vercel.app
+
+# Article reactions, shown above the comments (at most 8). The post header
+# shows the most-picked one as a badge.
+#   image  the character (a cut-out picture, ~240px)
+#   label  shown under it on hover, as ">_ label"
+#   emoji  stands in for the picture (and the label) when the window is a
+#          third of the screen wide or less
+# DO NOT REORDER once readers have reacted: Waline stores the counts by
+# position (reaction0, reaction1, ...), so a reorder moves votes between them.
+# New ones go at the end.
+reaction_title: How was this post?
+reactions:
+  - image: /assets/images/peekers/goodham.png
+    label: like
+    emoji: "❤️"
+  - image: /assets/images/peekers/helpham.png
+    label: helpful
+    emoji: "👍"
+  - image: /assets/images/peekers/smartham.png
+    label: learned
+    emoji: "🧐"
+  - image: /assets/images/peekers/curiousham.png
+    label: curious
+    emoji: "❓"
+  - image: /assets/images/peekers/hackham.png
+    label: try it
+    emoji: "💻"
+  - image: /assets/images/peekers/fireham.png
+    label: fire
+    emoji: "🔥"

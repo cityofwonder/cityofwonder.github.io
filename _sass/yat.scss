@@ -42,6 +42,17 @@ $on-laptop:        800px !default;
   font-size: $base-font-size * $ratio;
 }
 
+// A cut-out sticker (the reactions, the back-to-top cat): an outline drawn
+// round a picture's silhouette, with a hairline round it. $extra: filters
+// after it -- give every state of an element the same number of them, so a
+// change between states animates.
+@mixin sticker-outline($edge: var(--sticker-edge), $extra: null) {
+  filter:
+    drop-shadow(1.5px 0 0 $edge) drop-shadow(-1.5px 0 0 $edge)
+    drop-shadow(0 1.5px 0 $edge) drop-shadow(0 -1.5px 0 $edge)
+    drop-shadow(0 0 0.6px rgba(0, 0, 0, 0.2)) $extra;
+}
+
 // Division that works on old and new Sass alike (`/` outside calc() is
 // deprecated in Dart Sass)
 @function divide($dividend, $divisor: 1) {
@@ -71,6 +82,7 @@ $on-laptop:        800px !default;
   "misc/archives-page",
   "misc/sidebar-widgets",
   "misc/code",
+  "misc/waline",
   "misc/links",
   "misc/spotlight",
   "misc/page-transitions",

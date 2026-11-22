@@ -1,13 +1,15 @@
 {%- comment -%}
   Back to top: a cat floating in the corner, reaching up for the chevron
   above its paws (styles: misc/click-to-top.scss). Shows once the page is
-  scrolled; a click glides back to the top.
+  scrolled; a click glides back to the top. Hovered, ">_ top" types out
+  under it, like the reactions' labels.
 {%- endcomment -%}
-<button type="button" id="click-to-top" class="click-to-top" aria-label="맨 위로" title="맨 위로">
+<button type="button" id="click-to-top" class="click-to-top" aria-label="맨 위로">
   <span class="ctt-float">
     <span class="ctt-chevron" aria-hidden="true"></span>
     <img class="ctt-cat" src="{{ '/assets/images/catgoestop.png' | relative_url }}" alt="" width="88" height="112">
   </span>
+  <span class="ctt-label" aria-hidden="true">top</span>
 </button>
 <script>
   (function () {

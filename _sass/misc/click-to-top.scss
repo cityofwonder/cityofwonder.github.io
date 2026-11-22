@@ -1,8 +1,10 @@
 /**
  * Back to top (extensions/click-to-top.html): no button chrome -- a cat
  * (assets/images/catgoestop.png) floating in the corner, bobbing gently,
- * with a solid chevron above its raised paws. It fades in once the page is
- * scrolled; hovering lifts the chevron a touch.
+ * with a solid chevron above its raised paws; the cat is cut out like the
+ * reaction stickers (yat.scss). It fades in once the page is scrolled.
+ * Hovered, it rises off the page: it lifts, bobs higher, and casts the
+ * callouts' hover shadow -- a layer above the text.
  */
 .click-to-top {
   position: fixed;
@@ -38,17 +40,39 @@
   }
 }
 
-/* the float: a slow, small drift up and down */
+/* the float: a slow drift up and down (transform, --bob high). Hovered it
+   rises off the page: a springy lift (translate), a bigger bob (--bob grows
+   smoothly -- a registered property, so the running drift never jumps),
+   and the callouts' and quotes' hover shadow under cat and chevron */
+@property --bob {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 4px;
+}
+
 .ctt-float {
+  --bob: 4px;
   position: relative;
   display: block;
   padding-top: 20px;                 // room for the chevron
+  filter: drop-shadow(0 0 0 transparent);
   animation: ctt-float 3.4s ease-in-out infinite alternate;
+  transition:
+    translate 0.45s cubic-bezier(0.34, 1.4, 0.64, 1),
+    --bob 0.6s ease,
+    filter 0.35s ease;
+}
+
+.click-to-top:hover .ctt-float,
+.click-to-top:focus-visible .ctt-float {
+  --bob: 10px;
+  translate: 0 -6px;
+  filter: drop-shadow(var(--shadow-hover));
 }
 
 @keyframes ctt-float {
   from { transform: translateY(0); }
-  to   { transform: translateY(-4px); }
+  to   { transform: translateY(calc(-1 * var(--bob))); }
 }
 
 .ctt-cat {
@@ -56,22 +80,25 @@
   width: 88px;
   height: auto;
   pointer-events: none;
+  @include sticker-outline;
 
   @include media-query($on-laptop) {
     width: 66px;
   }
 }
 
-/* the chevron: solid ink, between the two raised paws */
+/* the chevron: above the cat, on one centre line with ">_ top" below it;
+   in the cat's outline colour (yellow here, white on navy) */
 .ctt-chevron {
   position: absolute;
   top: 6px;
-  left: 22%;
+  left: 50%;
+  box-sizing: border-box;            // (12px with its borders: centred on the line)
   width: 12px;
   height: 12px;
   margin-left: -6px;
-  border-top: 3px solid var(--c-ink);
-  border-left: 3px solid var(--c-ink);
+  border-top: 3px solid var(--sticker-edge);
+  border-left: 3px solid var(--sticker-edge);
   border-radius: 1px;
   transform: rotate(45deg);
   transition: top 0.2s ease;
@@ -82,6 +109,31 @@
   top: 2px;
 }
 
+/* ">_ top" under the cat, typed out one character a step on hover (the
+   reactions' label, misc/waline.scss); it stays put while the cat lifts */
+.ctt-label {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 50%;
+  translate: -50% 0;
+  font: 12px/1.4 $code-font-family;
+  color: var(--c-muted);
+  white-space: nowrap;
+  pointer-events: none;
+  clip-path: inset(0 100% 0 0);
+
+  &::before {
+    content: ">_ ";
+    color: var(--t-green);
+  }
+}
+
+.click-to-top:hover .ctt-label,
+.click-to-top:focus-visible .ctt-label {
+  clip-path: inset(0);
+  transition: clip-path 0.17s steps(6, end);   // 6 = ">_ top"
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .ctt-float { animation: none; }
+  .ctt-float { animation: none; transition: none; }
 }

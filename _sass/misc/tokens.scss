@@ -87,6 +87,16 @@ $k-dark: (
 
   --accent: var(--k-red);
 
+  /* the outline round cut-out pictures (reactions, the back-to-top cat):
+     the yellow key colour here, white on navy */
+  --sticker-edge: var(--k-yellow-glow);
+
+  /* the terminal's green (the comments, their ">_" labels): the key green
+     a touch more saturated and lighter here (still 4:1 on the page), neon
+     on navy */
+  --t-green: #23703f;
+  --t-lemon: #766a00;                     // its timestamps (lemon, deepened to read here)
+
   /* the one tint strength for a key colour laid over the page: callouts,
      coloured quotes and toggles, and the hover light on list items and
      links -- color-mix(in srgb, var(--k-*-glow) var(--wash), transparent) */
@@ -156,6 +166,10 @@ html[data-theme="dark"] {
   --k-blue-glow: #379ad3;
 
   --c-kind: color-mix(in srgb, var(--k-yellow) 28%, var(--c-ink));
+
+  --sticker-edge: #fff;
+  --t-green: #50fa7b;
+  --t-lemon: #f1fa8c;
 
   --shadow-box: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 14px rgba(0, 0, 0, 0.3);
 

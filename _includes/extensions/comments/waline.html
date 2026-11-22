@@ -1,0 +1,878 @@
+{%- comment -%}
+  Waline comments (settings: _data/waline.yml). Waline renders into the page
+  -- no iframe -- so the site's own CSS styles it: _sass/misc/waline.scss maps
+  its --waline-* variables onto the site tokens, which also makes it follow
+  the light / dark switch on its own (hence `dark: false` below).
+
+  Also fills the post-header badges (_includes/views/post-header.html): the
+  comment count, and the most-picked reaction with its count.
+
+  The thread is keyed by page.url; the badges use the same value.
+
+  A terminal: the comments read as a log, "[yy.mm.dd hh:mm:ss] name > text",
+  and the box under them is a prompt with a blinking cursor. Name only -- no
+  e-mail or website, no Waline account login, no markdown help or preview,
+  no bottom bar. All its text in English.
+    not logged in   an ASCII banner and "login as: _"; a name + Enter logs in
+    logged in       "name@cityofwonder:~$ _"; Enter sends (Shift+Enter: new
+                    line), "exit" / "logout" logs out; the emoji button at
+                    the end of the line unfolds a tray of the blog's emoji
+  Waline shows times as "3 days ago", so the exact time of each comment is
+  read from the comment data the box fetches (by comment id) and stamped on
+  its card for the CSS to print.
+
+  Replies come from the same prompt: a reply button highlights its comment
+  and puts "@name " in the prompt; sending posts a reply (see "replies"
+  below). The log shows them as a tree under their comment (├─ / └─), two
+  levels deep.
+
+  The log reads like a chat: newest thread at the bottom, by the prompt,
+  older ones opened upward three at a time ("--More--" at the top); a long
+  comment is folded to four lines with its own "--More--(33%)".
+
+  Not logged in, a banner sits over the prompt (built here, .wl-banner): the
+  "City of Wonder" logo, the how-to, and snow from November to February.
+
+  Reactions: each gets its emoji (shown instead of the pictures when the
+  window is a third of the screen wide or less: data-narrow on #waline) and
+  its count in hex ("0x0A", from the decimal Waline writes).
+{%- endcomment -%}
+{%- assign w = site.data.waline -%}
+{%- assign waline_ver = "3.16.2" -%}
+<div id="waline"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@waline/client@{{ waline_ver }}/dist/waline.css">
+<script type="module">
+  import { init } from 'https://cdn.jsdelivr.net/npm/@waline/client@{{ waline_ver }}/dist/waline.js';
+
+  const SERVER = {{ w.server_url | jsonify }};
+  const PATH = {{ page.url | jsonify }};
+  const REACTIONS = [{%- for r in w.reactions -%}{{ r.image | relative_url | jsonify }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}];
+  const LABELS = {{ w.reactions | map: "label" | jsonify }};
+  const EMOJI = {{ w.reactions | map: "emoji" | jsonify }};
+
+  const HOST = 'cityofwonder';
+  const box = document.getElementById('waline');
+
+  const locale = {
+    reactionTitle: {{ w.reaction_title | default: "How was this post?" | jsonify }},
+    nick: 'login as',
+    placeholder: 'leave a comment -- Enter to send',   // (then the hints take turns: HINTS)
+    sofa: 'No logs yet.',
+    submit: 'send',
+  };
+
+  // ---- the terminal login: banner -> name -> comments ------------------------
+  // Logged in = a name was entered with Enter here (remembered); Waline keeps
+  // the name itself.
+  const LOGIN_KEY = 'waline-terminal-login';
+  let loggedIn = false;
+  try { loggedIn = localStorage.getItem(LOGIN_KEY) === '1'; } catch (e) {}
+  const bytes = (s) => new TextEncoder().encode(s).length;
+  function setLogin(on) {
+    loggedIn = on;
+    try { if (on) localStorage.setItem(LOGIN_KEY, '1'); else localStorage.removeItem(LOGIN_KEY); } catch (e) {}
+    decorate();
+  }
+  LABELS.forEach((label, i) => { locale[`reaction${i}`] = label; });
+
+  // ---- exact times: comment id -> "yy.mm.dd hh:mm:ss" ----------------------
+  const STAMPS = new Map();
+  const pad = (n) => String(n).padStart(2, '0');
+  function stampOf(time) {
+    const d = new Date(time);
+    if (Number.isNaN(d.getTime())) return null;
+    return `${pad(d.getFullYear() % 100)}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ` +
+           `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+  function collect(x) {
+    if (!x || typeof x !== 'object') return;
+    if (Array.isArray(x)) { x.forEach(collect); return; }
+    if (x.objectId != null && x.time != null) {
+      const s = stampOf(x.time);
+      if (s) STAMPS.set(String(x.objectId), s);
+    }
+    Object.values(x).forEach(collect);   // replies sit in `children`
+  }
+  // ---- replies, from the one prompt -------------------------------------------
+  // Waline would open a second comment box inside the card being answered.
+  // Instead its reply button marks that comment (highlighted: data-replying)
+  // and puts "@name " at the start of the prompt below; sending posts it as a
+  // reply -- the fields Waline's own reply box adds (pid: the comment
+  // answered, rid: its thread, at: its author) go into the request, the
+  // "@name " comes out of the text. Esc, deleting the "@name", or the same
+  // reply button again cancels.
+  let REPLY = null;                   // { pid, rid, at }
+  const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const atPrefix = (r) => `@${r.at} `;
+
+  // listen in on the box's own requests to the comment API (lists, new
+  // posts), and turn a new post into a reply while one is pending
+  const realFetch = window.fetch;
+  window.fetch = function (input, options) {
+    const url = typeof input === 'string' ? input : (input && input.url) || '';
+    const isApi = url.startsWith(SERVER) && url.includes('/api/comment');
+    let replied = false;
+    if (REPLY && isApi && /\/api\/comment(\?|$)/.test(url) && options &&
+        /^post$/i.test(options.method || '') && typeof options.body === 'string') {
+      try {
+        const body = JSON.parse(options.body);
+        if (typeof body.comment === 'string' && !body.pid) {
+          body.comment = body.comment.replace(new RegExp(`^\\s*@${escapeRe(REPLY.at)}\\s*`), '');
+          Object.assign(body, { pid: REPLY.pid, rid: REPLY.rid, at: REPLY.at });
+          options = Object.assign({}, options, { body: JSON.stringify(body) });
+          replied = true;
+        }
+      } catch (e) { /* not JSON: leave it */ }
+    }
+    const posted = isApi && options && /^post$/i.test(options.method || '');
+    const res = realFetch.call(this, input, options);
+    if (isApi) {
+      res.then((r) => r.clone().json()).then((data) => {
+        collect(data);
+        if (posted && data && !data.errno) setEmojiOpen(false);   // sent: the tray folds
+        if (posted && !replied && data && !data.errno) listShown++;   // a new thread: none drops out of sight
+        if (sortWaiting && !posted && !/type=count/.test(url)) {    // the list in its new order
+          sortWaiting = false;
+          setTimeout(unfoldList, 80);
+        }
+        if (replied && data && !data.errno) endReply(false);   // sent: the prompt is clear again
+        decorate();
+      }).catch(() => {});
+    }
+    return res;
+  };
+
+  // ---- the banner (not logged in) --------------------------------------------
+  // neofetch-style: the logo beside the how-to, a row of lights under it, and
+  // from November to February snow falling over it all. The logo is "CoW" in
+  // half-block letters (Arial Black, two pixels per character row) with the
+  // rest of "City of Wonder" popping in small: "ity" across the top of the
+  // short o, "f" after it, "onder" out from behind the W.
+  const WINTER = [11, 12, 1, 2].includes(new Date().getMonth() + 1);
+  const BIG = {
+    C: ['   ▄████████▄   ', '  ████████████  ', ' █████▀▀▀▀█████ ', '█████▀     █▀▀▀ ', '█████           ', '█████           ', '█████      ▄▄   ', '▀████▄    ▄████ ', ' █████▄▄▄▄█████ ', '  ████████████  ', '   ▀▀██████▀▀   '],
+    o: ['  ▄███████▄   ', ' ███████████  ', '▄████   █████ ', '████▀    ████ ', '████▄    ████ ', '▀████   █████ ', ' ▀██████████  ', '  ▀▀██████▀   '],
+    W: ['█████   ▄████▄   █████', '▀████   ██████   ████▀', ' ████   ██████   ████ ', ' ████▄ ████████ ▄████ ', ' █████ ████████ ████▀ ', '  ████▄███▀▀███▄████  ', '  ████████  ████████  ', '  ████████  ████████  ', '   ██████    ██████   ', '   ██████    ██████   ', '   █████▀    ▀█████   '],
+  };
+  const LIGHTS = ['#e06c75', '#d19a66', '#e5c07b', '#98c379', '#56b6c2', '#61afef', '#c678dd', '#abb2bf'];
+  const FLAKES = ['·', '•', '*', '❄︎', '·', '•', '*'];
+
+  function buildBanner() {
+    const el = document.createElement('div');
+    el.className = 'wl-banner';
+    el.setAttribute('aria-hidden', 'true');
+    let n = 0;                        // the small letters pop in one after another
+    const big = (ch, k) => `<span class="wl-big wl-big-${ch}" style="--k:${k}">${BIG[ch].join('\n')}</span>`;
+    const small = (word, cls) => `<span class="wl-small ${cls}">` +
+      [...word].map((c) => `<i style="--i:${n++}">${c}</i>`).join('') + '</span>';
+    const logo =
+      big('C', 0) +
+      `<span class="wl-o">${small('ity', 'wl-ity')}${big('o', 1)}</span>` +
+      small('f', 'wl-f') +
+      big('W', 2) +
+      small('onder', 'wl-onder');
+    const lights = LIGHTS.map((c, i) => `<i style="--light:${c};--i:${i}"></i>`).join('');
+    el.innerHTML =
+      `<div class="wl-banner-logo">${logo}</div>` +
+      '<div class="wl-banner-info">' +
+        `<div class="wl-banner-who"><b>guest</b>@${HOST}</div>` +
+        '<div class="wl-banner-rule"></div>' +
+        '<span class="k">login</span><span>type a name, then Enter</span>' +
+        '<span class="k">send</span><span>Enter (Shift+Enter: new line)</span>' +
+        '<span class="k">logout</span><span>type exit</span>' +
+        `<span class="k">weather</span><span>${WINTER ? '❄︎ snowing' : '✦ clear'}</span>` +
+        `<div class="wl-banner-lights">${lights}</div>` +
+      '</div>';
+    if (WINTER) {
+      const snow = document.createElement('div');
+      snow.className = 'wl-snow';
+      const rand = (a, b) => (a + Math.random() * (b - a)).toFixed(2);
+      for (let i = 0; i < 28; i++) {
+        const f = document.createElement('span');
+        f.className = 'wl-flake';
+        f.textContent = FLAKES[i % FLAKES.length];
+        f.style.cssText = `--x:${rand(0, 100)}%;--fall:${rand(7, 13)}s;--delay:-${rand(0, 13)}s;` +
+          `--tw:${rand(0.8, 2.6)}s;--drift:${rand(-16, 16)}px;--size:${rand(8, 14)}px`;
+        snow.append(f);
+      }
+      el.append(snow);
+    }
+    return el;
+  }
+
+  // ---- emoji: the blog's own -------------------------------------------------
+  // Waline's picker inserts Weibo image stickers; this one inserts plain
+  // emoji, drawn by the system's emoji font like everywhere else on the blog.
+  // A button at the end of the input line opens a tray under it, the line's
+  // full width, unfolding like a toggle. (Unicode 12 and older: no blanks on
+  // older systems.)
+  const EMOJI_SETS = [
+    ['faces', '😀 😄 😁 😆 😅 🤣 😂 🙂 😉 😊 😇 🥰 😍 🤩 😘 😋 😛 😜 🤪 🤗 🤭 🤫 🤔 😐 😑 😶 🙄 😏 😬 😌 😴 🥱 😮 😲 🥺 😢 😭 😤 😡 🤯 😳 🥶 🥵 😱 🤓 😎 🧐 🤠 🥳 😈 👻 💀 🤖'],
+    ['hands', '👍 👎 👏 🙌 🙏 🤝 👌 ✌️ 🤞 👋 💪 ✍️ 👀 🤙 👉 👈'],
+    ['hearts', '❤️ 🧡 💛 💚 💙 💜 🖤 🤍 💖 💕 💯 💢 💥 💫 💬 💤'],
+    ['animals', '🐹 🐱 🐭 🐰 🦊 🐻 🐼 🐨 🐯 🐶 🐧 🐤 🦉 🐢 🐙 🦄'],
+    ['winter', '❄️ ☃️ ⛄ 🎄 🎁 🧣 🧤 ☕ 🍵 🍊 🍠 🔥 ✨ ⭐ 🌙 🎉'],
+    ['code', '💻 ⌨️ 🖥️ 🐛 🔧 🔒 🔑 📦 🚀 💡 📚 📝 ✅ ❌ ❓ ❗'],
+  ];
+  const SMILEY = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="9"/><path d="M8.3 14.2c.9 1.3 2.2 2 3.7 2s2.8-.7 3.7-2"/>' +
+    '<circle cx="9" cy="9.8" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="9.8" r="1.1" fill="currentColor" stroke="none"/></svg>';
+
+  // comments posted with Waline's picker carry its Weibo sticker images; shown
+  // as the nearest plain emoji instead, like new ones
+  const WEIBO = {
+    smile: '🙂', lovely: '🥰', blush: '😊', grin: '😁', laugh: '😆', joy: '😂', angry: '😠', bye: '👋',
+    hammer: '🔨', kiss: '😘', love: '❤️', mask: '😷', money: '🤑', quiet: '🤫', rage: '😡', sad: '😢',
+    shy: '😳', sick: '🤢', slient: '🤐', smirk: '😏', slap: '🤚', antic: '🤪', desire: '😍', longing: '🥺',
+    no_idea: '🤷', look_down: '🙄', clap: '👏', yum: '😋', sleep: '😴', dizzy_face: '😵', chuckle: '🤭',
+    disappointed: '😞', flushed: '😳', heart_eyes: '😍', no: '🙅', shuai: '😎', suprised: '😲', think: '🤔',
+    vomit: '🤮', scream: '😱', sleepy: '😪', sob: '😭', sunglasses: '😎', greddy: '🤤', pick_nose: '😑',
+    annoyed: '😒', awkward: '😅', confused: '😕', grievance: '😣', poor: '🥺', wink: '😉', rolling_eyes: '🙄',
+    watermalon: '🍉', annoyed_left: '😤', annoyed_right: '😤', yawn: '🥱', hufen: '🤝', doge: '🐶', husky: '🐺',
+    dog_annoyed: '🐶', dog_bye: '🐶', dog_consider: '🐶', dog_cry: '🐶', dog_joy: '🐶', dog_laugh: '🐶',
+    dog_sweat: '🐶', dog_think: '🐶', dog_yum: '🐶', cat: '🐱', cat_annoyed: '😾', cat_bye: '🐱', cat_cry: '😿',
+    cat_think: '🐱', girl_annoyed: '🙎', boy: '👦', girl: '👧', panda: '🐼', pig: '🐷', rabbit: '🐰',
+    ultraman: '🦸', wool_group: '👀', yan: '😶', xi: '😆', soap: '🧼', meng: '🥰', jiong: '😖', geili: '👍',
+    shenma: '❓', alpaca: '🦙',
+  };
+
+  function buildEmojiButton() {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'wl-emoji-toggle';
+    b.setAttribute('aria-label', 'Emoji');
+    b.setAttribute('aria-expanded', 'false');
+    b.innerHTML = SMILEY;
+    return b;
+  }
+
+  function buildEmojiTray() {
+    const tray = document.createElement('div');
+    tray.className = 'wl-emoji-tray';
+    tray.innerHTML = '<div class="wl-emoji-tray-inner">' + EMOJI_SETS.map(([name, list]) =>
+      `<span class="wl-emoji-name"># ${name}</span><span class="wl-emoji-row">` +
+      list.split(' ').map((e) => `<button type="button" class="wl-emoji-pick">${e}</button>`).join('') +
+      '</span>').join('') + '</div>';
+    return tray;
+  }
+
+  function setEmojiOpen(open) {
+    const tray = box && box.querySelector('.wl-emoji-tray');
+    const button = box && box.querySelector('.wl-emoji-toggle');
+    if (tray) tray.toggleAttribute('data-open', open);
+    if (button) button.setAttribute('aria-expanded', String(open));
+  }
+  const emojiOpen = () => !!(box && box.querySelector('.wl-emoji-tray[data-open]'));
+
+  // at the caret, replacing a selection; the tray stays open for more
+  function insertEmoji(ch) {
+    const editor = mainPanel() && mainPanel().querySelector('.wl-editor');
+    if (!editor) return;
+    const start = editor.selectionStart == null ? editor.value.length : editor.selectionStart;
+    const end = editor.selectionEnd == null ? start : editor.selectionEnd;
+    editor.setRangeText(ch, start, end, 'end');
+    editor.dispatchEvent(new Event('input', { bubbles: true }));   // Waline's v-model
+    editor.focus({ preventScroll: true });
+  }
+
+  // ---- threads as a tree, two levels deep --------------------------------------
+  // Waline keeps every reply of a thread in one flat list under its first
+  // comment, but each says which comment it answers (its "@name" link). From
+  // that: level 1 answers the first comment, level 2 answers a level-1 reply
+  // (anything deeper is shown at level 2, keeping its "@name:"). The list is
+  // put in tree order with CSS order -- Waline's DOM is left as it is -- and
+  // each line gets its branch (data-branch) and the trunks running through
+  // it (--t0: the level-1 trunk, --t1: level 2; full, none, or "join": just
+  // across the gap above its own branch, stopping short of the corner, so
+  // the last one at a level reads └ and not ├). Level 2 has no reply button.
+  const TRUNK = { full: '100%', half: '0.35lh', none: '0px' };
+  function setIf(el, key, value) {
+    if (key.startsWith('--')) { if (el.style.getPropertyValue(key) !== value) el.style.setProperty(key, value); }
+    else if (el.dataset[key] !== value) el.dataset[key] = value;
+  }
+
+  function layoutThread(root) {
+    const quote = root.querySelector(':scope > .wl-card > .wl-quote');
+    if (!quote) return;
+    const items = [...quote.children].filter((el) => el.matches('.wl-card-item[id]'));
+    const answers = (item) => {
+      const a = item.querySelector(':scope > .wl-card > .wl-content > .wl-reply-to a');
+      return a ? (a.getAttribute('href') || '').replace(/^#/, '') : root.id;
+    };
+    const byId = new Map(items.map((item) => [item.id, item]));
+    const level1 = [];
+    const kids = new Map();             // a level-1 reply -> its level-2 replies
+    const parentOf = new Map();
+    items.forEach((item) => {
+      let p = answers(item);
+      while (byId.has(p) && parentOf.has(p) && parentOf.get(p) !== root.id) p = parentOf.get(p);   // deeper: up to level 2
+      if (byId.has(p) && p !== item.id) {
+        parentOf.set(item.id, p);
+        if (!kids.has(p)) kids.set(p, []);
+        kids.get(p).push(item);
+      } else {
+        parentOf.set(item.id, root.id);
+        level1.push(item);
+      }
+    });
+    let order = 0;
+    level1.forEach((item, i) => {
+      const last = i === level1.length - 1;
+      setIf(item, 'depth', '1');
+      setIf(item, 'branch', last ? '└─' : '├─');
+      setIf(item, '--t0', last ? TRUNK.half : TRUNK.full);
+      setIf(item, '--t1', TRUNK.none);
+      if (item.style.order !== String(order)) item.style.order = String(order);
+      order++;
+      (kids.get(item.id) || []).forEach((kid, j, list) => {
+        const kidLast = j === list.length - 1;
+        setIf(kid, 'depth', '2');
+        setIf(kid, 'branch', (last ? '   ' : '│  ') + (kidLast ? '└─' : '├─'));
+        setIf(kid, '--t0', last ? TRUNK.none : TRUNK.full);
+        setIf(kid, '--t1', kidLast ? TRUNK.half : TRUNK.full);
+        if (kid.style.order !== String(order)) kid.style.order = String(order);
+        order++;
+      });
+    });
+    // the trunk from a comment down to its first reply, through the
+    // comment's wrapped lines (and "--More--"): drawn up from that reply
+    // (data-up, --up: how far, --col: the branch column, 0 or 3)
+    const lineBottom = (item) => {
+      const nick = item.querySelector(':scope > .wl-card > .wl-head > .wl-nick');
+      return (nick || item).getBoundingClientRect()[nick ? 'bottom' : 'top'];
+    };
+    const firsts = new Map();
+    if (level1.length) firsts.set(level1[0], [root, 0]);
+    level1.forEach((item) => { const k = kids.get(item.id); if (k && k.length) firsts.set(k[0], [item, 3]); });
+    items.forEach((item) => {
+      const first = firsts.get(item);
+      if (!first) { if ('up' in item.dataset) delete item.dataset.up; return; }
+      const up = Math.max(0, item.getBoundingClientRect().top - lineBottom(first[0]) - 1);
+      setIf(item, 'up', '');
+      setIf(item, '--up', `${up.toFixed(1)}px`);
+      setIf(item, '--col', String(first[1]));
+    });
+    // "@name:" before a reply: the tree already says whom it answers, so only
+    // one shown at a level it doesn't belong to keeps it
+    items.forEach((item) => {
+      const p = item.querySelector(':scope > .wl-card > .wl-content > .wl-reply-to');
+      if (!p) return;
+      const shown = answers(item) === parentOf.get(item.id) ? '' : null;
+      if (shown === '' && !('direct' in p.dataset)) p.dataset.direct = '';
+      if (shown === null && 'direct' in p.dataset) delete p.dataset.direct;
+    });
+  }
+
+  // ---- long comments: folded, "--More--" ------------------------------------
+  // Past FOLD_OVER lines a comment shows FOLD_LINES, fading out, with a
+  // "--More--(33%)" line under it (the pager's) that unfolds the rest, and
+  // "--Less--" folds it back. The text is measured unfolded, on its own, and
+  // only again when its width changes -- one measure, one answer (measuring
+  // it folded too could flip it back and forth for good).
+  const FOLD_LINES = 4;               // (also in waline.scss: the folded height)
+  const FOLD_OVER = 6;
+
+  function foldLong() {
+    box.querySelectorAll('.wl-card > .wl-content').forEach((content) => {
+      const body = content.querySelector(':scope > div');
+      if (!body) return;
+      const width = String(content.clientWidth);
+      if (content.dataset.foldW !== width || !content.dataset.lines) {
+        const wasLong = 'long' in content.dataset;
+        if (wasLong) delete content.dataset.long;   // unfolded for the measure (no paint in between)
+        const lh = parseFloat(getComputedStyle(content).lineHeight) || 21.6;
+        const h = body.getBoundingClientRect().height;   // (all its lines, inline or not)
+        content.dataset.lines = String(Math.round(h / lh));
+        content.dataset.foldW = width;
+        setIf(body, '--full-h', `${Math.ceil(h)}px`);
+        if (wasLong) content.dataset.long = '';
+      }
+      const lines = Number(content.dataset.lines);
+      const long = lines > FOLD_OVER;
+      if (long !== ('long' in content.dataset)) content.toggleAttribute('data-long', long);
+      let more = content.querySelector(':scope > .wl-more');
+      if (!long) {
+        if (more) more.remove();
+        if ('open' in content.dataset) delete content.dataset.open;
+        return;
+      }
+      if (!more) {
+        more = document.createElement('button');
+        more.type = 'button';
+        more.className = 'wl-more';
+        content.append(more);
+      }
+      const label = 'open' in content.dataset ? '--Less--' : `--More--(${Math.round((FOLD_LINES / lines) * 100)}%)`;
+      if (more.textContent !== label) more.textContent = label;
+    });
+  }
+
+  // ---- the list: newest at the bottom, older ones opened upward ---------------
+  // The log reads like a chat: the newest thread sits next to the prompt (the
+  // list is drawn bottom-up -- CSS column-reverse on Waline's newest-first
+  // order). Only the LIST_FIRST newest threads show; "--More--" at the top
+  // opens LIST_STEP older ones at a time, fetching Waline's next page (its
+  // own "load more", hidden) once the ones it has are all open. Opening keeps
+  // the prompt where it is on screen: the list grows upward.
+  const LIST_FIRST = 3;
+  const LIST_STEP = 3;
+  let listShown = LIST_FIRST;
+
+  function foldList() {
+    const cards = box.querySelector(':scope > [data-waline] > .wl-cards');
+    if (!cards) return;
+    const roots = [...cards.children].filter((el) => el.matches('.wl-card-item'));
+    roots.forEach((item, i) => {
+      const hide = i >= listShown;
+      if (hide !== ('folded' in item.dataset)) item.toggleAttribute('data-folded', hide);
+    });
+    const hidden = Math.max(0, roots.length - listShown);
+    const nextPage = box.querySelector(':scope > [data-waline] > .wl-operation button');
+    let older = cards.querySelector(':scope > .wl-older');
+    if (!hidden && !nextPage) { if (older) older.remove(); return; }
+    if (!older) {
+      older = document.createElement('button');
+      older.type = 'button';
+      older.className = 'wl-older';
+      cards.append(older);
+    }
+    // how many the next click opens (with a next page to fetch: a full step)
+    const label = `--More--(${nextPage ? LIST_STEP : Math.min(LIST_STEP, hidden)} older)`;
+    if (older.textContent !== label) older.textContent = label;
+  }
+
+  function openOlder() {
+    const cards = box.querySelector(':scope > [data-waline] > .wl-cards');
+    if (!cards) return;
+    const before = cards.getBoundingClientRect().bottom;
+    const roots = [...cards.children].filter((el) => el.matches('.wl-card-item'));
+    listShown += LIST_STEP;
+    roots.slice(listShown - LIST_STEP, listShown).forEach((item) => {   // a short fade-in for the new ones
+      item.dataset.opening = '';
+      setTimeout(() => { delete item.dataset.opening; }, 400);
+    });
+    if (roots.length < listShown) {
+      const nextPage = box.querySelector(':scope > [data-waline] > .wl-operation button');
+      if (nextPage) nextPage.click();   // the rest arrive with Waline's next page (decorate folds them)
+    }
+    foldList();
+    followLayout(0);
+    window.scrollBy(0, cards.getBoundingClientRect().bottom - before);   // the prompt stays put
+  }
+
+  // another order (Latest / Oldest / Hottest): the list folds away first
+  // (its height to 0, the threads fading), Waline fetches the new order, and
+  // it unfolds again (back to its height, the threads fading in one after
+  // another). sortWaiting: the click has gone on to Waline, the list is due.
+  const listEl = () => box.querySelector(':scope > [data-waline] > .wl-cards');
+  let sortWaiting = false;
+
+  function foldAway(cards, done) {
+    cards.style.height = `${cards.offsetHeight}px`;
+    cards.dataset.sorting = '';
+    void cards.offsetHeight;          // (the start height, before the change)
+    cards.style.height = '0px';
+    setTimeout(done, 300);
+  }
+
+  function unfoldList(tries = 0) {
+    const cards = listEl();
+    if (!cards || !('sorting' in cards.dataset)) return;
+    const roots = cards.querySelectorAll(':scope > .wl-card-item');
+    if (!roots.length && tries < 20 && !box.querySelector('.wl-empty')) { setTimeout(() => unfoldList(tries + 1), 60); return; }
+    foldList();
+    foldLong();
+    [...roots].filter((item) => !('folded' in item.dataset)).reverse().forEach((item, i) => {   // bottom (newest) first
+      item.style.setProperty('--i', String(i));
+      item.dataset.opening = '';
+      setTimeout(() => { delete item.dataset.opening; }, 700);
+    });
+    delete cards.dataset.sorting;
+    cards.dataset.unfolding = '';
+    cards.style.height = `${cards.scrollHeight}px`;
+    setTimeout(() => {
+      cards.style.height = '';
+      delete cards.dataset.unfolding;
+      followLayout(0);
+    }, 330);
+  }
+
+  // the measured parts (trunks, the reply highlight) again, every frame for
+  // `ms` -- while a fold opens or closes
+  function followLayout(ms) {
+    const until = performance.now() + ms;
+    const step = () => {
+      box.querySelectorAll('.wl-cards > .wl-card-item').forEach(layoutThread);
+      markReply();
+      if (performance.now() < until) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  let foldTimer = 0;
+  window.addEventListener('resize', () => {
+    clearTimeout(foldTimer);
+    foldTimer = setTimeout(() => { if (box) { foldLong(); followLayout(0); } }, 150);
+  });
+
+  // ---- narrow windows: reactions as one line of emoji -------------------------
+  function fitReactions() {
+    if (!box) return;
+    if (window.innerWidth <= screen.width / 3) box.dataset.narrow = '';
+    else delete box.dataset.narrow;
+  }
+  fitReactions();
+  window.addEventListener('resize', fitReactions);
+
+  // stamp each card with its time, and each prompt with the name being typed;
+  // "Powered by Waline" moves up beside the "Comments" title; the banner goes
+  // in above the prompt; each reaction gets its emoji, its count (to hide a
+  // 0) and its label's length (the typing steps)
+  function decorate() {
+    if (!box) return;
+    box.querySelectorAll('.wl-reaction-item').forEach((item, i) => {
+      const img = item.querySelector('.wl-reaction-img');
+      if (img && EMOJI[i] && img.dataset.emoji !== EMOJI[i]) img.dataset.emoji = EMOJI[i];
+      const votesEl = item.querySelector('.wl-reaction-votes');   // (a spinner while voting)
+      if (votesEl) {
+        const count = parseInt(votesEl.textContent, 10) || 0;
+        const hex = count.toString(16).toUpperCase().padStart(2, '0');
+        if (item.dataset.votes !== String(count)) item.dataset.votes = String(count);
+        if (votesEl.dataset.hex !== hex) votesEl.dataset.hex = hex;
+      }
+      const text = item.querySelector('.wl-reaction-text');
+      const n = String((LABELS[i] || '').length + 3);
+      if (text && text.style.getPropertyValue('--n') !== n) text.style.setProperty('--n', n);
+    });
+    const comment = box.querySelector(':scope > [data-waline] > .wl-comment');
+    if (comment) {
+      if (!comment.querySelector(':scope > .wl-banner')) comment.prepend(buildBanner());
+      const panel = comment.querySelector(':scope > .wl-panel');
+      if (panel && !panel.querySelector(':scope > .wl-emoji-toggle')) panel.append(buildEmojiButton());
+      if (panel && !comment.querySelector(':scope > .wl-emoji-tray')) panel.after(buildEmojiTray());
+      const nick = comment.querySelector('.wl-nick');
+      const name = ((nick && nick.value) || '').trim().replace(/\s+/g, '_') || 'guest';
+      const who = comment.querySelector('.wl-banner-who b');
+      const rule = comment.querySelector('.wl-banner-rule');
+      if (who && who.textContent !== name) who.textContent = name;
+      const line = '-'.repeat(name.length + 1 + HOST.length);
+      if (rule && rule.textContent !== line) rule.textContent = line;
+    }
+    const head = box.querySelector('.wl-meta-head');
+    const power = box.querySelector('.wl-meta-foot .wl-power');
+    if (head && power) {
+      head.querySelectorAll('.wl-power').forEach((old) => old.remove());
+      const count = head.querySelector('.wl-count');
+      if (count) count.after(power); else head.prepend(power);
+    }
+    box.querySelectorAll('.wl-card-item[id]').forEach((item) => {
+      const card = item.querySelector(':scope > .wl-card');
+      const s = STAMPS.get(item.id);
+      if (card && s && card.dataset.stamp !== s) card.dataset.stamp = s;
+    });
+    // likes: the count (a liked comment keeps its heart in sight)
+    box.querySelectorAll('.wl-like').forEach((like) => {
+      const n = String(parseInt(like.textContent, 10) || 0);
+      if (like.dataset.count !== n) like.dataset.count = n;
+    });
+    box.querySelectorAll('.wl-content img.wl-emoji').forEach((img) => {
+      const key = (img.getAttribute('alt') || '').replace(/^weibo_/, '');
+      if (!(img.getAttribute('alt') || '').startsWith('weibo_') || !WEIBO[key]) return;
+      const span = document.createElement('span');
+      span.className = 'wl-uemoji';
+      span.textContent = WEIBO[key];
+      img.replaceWith(span);
+    });
+    foldList();
+    foldLong();                       // (first: the trunks measure the folded heights)
+    box.querySelectorAll('.wl-cards > .wl-card-item').forEach(layoutThread);
+    markReply();
+    box.querySelectorAll('.wl-panel').forEach((panel) => {
+      const nick = panel.querySelector('.wl-nick');
+      const value = ((nick && nick.value) || '').trim();
+      const prompt = `${value.replace(/\s+/g, '_') || 'guest'}@${HOST}:~$`;
+      const login = loggedIn && value ? 'yes' : 'no';
+      if (panel.dataset.prompt !== prompt) panel.dataset.prompt = prompt;
+      if (panel.dataset.login !== login) panel.dataset.login = login;
+      panel.dataset.nickEmpty = value ? 'no' : 'yes';
+    });
+  }
+
+  function setEditor(editor, value) {
+    editor.value = value;
+    editor.dispatchEvent(new Event('input', { bubbles: true }));   // Waline's v-model
+  }
+  const clearEditor = (editor) => setEditor(editor, '');
+
+  const mainPanel = () => box.querySelector(':scope > [data-waline] > .wl-comment > .wl-panel');
+
+  // the comment being answered: highlighted down to where its replies begin
+  function markReply() {
+    const item = REPLY && document.getElementById(REPLY.pid);
+    const target = item && item.querySelector(':scope > .wl-card');
+    box.querySelectorAll('.wl-card[data-replying]').forEach((card) => {
+      if (card !== target) delete card.dataset.replying;
+    });
+    if (!target) return;
+    if (!('replying' in target.dataset)) target.dataset.replying = '';
+    // (with replies: down to where they start -- halfway into the gap under
+    // its line, as its top is halfway into the gap above)
+    const quote = target.querySelector(':scope > .wl-quote');
+    const h = `${quote ? quote.offsetTop : target.offsetHeight}px`;
+    if (target.style.getPropertyValue('--reply-h') !== h) target.style.setProperty('--reply-h', h);
+  }
+
+  function startReply(item) {
+    const root = item.closest('.wl-cards > .wl-card-item');
+    const nick = item.querySelector(':scope > .wl-card > .wl-head > .wl-nick');
+    if (!root || !nick) return;
+    if (REPLY && REPLY.pid === item.id) { endReply(true); return; }   // the same button: cancel
+    const panel = mainPanel();
+    const editor = panel && panel.querySelector('.wl-editor');
+    const old = REPLY;
+    REPLY = { pid: item.id, rid: root.id, at: nick.textContent.trim() };
+    if (editor) {
+      let text = editor.value;
+      if (old && text.startsWith(atPrefix(old))) text = text.slice(atPrefix(old).length);
+      setEditor(editor, atPrefix(REPLY) + text.replace(/^\s+/, ''));
+    }
+    markReply();
+    if (!panel) return;
+    // the prompt stays where it is: bring it into view, and type there
+    panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    const field = loggedIn ? editor : panel.querySelector('.wl-nick');
+    if (field) {
+      field.focus({ preventScroll: true });
+      if (field === editor) editor.setSelectionRange(editor.value.length, editor.value.length);
+    }
+  }
+
+  // clearText: take the "@name " back out of the prompt too
+  function endReply(clearText) {
+    if (!REPLY) return;
+    const r = REPLY;
+    REPLY = null;
+    const editor = mainPanel() && mainPanel().querySelector('.wl-editor');
+    if (clearText && editor && editor.value.startsWith(`@${r.at}`)) {
+      setEditor(editor, editor.value.slice(`@${r.at}`.length).replace(/^\s+/, ''));
+    }
+    markReply();
+  }
+
+  if (box) {
+    new MutationObserver(decorate).observe(box, { childList: true, subtree: true });
+    box.addEventListener('input', (e) => {
+      if (e.target.matches('.wl-nick')) decorate();
+      // the "@name" deleted: no longer a reply
+      if (REPLY && e.target.matches('.wl-editor') && !e.target.value.startsWith(`@${REPLY.at}`)) endReply(false);
+    });
+
+    // the emoji button and tray, and "--More--" (ours, so no Waline handler
+    // to get past)
+    box.addEventListener('click', (e) => {
+      if (e.target.closest('.wl-older')) { openOlder(); return; }
+      if (e.target.closest('.wl-sort li')) listShown = LIST_FIRST;   // another order: start over
+      const more = e.target.closest('.wl-more');
+      if (more) {
+        const content = more.closest('.wl-content');
+        content.toggleAttribute('data-open');
+        foldLong();
+        followLayout(450);            // the trunks and the highlight follow the unfold
+        return;
+      }
+      if (e.target.closest('.wl-emoji-toggle')) { setEmojiOpen(!emojiOpen()); return; }
+      const pick = e.target.closest('.wl-emoji-pick');
+      if (pick) insertEmoji(pick.textContent);
+    });
+
+    // a sort tab: fold the list away before Waline swaps it (caught on the
+    // way down; the click is sent on once folded)
+    let sortPass = false;
+    box.addEventListener('click', (e) => {
+      const li = e.target.closest('.wl-sort li');
+      if (!li || sortPass || li.classList.contains('active')) return;
+      const cards = listEl();
+      if (!cards || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      e.preventDefault();
+      e.stopPropagation();
+      listShown = LIST_FIRST;
+      foldAway(cards, () => {
+        sortWaiting = true;
+        sortPass = true;
+        li.click();
+        sortPass = false;
+      });
+    }, true);
+
+    // a reply button: answer from the prompt below, not from a new box in the
+    // card (caught on the way down, before Waline's own handler)
+    box.addEventListener('click', (e) => {
+      const button = e.target.closest('.wl-reply');
+      if (!button || !box.contains(button)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const item = button.closest('.wl-card-item[id]');
+      if (item) startReply(item);
+    }, true);
+
+    // Enter: logs in on the name line; sends on the comment line (Shift+Enter
+    // is a new line, Ctrl+Enter stays Waline's own send, Korean IME input is
+    // left alone while composing). Esc folds the emoji tray, or else drops a
+    // pending reply.
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && (emojiOpen() || REPLY) && e.target.closest('.wl-comment')) {
+        e.preventDefault();
+        if (emojiOpen()) setEmojiOpen(false); else endReply(true);
+        return;
+      }
+      if (e.key !== 'Enter' || e.shiftKey || e.isComposing || e.keyCode === 229) return;
+      const panel = e.target.closest('.wl-panel');
+      if (!panel) return;
+      if (e.target.matches('.wl-nick')) {
+        e.preventDefault();
+        if (bytes(e.target.value.trim()) < 3) {           // Waline's own minimum
+          panel.dataset.shake = '1';
+          setTimeout(() => { delete panel.dataset.shake; }, 400);
+          return;
+        }
+        setLogin(true);
+        requestAnimationFrame(() => { const ed = panel.querySelector('.wl-editor'); if (ed) ed.focus(); });
+      } else if (e.target.matches('.wl-editor') && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        const text = e.target.value.trim();
+        if (/^(exit|logout)$/i.test(text)) {
+          clearEditor(e.target);
+          setEmojiOpen(false);
+          setLogin(false);
+          requestAnimationFrame(() => { const n = panel.querySelector('.wl-nick'); if (n) n.focus(); });
+          return;
+        }
+        if (!text || (REPLY && text === `@${REPLY.at}`)) return;   // nothing to send yet
+        const send = panel.querySelector('.wl-btn.primary');
+        if (send) send.click();
+      }
+    }, true);
+  }
+
+  init({
+    el: '#waline',
+    serverURL: SERVER,
+    path: PATH,
+    lang: 'en',
+    locale,
+    dark: false,
+    comment: true,                 // fills .waline-comment-count (the header badge)
+    reaction: REACTIONS,
+    meta: ['nick'],                // a name only: no e-mail, no website
+    requiredMeta: ['nick'],
+    login: 'disable',              // the terminal "login" is just the name
+    imageUploader: false,          // no base64 images piling up in the DB
+    emoji: false,                  // ours instead: the system's emoji, as on the rest of the blog
+    search: false,                 // no third-party GIF search
+    pageSize: 10,
+    commentSorting: 'latest',      // newest first (the "Latest" tab)
+  });
+  decorate();
+  if (box && document.fonts) document.fonts.ready.then(() => { foldLong(); followLayout(0); });   // (line heights settle)
+
+  // ---- the prompt's hints: typed in, backspaced out, one after another ----------
+  // In the empty input, after the block cursor (like a shell's suggestion):
+  // the name line's before logging in, the comment line's after. Each hint
+  // types in, holds, is backspaced away, and the next types in. Paused while
+  // there's text in the line, the box is off screen or the tab is hidden;
+  // with reduced motion they just take turns.
+  const SLOW = 'comments may be slower the farther you are from South Korea';   // (the server runs in Seoul)
+  const HINTS = {
+    no: ['a name, then Enter -- to leave a comment', 'how was this post?', 'thanks for stopping by my blog', SLOW],
+    yes: ['leave a comment -- Enter to send', 'type exit to log out', 'how was this post?', 'thanks for stopping by my blog', SLOW],
+  };
+  const TYPE_MS = 45;
+  const ERASE_MS = 18;
+  const HOLD_MS = 2600;
+  const GAP_MS = 350;
+
+  function runHints() {
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const next = { no: 0, yes: 0 };
+    let inView = true;
+    if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => { inView = e.isIntersecting; }).observe(box);
+    let field = null;
+    let text = '';
+    let target = '';
+    let typing = false;
+    const tick = () => {
+      const panel = mainPanel();
+      const state = panel && panel.dataset.login === 'yes' ? 'yes' : 'no';
+      const f = panel && panel.querySelector(state === 'yes' ? '.wl-editor' : '.wl-nick');
+      if (!f || !inView || document.hidden || f.value) { setTimeout(tick, 500); return; }
+      if (f !== field) {                // logged in or out: carry on in the other line
+        field = f;
+        text = (f.getAttribute('placeholder') || '').trim();
+        typing = false;
+        const at = HINTS[state].indexOf(text);   // (already showing one: go on from it)
+        if (at >= 0 && next[state] <= at) next[state] = at + 1;
+      }
+      let delay;
+      if (!typing) {                    // backspacing
+        if (text) { text = still ? '' : text.slice(0, -1); delay = ERASE_MS; }
+        else {
+          const list = HINTS[state];
+          target = list[next[state]++ % list.length];
+          typing = true;
+          delay = GAP_MS;
+        }
+      } else if (text.length < target.length) {   // typing
+        text = still ? target : target.slice(0, text.length + 1);
+        delay = TYPE_MS;
+      } else {                          // typed: hold, then backspace
+        typing = false;
+        delay = still ? 4000 : HOLD_MS;
+      }
+      f.setAttribute('placeholder', text || ' ');   // (never empty: keeps :placeholder-shown)
+      setTimeout(tick, delay);
+    };
+    setTimeout(tick, HOLD_MS);
+  }
+  if (box) runHints();
+
+  // ---- header badges -------------------------------------------------------
+  const countEl = document.querySelector('.post-stat-comments .waline-comment-count');
+  const reactEl = document.querySelector('.post-stat-reaction');
+
+  // the box's own "N Comments" heading is the freshest count after posting
+  if (countEl && box) {
+    new MutationObserver(() => {
+      const n = parseInt((box.querySelector('.wl-count') || {}).textContent, 10);
+      if (!Number.isNaN(n)) countEl.textContent = n;
+    }).observe(box, { childList: true, subtree: true, characterData: true });
+  }
+
+  async function refreshReactionBadge() {
+    if (!reactEl || !REACTIONS.length) return;
+    const types = REACTIONS.map((_, i) => `reaction${i}`).join(',');
+    try {
+      const res = await fetch(`${SERVER}/api/article?path=${encodeURIComponent(PATH)}&type=${types}&lang=en`);
+      const counts = ((await res.json()).data || [])[0] || {};
+      let best = -1;
+      let max = 0;
+      REACTIONS.forEach((_, i) => {
+        const n = counts[`reaction${i}`] || 0;
+        if (n > max) { max = n; best = i; }
+      });
+      if (best < 0) { reactEl.hidden = true; return; }
+      const img = reactEl.querySelector('img');
+      img.src = REACTIONS[best];
+      img.alt = LABELS[best] || '';
+      reactEl.title = `${LABELS[best] || ''} ${max}`;
+      reactEl.querySelector('.post-stat-num').textContent = max;
+      reactEl.hidden = false;
+    } catch (e) {
+      reactEl.hidden = true;
+    }
+  }
+  refreshReactionBadge();
+  // a reader's own vote: re-read once the server has it
+  box && box.addEventListener('click', (e) => {
+    if (e.target.closest('.wl-reaction-item')) setTimeout(refreshReactionBadge, 800);
+  });
+</script>

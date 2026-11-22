@@ -1,0 +1,1126 @@
+/**
+ * Waline comments (_includes/extensions/comments/waline.html), in the site's
+ * tokens (misc/tokens.scss).
+ *
+ * Waline draws into the page and reads every colour from --waline-* variables
+ * declared on :root. Re-declaring them on #waline maps them onto the tokens,
+ * so the box follows the light / dark switch with the rest of the page.
+ * waline.css loads after main.css, so the shape overrides below are scoped
+ * to #waline to win on specificity, not on order.
+ *
+ * Also the post-header badges (.post-stat): comment count, top reaction.
+ */
+
+// the terminal's colours: the theme's own -- it sits on the page itself,
+// between two rules -- named here so the rules below read as a terminal's
+$t-bg: var(--c-page);
+$t-fg: var(--c-text);
+$t-dim: var(--c-muted);
+$t-green: var(--t-green);             // (tokens.scss: neon on navy)
+$t-blue: var(--k-blue);
+$t-line: var(--c-line);
+$t-rule: var(--c-line-strong);        // the two rules round it
+// room above and below each comment: the gap between log lines, and what
+// keeps a highlighted one's box clear of its neighbours, evenly
+$row-pad: 4px;
+
+// the banner's block letters: fonts whose block characters are one cell wide
+// (D2Coding draws them two wide, which breaks the letters apart)
+$art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans Mono", monospace;
+
+#waline {
+  --waline-font-size: 1rem;
+  --waline-white: var(--c-page);           // text on the primary button
+  --waline-light-grey: var(--c-faint);
+  --waline-dark-grey: var(--c-muted);
+  --waline-theme-color: var(--c-ink);      // primary button, active tab, vote pill
+  --waline-active-color: var(--c-text);
+  --waline-color: var(--c-text);
+  --waline-bg-color: var(--c-card);        // the editor panel
+  --waline-bg-color-light: var(--c-surface);
+  --waline-bg-color-hover: var(--c-hover);
+  --waline-border-color: var(--c-line);
+  --waline-disable-bg-color: var(--c-surface);
+  --waline-disable-color: var(--c-faint);
+  --waline-code-bg-color: var(--c-code-bg);
+  --waline-warning-color: var(--k-orange);
+  --waline-warning-bg-color: var(--k-orange-bg);
+  --waline-bq-color: var(--c-line-strong);
+  --waline-avatar-size: 2.5rem;
+  --waline-avatar-radius: 50%;
+  --waline-badge-color: var(--k-blue);
+  --waline-badge-font-size: 0.7em;
+  --waline-info-bg-color: var(--c-surface);
+  --waline-info-color: var(--c-muted);
+  --waline-info-font-size: 0.72em;
+  --waline-border: 1px solid var(--c-line);
+  --waline-box-shadow: none;
+
+  // the banner's colours: ice-blue letters with a glint, a warm pop for the
+  // small ones, white snow (with a halo, to show on the light page)
+  --logo-top: #5b8fd0;
+  --logo-bottom: #1e4f88;
+  --logo-shadow: rgba(30, 79, 136, 0.3);
+  --glint: rgba(255, 255, 255, 0.95);
+  --pop: #c2560c;
+  --snow: #fff;
+  --snow-halo: rgba(40, 64, 110, 0.55);
+
+  margin-top: 32px;
+  padding-top: 20px;                  // = the room under the reactions' title
+  border-top: 1px solid var(--c-line);
+  color: var(--c-text);
+
+  a { color: var(--k-blue); }
+
+  /* ---- reactions: stickers in a row -----------------------------------
+     The characters stand evenly spread over the full width, each a cut-out
+     sticker (an outline drawn round its silhouette), feet on one line. On
+     hover one hops up and its label types out under it, ">_ like"; the one
+     you picked keeps its label and gets a green outline. A count, once
+     there is one, sits at its shoulder. The title reads as a shell comment.
+     Narrow windows (a third of the screen or less -- the script sets
+     data-narrow) get one line of emoji instead: no pictures, no labels. */
+  .wl-reaction {
+    margin-bottom: 20px;
+    text-align: left;                 // a terminal reads from the left
+  }
+
+  .wl-reaction-title {
+    margin: 0 0 12px;                 // + the items' 8px hop room: 20px, as above it
+    font-family: $code-font-family;
+    font-size: 13.5px;                // the log's size, like its timestamps
+    font-weight: 400;
+    color: var(--t-lemon);
+
+    &::before { content: "# "; }
+  }
+
+  .wl-reaction-list {
+    display: grid;
+    grid-auto-flow: column;           // one row, never wrapped
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .wl-reaction-item {
+    --edge: var(--sticker-edge);      // the sticker outline (yat.scss); green once picked
+    position: relative;
+    min-width: 0;
+    padding-top: 8px;                 // room for the hop
+    -webkit-tap-highlight-color: transparent;
+
+    &.active { --edge: var(--t-green); }
+  }
+
+  .wl-reaction-img {
+    position: relative;               // waline's voting spinner hangs from it
+    width: min(64px, 100%);
+    height: auto;
+
+    // block, no margin: the site's global img rules otherwise push the picture
+    // down onto the count
+    img {
+      display: block;
+      width: 100%;
+      height: 64px;
+      max-width: none;
+      margin: 0;
+      object-fit: contain;
+      object-position: 50% 100%;      // feet on the line
+      @include sticker-outline(var(--edge));
+      transition:
+        transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),   // a springy hop
+        filter 0.2s ease;
+    }
+  }
+
+  // the picture hops, the count under it stays put (waline.css zooms instead)
+  .wl-reaction-item.active img { transform: none; }
+  .wl-reaction-item:hover .wl-reaction-img img { transform: translateY(-6px); }
+
+  // the count, in hex: "0x0A". Waline writes it in decimal and rewrites it
+  // on every vote; the script copies it into data-hex, which is what shows.
+  .wl-reaction-votes {
+    position: static;
+    inset: auto;
+    display: block;
+    min-width: 0;
+    margin-top: 6px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: var(--c-text);
+    font-size: 0;                     // waline's decimal, out of sight
+    text-align: center;
+
+    &::before,
+    &::after {
+      font: 700 13px/1.2 $code-font-family;
+      font-variant-numeric: tabular-nums;
+    }
+    &::before { content: "0x"; font-weight: 400; color: var(--c-muted); }
+    &::after { content: attr(data-hex); }
+  }
+  .wl-reaction-item[data-votes="0"] .wl-reaction-votes { opacity: 0.5; }
+  .wl-reaction-item.active .wl-reaction-votes {
+    background: none;
+    color: var(--t-green);
+
+    &::before { color: inherit; }
+  }
+
+  // the label types out, one character a step (--n: its length + ">_ ")
+  .wl-reaction-text {
+    width: max-content;
+    max-width: 100%;
+    margin: 2px auto 0;
+    overflow: hidden;
+    font: 12px/1.4 $code-font-family;
+    color: var(--c-muted);
+    white-space: nowrap;
+    clip-path: inset(0 100% 0 0);
+
+    &::before {
+      content: ">_ ";
+      color: var(--t-green);
+    }
+  }
+  .wl-reaction-item:hover .wl-reaction-text,
+  .wl-reaction-item.active .wl-reaction-text {
+    clip-path: inset(0);
+    transition: clip-path calc(var(--n, 8) * 28ms) steps(var(--n, 8), end);
+  }
+  .wl-reaction-item.active .wl-reaction-text { color: var(--t-green); }
+
+  // narrow: one line of emoji
+  &[data-narrow] {
+    .wl-reaction-item { padding-top: 4px; }
+
+    .wl-reaction-img {
+      width: auto;
+
+      img { display: none; }
+
+      &::before {
+        content: attr(data-emoji);
+        display: block;
+        font-size: 22px;
+        line-height: 1.2;
+        text-align: center;
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+    }
+    .wl-reaction-item:hover .wl-reaction-img::before { transform: translateY(-4px); }
+
+    .wl-reaction-votes {
+      margin-top: 2px;
+
+      &::before,
+      &::after { font-size: 11px; }
+    }
+    .wl-reaction-text { display: none; }
+  }
+
+  /* ---- the terminal ----------------------------------------------------
+     On the page itself, in the theme's colours, between a rule above and a
+     rule below: the count and sort as its title bar, the comments as a log --
+         [26.11.22 14:05:09] name > text
+     -- and the editor as the prompt at the bottom,
+         name@cityofwonder:~$ █
+     with a blinking block cursor while it's empty and unfocused. The
+     script stamps each card (data-stamp) and prompt (data-prompt). */
+
+  // the log sits above the prompt: title bar, cards (and "no logs",
+  // loading, load more), then the editor, then the "powered by" line
+  > [data-waline] {
+    display: flex;
+    flex-direction: column;
+
+    > * { order: 2; }
+    > .wl-reaction { order: 0; }
+    > .wl-meta-head { order: 1; }
+    > .wl-comment { order: 3; }
+    > .wl-meta-foot { order: 4; }
+
+    > .wl-meta-head,
+    > .wl-cards,
+    > .wl-empty,
+    > .wl-loading,
+    > .wl-operation,
+    > .wl-comment,
+    > .wl-meta-foot {
+      margin: 0;
+      padding-inline: 0;              // on the page: flush with the text above
+      background: none;
+      color: $t-fg;
+      font-family: $code-font-family;
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+  }
+
+  // title bar, under the top rule
+  .wl-meta-head {
+    padding-block: 8px;
+    border-top: 1px solid $t-rule;
+    border-bottom: 1px solid $t-line;
+  }
+
+  .wl-count {
+    flex: 0 0 auto;                   // waline.css stretches it; "powered by" follows it
+    font-size: 12px;
+    font-weight: 600;
+    color: $t-dim;
+  }
+
+  .wl-sort li {
+    font-size: 12px;
+    color: $t-dim;
+
+    &.active { color: $t-fg; font-weight: 600; }
+  }
+
+  .wl-empty {
+    padding-block: 10px 4px;
+    color: $t-dim;
+    text-align: left;
+  }
+
+  // the list bottom-up, like a chat: the newest thread next to the prompt
+  // (Waline's order is newest first). Older threads stay folded behind
+  // "--More--" at the top, which opens three at a time (the script:
+  // data-folded, data-opening); Waline's own "load more" is hidden -- that
+  // button fetches its next page.
+  > [data-waline] > .wl-cards {
+    display: flex;
+    flex-direction: column-reverse;
+    padding-block: 8px $row-pad;      // (the last comment: as far from the rule as from the one above)
+    box-sizing: border-box;           // (the script's heights are measured with the padding)
+    transition: height 0.3s ease;     // (only while the script sets one: re-sorting)
+  }
+
+  // re-sorting (the script): folded away -- height to 0, the threads fading
+  // -- then unfolded, the threads fading in from the bottom up
+  .wl-cards[data-sorting],
+  .wl-cards[data-unfolding] { overflow: hidden; }
+
+  .wl-cards[data-sorting] > * {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .wl-cards > .wl-card-item[data-folded] { display: none; }
+  .wl-cards > .wl-card-item[data-opening] {
+    animation: wl-open 0.35s ease both;
+    animation-delay: calc(var(--i, 0) * 45ms);
+  }
+
+  .wl-older {
+    order: 1;                         // last in a reversed column: the top
+    align-self: flex-start;
+    margin: 0 0 4px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: $t-dim;
+    font: 12px/1.6 $code-font-family;
+    cursor: pointer;
+    transition: color 0.15s ease;
+
+    &::before { content: "▲ "; }
+
+    &:hover,
+    &:focus-visible { color: $t-green; }
+  }
+
+  > [data-waline] > .wl-operation { display: none; }
+
+  // ---- a log line ----
+  .wl-card-item {
+    display: block;
+    padding: 0;
+    margin: 0;
+  }
+
+  .wl-user,
+  .wl-meta,
+  .wl-badge { display: none; }
+
+  // the like / reply buttons sit at the end of the first line, in a column
+  // kept clear on every line
+  $actions-w: 9ch;
+
+  .wl-card {
+    position: relative;               // the buttons hang from it
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 1ch;
+    width: auto;                      // waline.css: width 0 (it sat in a flex row)
+    margin: 0;
+    padding: $row-pad $actions-w $row-pad 0;
+    border: 0;
+    color: $t-fg;
+
+    &::before {
+      content: "[" attr(data-stamp) "]";
+      color: var(--t-lemon);
+      font-variant-numeric: tabular-nums;
+    }
+    &:not([data-stamp])::before { content: none; }
+  }
+
+  .wl-head { display: contents; }
+
+  .wl-card .wl-nick {
+    font-size: inherit;
+    color: $t-green;
+    font-weight: 600;
+    text-decoration: none;
+
+    &::after {
+      content: " >";
+      color: $t-dim;
+      font-weight: 400;
+    }
+  }
+
+  // the relative time is only the fallback for a card that has no stamp
+  .wl-time { display: none; }
+  .wl-card:not([data-stamp]) > .wl-head > .wl-time {
+    display: inline;
+    order: -1;
+    color: var(--t-lemon);
+    font-size: inherit;
+  }
+
+  .wl-content {
+    flex: 1 1 24ch;
+    min-width: 0;
+    margin: 0;                        // one log line after another, no gap
+    padding: 0;                       // (waline.css pads its top)
+    color: $t-fg;
+    font-size: inherit;
+    line-height: inherit;
+
+    p { margin: 0; }
+    a { color: $t-blue; }
+    .wl-uemoji { font-family: $base-font-family; }   // an old sticker, as the blog's emoji (the script)
+    code { color: $t-green; background: var(--c-hover); }
+    pre { margin: 4px 0; border-radius: var(--r-xs); }
+  }
+
+  // like / reply: at the end of the comment's first line, quiet until that
+  // line is hovered -- except a heart with likes on it (green once you've
+  // liked it, like the rest of the terminal's "on" states)
+  .wl-comment-actions {
+    position: absolute;
+    top: $row-pad;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 1.2ch;
+    height: 1.6em;                    // one log line
+    margin: 0;
+    float: none;
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5ch;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: $t-dim;
+      font: 12px/1 $code-font-family;
+      font-variant-numeric: tabular-nums;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s ease, color 0.15s ease;
+
+      &:hover { color: $t-fg; }
+    }
+
+    svg { display: block; width: 15px; height: 15px; }
+
+    // the heart last: flush right, one column of them down the log, with the
+    // reply (and edit / delete) showing to its left on hover
+    > .wl-like { order: 1; }
+  }
+
+  // a hovered line (not one of its replies, not the one being answered):
+  // it goes bold, fading in like the tags view's chips, and its buttons fade in
+  .wl-card::before,
+  .wl-card > .wl-head > .wl-nick,
+  .wl-card > .wl-content {
+    -webkit-text-stroke: 0 currentColor;
+    transition: -webkit-text-stroke-width 0.15s ease;
+  }
+
+  .wl-card:hover:not(:has(> .wl-quote:hover)):not([data-replying]) {
+    &::before,
+    > .wl-head > .wl-nick,
+    > .wl-content { -webkit-text-stroke-width: 0.35px; }
+
+    > .wl-head > .wl-comment-actions > button { opacity: 1; }
+  }
+
+  .wl-comment-actions > button:focus-visible,
+  .wl-comment-actions > .wl-like:not([data-count="0"]) { opacity: 1; }
+
+  .wl-like path[fill="red"] { fill: currentColor; }   // waline's red: the terminal's green
+  .wl-comment-actions > .wl-like:has(path[fill="red"]) { color: $t-green; }
+
+  // replies: a file tree under their comment, two levels deep --
+  //     [26.11.22 14:05:09] alice > hello
+  //     ├─ [26.11.22 14:07:31] bob > hi
+  //     │  └─ [26.11.22 14:08:15] alice > hi bob
+  //     └─ [26.11.22 14:09:02] carol > hey
+  // Waline lists a thread's replies flat; the script puts them in tree order
+  // (CSS order) and gives each its branch (data-branch, "└─" for the last at
+  // its level) and the trunks through it (--t0 level 1, --t1 level 2).
+  // the full width, through the comment's button column, so its buttons end
+  // where the comment's do (a flex item's width is its basis: the negative
+  // margin alone would only shift it)
+  .wl-quote {
+    display: flex;
+    flex-direction: column;           // (tree order: the items' CSS order)
+    flex: 0 0 calc(100% + #{$actions-w});
+    margin: $row-pad (-$actions-w) 0 0;   // the same gap under a comment as between any two lines
+    padding: 0;
+    border: 0;
+  }
+
+  .wl-quote > .wl-card-item {
+    position: relative;               // (the trunk up to its comment hangs from it)
+    display: flex;
+    align-items: baseline;            // the branch on the reply's first line
+    font-family: $art-font-family;    // the branches one cell wide (D2Coding draws them two)
+    // the trunks, through wrapped lines and the gaps between rows: at the
+    // level-1 branch's column and the level-2 one's
+    background:
+      linear-gradient($t-dim, $t-dim) no-repeat calc(0.5ch - 0.5px) 0 / 1px var(--t0, 100%),
+      linear-gradient($t-dim, $t-dim) no-repeat calc(3.5ch - 0.5px) 0 / 1px var(--t1, 0px);
+
+    &::before {
+      content: attr(data-branch);
+      flex: none;
+      margin-right: 1ch;
+      color: $t-dim;
+      white-space: pre;
+    }
+    &:not([data-branch])::before { content: "├─"; }   // (until the script has run)
+
+    // a comment's first reply: the trunk up through the comment's own wrapped
+    // lines to just under its first line (the script: data-up, --up, --col)
+    &[data-up]::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: calc((var(--col, 0) + 0.5) * 1ch - 0.5px);
+      width: 1px;
+      height: var(--up, 0px);
+      background: $t-dim;
+      pointer-events: none;
+    }
+
+    // level 2 is as deep as it goes: no reply button
+    &[data-depth="2"] > .wl-card > .wl-head > .wl-comment-actions > .wl-reply { display: none; }
+
+    > .wl-card {
+      flex: 1 1 auto;
+      min-width: 0;
+      font-family: $code-font-family;
+    }
+  }
+
+  // a long comment, folded (the script: data-long, data-open, --full-h):
+  // four lines fading out, then "--More--(33%)"; open, it unfolds to its
+  // full height and the button reads "--Less--"
+  // (the second selector outranks a reply's "@name:" + inline text rule)
+  .wl-content[data-long] > div,
+  .wl-content[data-long] > .wl-reply-to + div {
+    display: block;
+    max-height: calc(4 * 1.6em);      // FOLD_LINES in the script
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(#000 35%, transparent);
+    mask-image: linear-gradient(#000 35%, transparent);
+    transition: max-height 0.35s ease;
+  }
+
+  .wl-content[data-long][data-open] > div,
+  .wl-content[data-long][data-open] > .wl-reply-to + div {
+    max-height: var(--full-h, none);
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .wl-more {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: $t-dim;
+    font: 12px/1.6 $code-font-family;
+    cursor: pointer;
+    transition: color 0.15s ease;
+
+    &:hover,
+    &:focus-visible { color: $t-green; }
+  }
+
+  .wl-content > .wl-reply-to {
+    display: inline;
+    margin: 0;
+    color: $t-dim;
+
+    a { color: $t-blue; }
+
+    &[data-direct] { display: none; }   // a reply to the thread's first comment: the tree says it
+
+    + div,
+    + div > p:first-child { display: inline; }
+  }
+
+  // the comment being answered from the prompt (the script: data-replying,
+  // --reply-h: down to where its own replies begin) -- a callout's box: the
+  // wash, 4px corners, out to the right end; top and bottom halfway into
+  // the gaps round its line (the card's own edges: $row-pad either side).
+  // Its buttons, heart too, fade away while it's the one being answered.
+  .wl-card[data-replying] {
+    isolation: isolate;               // the box goes under the line, not under the page
+
+    &::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      left: -6px;
+      right: 0;
+      height: var(--reply-h, 100%);
+      border-radius: var(--r-xs);
+      background: color-mix(in srgb, var(--t-green) var(--wash), transparent);
+      pointer-events: none;
+    }
+
+    > .wl-head > .wl-comment-actions > button {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  // ---- the prompt ----
+  // Two states (data-login, set by the script):
+  //   no   an ASCII banner, then "login as: _" -- a name + Enter logs in
+  //   yes  "name@cityofwonder:~$ _" -- Enter sends, "exit" logs out; the
+  //        emoji button sits at the end of the line
+  // No bottom bar: markdown help, preview, word count and the send button
+  // are gone (Enter sends).
+  > [data-waline] > .wl-comment {
+    flex-direction: column;           // the banner above the prompt, not beside it
+    align-items: stretch;
+    padding-block: 10px;
+    border-top: 1px solid $t-line;
+    border-bottom: 1px solid $t-rule; // the bottom rule
+  }
+
+  // ---- the banner, while nobody is logged in ----
+  // Built by the script (.wl-banner): a neofetch-style card -- the logo, the
+  // how-to beside it, a row of twinkling lights -- and, in winter, snow
+  // falling over it all, each flake twinkling as it falls.
+  .wl-banner { display: none; }
+
+  > [data-waline] > .wl-comment:has(> .wl-panel[data-login="no"]) > .wl-banner {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;            // the logo and the how-to on one bottom line
+    gap: 12px 40px;
+    margin: -10px 0 12px;             // the snow starts at the rule above
+    padding: 16px 0 6px;
+  }
+
+  // The logo: "CoW" in half-block letters, two pixels per character row --
+  // ice blue, a hard shadow, a glint running across C, o, W in turn -- and
+  // the rest of "City of Wonder" popping in small: "ity" across the top of
+  // the short o, "f" over the W's foot, "onder" coming out from behind it.
+  .wl-banner-logo {
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .wl-big {
+    position: relative;
+    z-index: 1;                       // "onder" goes behind the W
+    background:
+      linear-gradient(105deg, transparent 40%, var(--glint) 50%, transparent 60%)
+        150% 0 / 250% 100% no-repeat,
+      linear-gradient(180deg, var(--logo-top), var(--logo-bottom));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font: 8px/1 $art-font-family;     // rows of blocks overlap a hair: no seams...
+    letter-spacing: -1px;             // ...and so do the blocks in a row
+    white-space: pre;
+    filter: drop-shadow(2px 2px 0 var(--logo-shadow));
+    animation: wl-glint 7s ease-in-out infinite;
+    animation-delay: calc(1s + var(--k) * 0.22s);
+  }
+
+  .wl-o {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 6px;
+  }
+
+  .wl-small {
+    position: relative;
+    display: flex;
+    color: var(--pop);
+    font: 700 20px/1 $art-font-family;
+    text-shadow: 1.5px 1.5px 0 var(--logo-shadow);
+
+    // each letter pops in (scale), then now and then they ripple (translate)
+    i {
+      display: block;
+      font-style: normal;
+      line-height: 1;
+      animation:
+        wl-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+        wl-ripple 7s ease-in-out infinite;
+      animation-delay:
+        calc(0.3s + var(--i) * 0.07s),
+        calc(3s + var(--i) * 0.07s);
+    }
+  }
+
+  .wl-ity {
+    z-index: 2;                       // across the o's top
+    margin: 0 0 -3px -4px;
+  }
+
+  // "f" and "onder" stand on the big letters' bottom line: their text ends
+  // at the baseline, a descent above their box, while the blocks reach the
+  // box's bottom -- so they drop by that much
+  .wl-f,
+  .wl-onder { margin-bottom: -0.175em; }
+
+  // "f" over the W, as "ity" is over the o: into the notch at its lower left,
+  // in front of its stem
+  .wl-f {
+    z-index: 2;
+    margin-inline: 2px -14px;
+  }
+
+  .wl-big-W { margin-left: 2px; }
+
+  .wl-onder {
+    z-index: 0;
+    margin-left: -5px;                // tucked behind the W's right stem
+  }
+
+  .wl-banner-info {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 2ch;
+    align-content: center;
+    font-size: 12px;
+    line-height: 1.5;
+    color: $t-fg;
+
+    .k { color: $t-blue; }
+  }
+
+  .wl-banner-who {
+    grid-column: 1 / -1;
+    color: $t-dim;
+
+    b { color: $t-green; font-weight: 600; }
+  }
+
+  .wl-banner-rule {
+    grid-column: 1 / -1;
+    color: $t-dim;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  // neofetch's colour row, as a string of lights
+  .wl-banner-lights {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+
+    i {
+      width: 1.6em;
+      height: 0.7em;
+      border-radius: 1px;
+      background: var(--light);
+      box-shadow: 0 0 6px var(--light);
+      animation: wl-twinkle 2.4s ease-in-out infinite alternate;
+      animation-delay: calc(var(--i) * -0.6s);
+    }
+  }
+
+  .wl-snow {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(transparent, #000 14%, #000 80%, transparent);
+    mask-image: linear-gradient(transparent, #000 14%, #000 80%, transparent);
+  }
+
+  // a flake: a column as tall as the banner with the flake at its top, so
+  // translateY(100%) is the banner's height
+  .wl-flake {
+    position: absolute;
+    top: 0;
+    left: var(--x);
+    height: 100%;
+    color: var(--snow);
+    font: var(--size) / 1 $art-font-family;
+    text-shadow: 0 0 3px var(--snow-halo);
+    animation:
+      wl-fall var(--fall) linear var(--delay) infinite,
+      wl-twinkle var(--tw) ease-in-out var(--delay) infinite alternate;
+  }
+
+  .wl-panel {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    column-gap: 1ch;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: $t-fg;
+    font-family: $code-font-family;
+    font-size: 13.5px;
+    line-height: 1.6;
+
+    // the prompt
+    &::before {
+      content: attr(data-prompt);
+      grid-row: 2;
+      grid-column: 1;
+      color: $t-green;
+      white-space: nowrap;
+    }
+
+    // the blinking block cursor, while the line is empty and unfocused
+    &::after {
+      content: "";
+      grid-row: 2;
+      grid-column: 2;
+      justify-self: start;
+      width: 1ch;
+      height: 1.25em;
+      margin-top: 0.15em;
+      background: $t-green;
+      pointer-events: none;
+      animation: wl-blink 1.1s steps(1) infinite;
+    }
+    &[data-login="yes"]:has(.wl-editor:focus)::after,
+    &[data-login="yes"]:has(.wl-editor:not(:placeholder-shown))::after { content: none; }
+  }
+
+  // not logged in: only "login as: name" (label and input on the grid)
+  .wl-panel[data-login="no"] {
+    > .wl-header,
+    > .wl-header > .wl-header-item { display: contents; }
+
+    .wl-header-item label { grid-row: 1; grid-column: 1; }
+    .wl-header .wl-input { grid-row: 1; grid-column: 2; }
+
+    > .wl-editor { display: none; }
+    &::before { content: none; }
+
+    &::after { grid-row: 1; }
+    &[data-nick-empty="no"]::after,
+    &:has(.wl-nick:focus)::after { content: none; }
+
+    &[data-shake] .wl-header .wl-input { animation: wl-shake 0.35s ease; }
+  }
+
+  // logged in: the name lives in the prompt
+  .wl-panel[data-login="yes"] > .wl-header { display: none; }
+
+  .wl-header-item {
+    label {
+      min-width: 0;
+      padding: 0;
+      font: inherit;
+      color: $t-dim;
+      white-space: nowrap;
+    }
+
+    label::after { content: ":"; }
+  }
+
+  .wl-header .wl-input {
+    width: 100%;                      // waline.css: width 0 + flex 1, which is 0 in our grid
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+    color: $t-green;
+    caret-color: $t-green;
+    outline: none;
+
+    // the hints (the script types them in and out)
+    &::placeholder { color: $t-dim; font-weight: 400; opacity: 1; }
+  }
+
+  // room for the block cursor before a hint, as on the comment line
+  .wl-panel[data-login="no"]:not(:has(.wl-nick:focus)) .wl-nick:placeholder-shown { padding-inline-start: 1.6ch; }
+
+  .wl-editor {
+    grid-row: 2;
+    grid-column: 2;
+    width: 100%;
+    min-height: 1.6em;                // one line; it grows as you type
+    field-sizing: content;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font: inherit;
+    color: $t-fg;
+    caret-color: $t-green;
+    caret-shape: block;
+    resize: none;
+    outline: none;
+
+    &::placeholder { color: $t-dim; opacity: 1; }
+    // room for the cursor (padding: text-indent doesn't reach a placeholder)
+    &:placeholder-shown:not(:focus) { padding-inline-start: 1.6ch; }
+  }
+
+  // no bottom bar: its pieces stay in the DOM for Waline, out of sight (but
+  // a captcha, if the server ever asks for one)
+  .wl-footer,
+  .wl-actions,
+  .wl-info { display: contents; }
+
+  .wl-actions > *,
+  .wl-info > :not(.wl-captcha-container),
+  .wl-preview,
+  .wl-gif-popup { display: none; }
+
+  .wl-captcha-container {
+    grid-row: 3;
+    grid-column: 1 / -1;
+  }
+
+  // ---- emoji (the script's own: the system's emoji, as on the rest of the
+  // blog) ----
+  // the button: a bare icon at the end of the input line, centred on its
+  // first line; hovered it turns green and hops a little (like the
+  // reactions), and stays green while the tray is open
+  .wl-emoji-toggle { display: none; }
+
+  .wl-panel[data-login="yes"] > .wl-emoji-toggle {
+    display: inline-flex;
+    grid-row: 2;
+    grid-column: 3;
+    align-self: start;
+    align-items: center;
+    justify-content: center;
+    height: 1.6em;                    // one input line
+    margin: 0;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: $t-dim;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    svg { display: block; }
+
+    &:hover,
+    &:focus-visible {
+      color: $t-green;
+      transform: translateY(-2px);
+    }
+    &[aria-expanded="true"] { color: $t-green; }
+  }
+
+  // the tray: under the input line, its full width, unfolding like the
+  // posts' toggles (height and fade), behind a hairline
+  .wl-emoji-tray {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      grid-template-rows 0.3s ease,
+      opacity 0.25s ease,
+      visibility 0s linear 0.3s;
+
+    &[data-open] {
+      grid-template-rows: 1fr;
+      opacity: 1;
+      visibility: visible;
+      transition: grid-template-rows 0.3s ease, opacity 0.25s ease;
+    }
+  }
+
+  .wl-comment:has(> .wl-panel[data-login="no"]) > .wl-emoji-tray { display: none; }
+
+  .wl-emoji-tray-inner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;               // a group's name on its first row
+    column-gap: 2ch;
+    min-height: 0;
+    max-height: 40vh;
+    overflow: hidden auto;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed $t-line;
+  }
+
+  .wl-emoji-name {
+    color: $t-dim;
+    font-size: 12px;
+    line-height: 32px;                // centred on that row (a pick's height)
+    white-space: nowrap;
+  }
+
+  .wl-emoji-row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .wl-emoji-pick {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--r-xs);
+    background: none;
+    font: 20px/1 $base-font-family;   // the blog's stack: its emoji fonts
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--c-hover);
+      transform: translateY(-2px);
+    }
+  }
+
+  // ---- "powered by": moved (by the script) into the title bar, beside
+  // "Comments"; the bottom block it leaves held only the subscribe link ----
+  > [data-waline] > .wl-meta-foot { display: none; }   // (no "subscribe to comments")
+
+  .wl-meta-head > .wl-power {
+    margin: 0 auto 0 1ch;             // keeps the sort tabs on the right
+    padding: 0;
+    font-size: 11px;
+    color: $t-dim;
+
+    &::before { content: "· "; }
+
+    a { color: inherit; text-decoration: underline; text-decoration-color: $t-line; }
+  }
+}
+
+html[data-theme="dark"] #waline {
+  --logo-top: #d4ebff;
+  --logo-bottom: #4f9fe0;
+  --logo-shadow: #26384f;
+  --pop: #e5c07b;
+  --snow: #eef5ff;
+  --snow-halo: rgba(214, 235, 255, 0.6);
+}
+
+@keyframes wl-blink {
+  50% { opacity: 0; }
+}
+
+@keyframes wl-shake {
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+// the glint crosses the logo, then rests off its left edge for a while
+@keyframes wl-glint {
+  0%, 55% { background-position: 150% 0, 0 0; }
+  100% { background-position: -50% 0, 0 0; }
+}
+
+@keyframes wl-open {
+  from { opacity: 0; transform: translateY(-4px); }
+}
+
+@keyframes wl-pop {
+  from { scale: 0; }
+  60% { scale: 1.25; }
+  to { scale: 1; }
+}
+
+// a short hop, letter after letter, then a long rest
+@keyframes wl-ripple {
+  0%, 6%, 100% { translate: 0 0; }
+  3% { translate: 0 -4px; }
+}
+
+@keyframes wl-twinkle {
+  from { opacity: 0.2; }
+  to { opacity: 1; }
+}
+
+@keyframes wl-fall {
+  from { transform: translate(0, -1em); }
+  to { transform: translate(var(--drift), 100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #waline {
+    .wl-panel::after,
+    .wl-big,
+    .wl-small i,
+    .wl-banner-lights i { animation: none; }
+
+    .wl-snow { display: none; }
+    .wl-reaction-img { transition: none; }
+  }
+}
+
+/* ---- post-header badges ----------------------------------------------- */
+.post-stat {
+  color: inherit;                 // muted on plain headers, white on banners
+  text-decoration: none;
+
+  &:hover {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  &[hidden] { display: none; }
+}
+
+.post-stat-icon {
+  width: 1.35em;
+  height: 1.35em;
+  object-fit: contain;
+  vertical-align: -0.3em;
+}

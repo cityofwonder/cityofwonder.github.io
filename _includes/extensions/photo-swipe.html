@@ -46,6 +46,12 @@
       if (el.src.trim() == "") {
         return;
       }
+      // Widget UI is not a photo: the Waline box (reaction pictures, avatars)
+      // and the header badges -- wrapping those in a lightbox link broke their
+      // layout, hijacked the reaction click, and nested a link in a link.
+      if (el.closest("#waline, .post-stat, [data-no-zoom]")) {
+        return;
+      }
       if (!imgEls.includes(el)) {
         imgEls.push(el);
       }
