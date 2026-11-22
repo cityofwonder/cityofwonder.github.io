@@ -45,6 +45,10 @@ $k-dark: (
   --caret: 10px;           // caret size
   --toggle-indent: 22px;   // where a toggle's label and content start
 
+  /* how much smaller text is on a phone: every px font size, through fs()
+     (yat.scss) -- 0 here, 3px at phone width (below) */
+  --fs-cut: 0px;
+
   /* radii */
   --r-xs: 4px;
   --r-sm: 8px;
@@ -96,6 +100,7 @@ $k-dark: (
      on navy */
   --t-green: #23703f;
   --t-lemon: #766a00;                     // its timestamps (lemon, deepened to read here)
+  --t-red: #b0201c;                       // "system" and errors (4.5:1 here)
 
   /* the one tint strength for a key colour laid over the page: callouts,
      coloured quotes and toggles, and the hover light on list items and
@@ -120,6 +125,11 @@ $k-dark: (
   --shadow-box: 0 1px 2px rgba(20, 28, 48, 0.06), 0 4px 12px rgba(20, 28, 48, 0.1);
   /* a hovered callout / quote: tight blur, fairly crisp edge, faint */
   --shadow-hover: 0 2px 3px rgba(20, 28, 48, 0.14);
+}
+
+// phones: all text 3px smaller (a phone's point is a CSS pixel)
+@include media-query($on-palm) {
+  :root { --fs-cut: 3px; }
 }
 
 /* Code blocks are dark in both themes, so inside them the key colours use
@@ -170,6 +180,7 @@ html[data-theme="dark"] {
   --sticker-edge: #fff;
   --t-green: #50fa7b;
   --t-lemon: #f1fa8c;
+  --t-red: #ff5555;                       // neon, with the green and lemon
 
   --shadow-box: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 14px rgba(0, 0, 0, 0.3);
 

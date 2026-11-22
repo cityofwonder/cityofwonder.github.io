@@ -39,7 +39,7 @@
 
 .home-hero-title {
   margin: 0 0 18px;
-  font-size: 52px;
+  font-size: fs(52px);
   font-weight: 800;
   line-height: 1.12;
   letter-spacing: -0.025em;
@@ -60,7 +60,7 @@
   margin: 0;
   padding: 0 7px;
   border-radius: var(--r-xs);
-  font-size: 14px;
+  font-size: fs(14px);
   font-weight: 600;
   line-height: 1.7;
 
@@ -74,7 +74,7 @@
 
 .home-hero-meta {
   margin: 0;
-  font-size: 13px;
+  font-size: fs(13px);
   color: var(--c-muted);
 
   span + span::before {
@@ -106,9 +106,9 @@ html:has(.home-hero)[data-scroll-status="top"] .site-header {
   .home-hero-inner { padding-left: 0; }   // .articles has no side padding here
 
   .home-hero-title {
-    font-size: 34px;
+    font-size: fs(34px);
     letter-spacing: -0.02em;
   }
 
-  .home-hero-topic { font-size: 13px; }
+  .home-hero-topic { font-size: fs(13px); }
 }

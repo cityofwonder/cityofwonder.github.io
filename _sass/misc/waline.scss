@@ -24,12 +24,12 @@ $t-rule: var(--c-line-strong);        // the two rules round it
 // keeps a highlighted one's box clear of its neighbours, evenly
 $row-pad: 4px;
 
-// the banner's block letters: fonts whose block characters are one cell wide
-// (D2Coding draws them two wide, which breaks the letters apart)
+// the banner logo's small letters ("ity", "f", "onder"); its big ones are
+// drawn as pixels, no font (.wl-big)
 $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans Mono", monospace;
 
 #waline {
-  --waline-font-size: 1rem;
+  --waline-font-size: #{fs(16px)};
   --waline-white: var(--c-page);           // text on the primary button
   --waline-light-grey: var(--c-faint);
   --waline-dark-grey: var(--c-muted);
@@ -89,7 +89,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
   .wl-reaction-title {
     margin: 0 0 12px;                 // + the items' 8px hop room: 20px, as above it
     font-family: $code-font-family;
-    font-size: 13.5px;                // the log's size, like its timestamps
+    font-size: fs(13.5px);                // the log's size, like its timestamps
     font-weight: 400;
     color: var(--t-lemon);
 
@@ -110,6 +110,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     position: relative;
     min-width: 0;
     padding-top: 8px;                 // room for the hop
+    container-type: inline-size;      // its column's width: the pictures' height below
     -webkit-tap-highlight-color: transparent;
 
     &.active { --edge: var(--t-green); }
@@ -117,16 +118,20 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
 
   .wl-reaction-img {
     position: relative;               // waline's voting spinner hangs from it
-    width: min(64px, 100%);
+    width: auto;
     height: auto;
 
-    // block, no margin: the site's global img rules otherwise push the picture
-    // down onto the count
+    // One height for every character: 64px, or less when the columns get
+    // narrow (a phone) -- as much as lets the widest picture (hackham,
+    // 240 x 208) still fit its column. Each keeps its own width, so none is
+    // squeezed shorter than the rest.
+    // Block, no margin: the site's global img rules otherwise push the
+    // picture down onto the count.
     img {
       display: block;
-      width: 100%;
-      height: 64px;
-      max-width: none;
+      width: auto;
+      height: min(64px, 100cqw * 208 / 240);
+      max-width: 100cqw;
       margin: 0;
       object-fit: contain;
       object-position: 50% 100%;      // feet on the line
@@ -159,7 +164,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
 
     &::before,
     &::after {
-      font: 700 13px/1.2 $code-font-family;
+      font: 700 #{fs(13px)}/1.2 $code-font-family;
       font-variant-numeric: tabular-nums;
     }
     &::before { content: "0x"; font-weight: 400; color: var(--c-muted); }
@@ -179,7 +184,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     max-width: 100%;
     margin: 2px auto 0;
     overflow: hidden;
-    font: 12px/1.4 $code-font-family;
+    font: #{fs(12px)}/1.4 $code-font-family;
     color: var(--c-muted);
     white-space: nowrap;
     clip-path: inset(0 100% 0 0);
@@ -208,7 +213,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
       &::before {
         content: attr(data-emoji);
         display: block;
-        font-size: 22px;
+        font-size: 22px;              // pictures in place of the stickers: their size everywhere
         line-height: 1.2;
         text-align: center;
         transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -220,7 +225,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
       margin-top: 2px;
 
       &::before,
-      &::after { font-size: 11px; }
+      &::after { font-size: fs(11px); }
     }
     .wl-reaction-text { display: none; }
   }
@@ -234,7 +239,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
      with a blinking block cursor while it's empty and unfocused. The
      script stamps each card (data-stamp) and prompt (data-prompt). */
 
-  // the log sits above the prompt: title bar, cards (and "no logs",
+  // the log sits above the prompt: title bar, cards (and "no comments yet",
   // loading, load more), then the editor, then the "powered by" line
   > [data-waline] {
     display: flex;
@@ -258,7 +263,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
       background: none;
       color: $t-fg;
       font-family: $code-font-family;
-      font-size: 13.5px;
+      font-size: fs(13.5px);
       line-height: 1.6;
     }
   }
@@ -272,22 +277,44 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
 
   .wl-count {
     flex: 0 0 auto;                   // waline.css stretches it; "powered by" follows it
-    font-size: 12px;
+    font-size: fs(12px);
     font-weight: 600;
     color: $t-dim;
   }
 
   .wl-sort li {
-    font-size: 12px;
+    font-size: fs(12px);
     color: $t-dim;
 
     &.active { color: $t-fg; font-weight: 600; }
   }
 
+  // no comments: a log line from "system" -- "[26.11.23 04:40:12] system >
+  // no comments yet" (the text is Waline's, "> no comments yet"; the stamp,
+  // the time the log found none, is the script's)
   .wl-empty {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 1ch;
     padding-block: 10px 4px;
     color: $t-dim;
     text-align: left;
+
+    &::before {
+      content: "[" attr(data-stamp) "]";
+      order: -2;
+      color: var(--t-lemon);
+      font-variant-numeric: tabular-nums;
+    }
+    &:not([data-stamp])::before { content: none; }
+
+    &::after {
+      content: "system";
+      order: -1;
+      color: var(--t-red);              // not a visitor: the terminal's red
+      font-weight: 600;
+    }
   }
 
   // the list bottom-up, like a chat: the newest thread next to the prompt
@@ -327,7 +354,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     border: 0;
     background: none;
     color: $t-dim;
-    font: 12px/1.6 $code-font-family;
+    font: #{fs(12px)}/1.6 $code-font-family;
     cursor: pointer;
     transition: color 0.15s ease;
 
@@ -337,7 +364,47 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     &:focus-visible { color: $t-green; }
   }
 
+  // Waline's "load more" stays hidden ("--More--" above stands in for it);
+  // when the list didn't load, its "retry" shows as an error line instead
   > [data-waline] > .wl-operation { display: none; }
+
+  // "error: the log didn't load -- [retry]"
+  > [data-waline] > .wl-operation[data-error] {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1ch;
+    padding-block: 10px 4px;
+    color: $t-dim;
+    text-align: left;
+
+    &::before {
+      content: "error:";
+      color: var(--t-red);
+    }
+    &::after {
+      content: "the log didn't load --";
+      order: 1;
+    }
+
+    .wl-btn {
+      order: 2;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: none;
+      color: $t-dim;
+      font: inherit;
+      cursor: pointer;
+
+      &::before { content: "["; }
+      &::after { content: "]"; }
+
+      &:hover,
+      &:focus-visible { color: $t-green; }
+    }
+  }
 
   // ---- a log line ----
   .wl-card-item {
@@ -398,6 +465,13 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     font-size: inherit;
   }
 
+  // a phone: no timestamps -- each line starts with its name (green)
+  @include media-query($on-palm) {
+    .wl-card::before,
+    .wl-empty::before,
+    .wl-card:not([data-stamp]) > .wl-head > .wl-time { display: none; }
+  }
+
   .wl-content {
     flex: 1 1 24ch;
     min-width: 0;
@@ -406,6 +480,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     color: $t-fg;
     font-size: inherit;
     line-height: inherit;
+    overflow-wrap: anywhere;          // a long URL breaks at the edge, like the post's text
 
     p { margin: 0; }
     a { color: $t-blue; }
@@ -436,7 +511,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
       border: 0;
       background: none;
       color: $t-dim;
-      font: 12px/1 $code-font-family;
+      font: #{fs(12px)}/1 $code-font-family;
       font-variant-numeric: tabular-nums;
       cursor: pointer;
       opacity: 0;
@@ -566,7 +641,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     border: 0;
     background: none;
     color: $t-dim;
-    font: 12px/1.6 $code-font-family;
+    font: #{fs(12px)}/1.6 $code-font-family;
     cursor: pointer;
     transition: color 0.15s ease;
 
@@ -654,22 +729,33 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     align-items: flex-end;
   }
 
+  // A big letter is its pixels, not characters: the script turns its half
+  // blocks into one SVG shape (--mask), which cuts the letter's colours out
+  // of a box --cols character cells wide and --rows tall -- the same on every
+  // device, whatever fonts it has (block characters from a fallback font
+  // break the letters apart). The box carries the shadow, its <i> the colours
+  // and the glint.
   .wl-big {
     position: relative;
     z-index: 1;                       // "onder" goes behind the W
-    background:
-      linear-gradient(105deg, transparent 40%, var(--glint) 50%, transparent 60%)
-        150% 0 / 250% 100% no-repeat,
-      linear-gradient(180deg, var(--logo-top), var(--logo-bottom));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font: 8px/1 $art-font-family;     // rows of blocks overlap a hair: no seams...
-    letter-spacing: -1px;             // ...and so do the blocks in a row
-    white-space: pre;
+    display: block;
+    flex: none;
+    width: calc(var(--cols) * 3.6875px);   // a cell: half an 8px row wide...
+    height: calc(var(--rows) * 8px);       // ...two pixels tall
     filter: drop-shadow(2px 2px 0 var(--logo-shadow));
-    animation: wl-glint 7s ease-in-out infinite;
-    animation-delay: calc(1s + var(--k) * 0.22s);
+
+    > i {
+      display: block;
+      height: 100%;
+      background:
+        linear-gradient(105deg, transparent 40%, var(--glint) 50%, transparent 60%)
+          150% 0 / 250% 100% no-repeat,
+        linear-gradient(180deg, var(--logo-top), var(--logo-bottom));
+      -webkit-mask: var(--mask) 0 0 / 100% 100% no-repeat;
+      mask: var(--mask) 0 0 / 100% 100% no-repeat;
+      animation: wl-glint 7s ease-in-out infinite;
+      animation-delay: calc(1s + var(--k) * 0.22s);
+    }
   }
 
   .wl-o {
@@ -730,7 +816,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     grid-template-columns: auto auto;
     column-gap: 2ch;
     align-content: center;
-    font-size: 12px;
+    font-size: fs(12px);
     line-height: 1.5;
     color: $t-fg;
 
@@ -805,7 +891,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     box-shadow: none;
     color: $t-fg;
     font-family: $code-font-family;
-    font-size: 13.5px;
+    font-size: fs(13.5px);
     line-height: 1.6;
 
     // the prompt
@@ -997,7 +1083,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
 
   .wl-emoji-name {
     color: $t-dim;
-    font-size: 12px;
+    font-size: fs(12px);
     line-height: 32px;                // centred on that row (a pick's height)
     white-space: nowrap;
   }
@@ -1014,7 +1100,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     border: 0;
     border-radius: var(--r-xs);
     background: none;
-    font: 20px/1 $base-font-family;   // the blog's stack: its emoji fonts
+    font: 20px/1 $base-font-family;   // the blog's stack: its emoji fonts (pictures: no phone cut)
     cursor: pointer;
     transition:
       background-color 0.15s ease,
@@ -1034,7 +1120,7 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
   .wl-meta-head > .wl-power {
     margin: 0 auto 0 1ch;             // keeps the sort tabs on the right
     padding: 0;
-    font-size: 11px;
+    font-size: fs(11px);
     color: $t-dim;
 
     &::before { content: "· "; }
@@ -1096,7 +1182,7 @@ html[data-theme="dark"] #waline {
 @media (prefers-reduced-motion: reduce) {
   #waline {
     .wl-panel::after,
-    .wl-big,
+    .wl-big > i,
     .wl-small i,
     .wl-banner-lights i { animation: none; }
 

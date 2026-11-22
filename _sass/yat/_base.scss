@@ -16,7 +16,7 @@ dl, dd, ol, ul, figure {
 body {
   font-family: $base-font-family;
   font-weight: $base-font-weight;
-  font-size: #{$base-font-size};
+  font-size: fs($base-font-size);
   font-display: swap;
   line-height: #{$base-line-height};
   color: var(--c-text);
@@ -93,7 +93,7 @@ figure > img {
 }
 
 figcaption {
-  font-size: $small-font-size;
+  font-size: fs($small-font-size);
 }
 
 
@@ -354,6 +354,8 @@ pre code {
 *:not(pre) > code {
   padding: 3px 6px;
   border-radius: var(--r-xs);
+  -webkit-box-decoration-break: clone;   // broken over lines: each piece a whole chip
+  box-decoration-break: clone;
   background-color: var(--k-gray-bg);
   color: var(--k-red);
 }
@@ -423,14 +425,27 @@ table {
   }
 }
 
-// a table in a post: text 2pt under the body's, rows fitted close to it
+// a table in a post: text 2pt under the body's, rows fitted close to it.
+// Its cells keep their words whole (the post breaks anywhere, _layout.scss):
+// a wide table scrolls sideways instead of crushing its columns.
 .post-content table {
   font-size: calc(1em - 2pt);
+  overflow-wrap: break-word;
 
   th, td {
     padding: 0.4em 0.8em;
     line-height: 1.45;
   }
+}
+
+// a display equation wider than the column (MathJax can't break it) scrolls
+// sideways like a code block instead of widening the page; the padding keeps
+// tall signs (sums, integrals) clear of the clipped top and bottom
+.post-content mjx-container[display="true"] {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0;
 }
 
 /**
@@ -566,7 +581,7 @@ $notion-colors: (
  */
 .post-tag {
   display: inline-block;
-  font-size: 12px;
+  font-size: fs(12px);
   font-weight: 500;
   line-height: 1.6;
   color: var(--c-text);
@@ -846,7 +861,7 @@ details.toggle-heading.toggle-h3 > summary { font-size: 1.12em; }
   z-index: 30;
   padding: 10px 12px;
   /* Absolute, not em: a note keeps its size wherever its word sits */
-  font-size: 13.5px;
+  font-size: fs(13.5px);
   font-style: normal;
   font-weight: 400;
   letter-spacing: 0;

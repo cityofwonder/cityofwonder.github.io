@@ -42,7 +42,7 @@ pre code.hljs {
   border: 0;
   background: none;
   color: rgba(255, 255, 255, 0.45);
-  font-size: 11px;
+  font-size: fs(11px);
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.08em;
@@ -87,7 +87,7 @@ pre.badge::before {
   position: absolute;
   top: 14px;
   left: 20px;
-  font-size: 11px;
+  font-size: fs(11px);
   font-weight: 700;
   line-height: 1;
   z-index: 2;

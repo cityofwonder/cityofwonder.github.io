@@ -188,7 +188,7 @@
 }
 
 .pagination .post-item.featured .featured-preview {
-  font-size: 0.8rem;
+  font-size: fs(12.8px);
   line-height: 1.4;
 }
 /* tighten the rendered preview's vertical rhythm so more fits, compactly */
@@ -217,7 +217,7 @@
 
 /* Compact grid cards: tighter title, preview trimmed to keep them short */
 .pagination .post-item.compact .post-title {
-  font-size: 1.2rem;
+  font-size: fs(19.2px);
   margin-bottom: 6px;
 }
 
@@ -272,7 +272,7 @@
 .pagination .post-badge {
   border-radius: var(--r-xs);
   padding: 1px 6px;
-  font-size: 10px;
+  font-size: fs(10px);
 }
 
 .pagination .post-badge.badge-top {

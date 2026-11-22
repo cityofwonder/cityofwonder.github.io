@@ -10,14 +10,15 @@
 
 
 /* ---------------------------------------------------------------------------
- * Graph: straight on the page, full column width, 525px tall
+ * Graph: straight on the page, full column width, 368px tall (the script
+ * lays it out for that height: tags.html)
  * ------------------------------------------------------------------------- */
 .tags-page .graph-content { position: relative; }
 
 #tag-graph {
   display: block;
   width: 100%;
-  height: 525px;
+  height: 368px;
   /* One finger scrolls the page; panning the graph takes two (or a mouse
      drag). Without this the graph swallowed every touch and the page could
      not be scrolled past it on a phone. */
@@ -44,7 +45,7 @@
   padding: 0;
   border: 0;
   border-radius: var(--r-sm);
-  font-size: 13px;
+  font-size: fs(13px);
   color: var(--c-muted);
   background: transparent;
   cursor: pointer;
@@ -109,7 +110,7 @@
    the shrunken text, or the thin text flashing as it faded. Only a
    neighbour's label that newly appears fades in. */
 .node-label {
-  font-size: 10px;
+  font-size: fs(10px);
   font-weight: 500;
   fill: var(--c-text);
   text-anchor: middle;
@@ -131,7 +132,7 @@
 .graph-node.is-hovered .node-label,
 .graph-node.is-held:not(.dimmed) .node-label {
   opacity: 1;
-  font-size: 15px;
+  font-size: fs(15px);
   font-weight: 800;
   transition: none;
 }
@@ -157,7 +158,7 @@
   border: 0;
   border-radius: var(--r-xs);
   background: none;
-  font-size: 12px;
+  font-size: fs(12px);
   line-height: 1.6;
   color: var(--c-text);
   cursor: pointer;
@@ -268,7 +269,7 @@ html[data-theme="dark"] .tags-filter .tag-filter.is-active .post-tag[class*="hig
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 26px;
+    font-size: fs(26px);
     color: var(--c-faint);
   }
 }
@@ -278,7 +279,7 @@ html[data-theme="dark"] .tags-filter .tag-filter.is-active .post-tag[class*="hig
   overflow: hidden;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  font-size: 14px;
+  font-size: fs(14px);
   font-weight: 600;
   line-height: 1.4;
   color: var(--c-ink);
@@ -287,7 +288,7 @@ html[data-theme="dark"] .tags-filter .tag-filter.is-active .post-tag[class*="hig
 }
 
 .ts-date {
-  font-size: 12px;
+  font-size: fs(12px);
   font-variant-numeric: tabular-nums;
   color: var(--c-muted);
 }
@@ -339,7 +340,7 @@ html[data-theme="dark"] .tags-filter .tag-filter.is-active .post-tag[class*="hig
   min-width: 640px;
   margin: 0;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: fs(13px);
   color: var(--c-text);
 
   th[data-key="title"]    { width: 28%; }
@@ -351,7 +352,7 @@ html[data-theme="dark"] .tags-filter .tag-filter.is-active .post-tag[class*="hig
     border: 0;
     border-bottom: 1px solid var(--c-line-strong);
     background: transparent;
-    font-size: 12px;
+    font-size: fs(12px);
     font-weight: 600;
     text-align: left;
     white-space: nowrap;
@@ -436,7 +437,7 @@ html[data-theme="dark"] .tags-filter .tag-filter.is-active .post-tag[class*="hig
  * Small screens
  * ------------------------------------------------------------------------- */
 @media (max-width: 768px) {
-  #tag-graph { height: 510px; }
+  #tag-graph { height: 357px; }
 
   .ts-track { --col: 200px; }
 }

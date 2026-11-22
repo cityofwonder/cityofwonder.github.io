@@ -35,14 +35,14 @@
 
 .ix-title {
   margin: 0;
-  font-size: 20px;
+  font-size: fs(20px);
   font-weight: 700;
   line-height: 1.4;
   color: var(--c-ink);
 }
 
 .ix-meta {
-  font-size: 13px;
+  font-size: fs(13px);
   font-variant-numeric: tabular-nums;
   color: var(--c-muted);
 }
@@ -60,7 +60,7 @@
     border: 0;
     border-bottom: 2px solid transparent;
     background: none;
-    font-size: 13px;
+    font-size: fs(13px);
     color: var(--c-muted);
     cursor: pointer;
     transition: color 0.15s ease, border-color 0.15s ease;
@@ -78,7 +78,7 @@
 .ix-empty {
   margin: 0;
   padding: 24px 6px;
-  font-size: 14px;
+  font-size: fs(14px);
   color: var(--c-muted);
 }
 

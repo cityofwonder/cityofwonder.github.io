@@ -2,6 +2,7 @@
 
 @use 'sass:math';
 @use 'sass:meta';
+@use 'sass:string';
 
 // Define defaults for each variable.
 
@@ -38,8 +39,18 @@ $on-laptop:        800px !default;
   }
 }
 
+// Type on a phone: every font size set in px drops by --fs-cut there (3px;
+// misc/tokens.scss), but never under $fs-floor -- a size already under it
+// keeps its size. So set font sizes through fs(): `font-size: fs(14px)`,
+// `font: #{fs(12px)}/1.4 ...`. (em sizes follow their parent on their own.)
+$fs-floor: 10px !default;
+
+@function fs($size) {
+  @return string.unquote("max(#{$size} - var(--fs-cut, 0px), #{math.min($size, $fs-floor)})");
+}
+
 @mixin relative-font-size($ratio) {
-  font-size: $base-font-size * $ratio;
+  font-size: fs($base-font-size * $ratio);
 }
 
 // A cut-out sticker (the reactions, the back-to-top cat): an outline drawn

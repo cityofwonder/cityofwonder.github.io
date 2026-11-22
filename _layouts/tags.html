@@ -405,15 +405,16 @@ sidebar: common-list
 
     // Fit to width: the canvas takes the column's width (never narrower than
     // 560, so a phone shows the same spread, scaled down) and the CSS height
-    // (525px). The layout is pulled wide -- x-gravity weaker than y, longer
-    // links -- so it fills the width instead of balling up in the middle.
+    // (368px, misc/tags-page.scss). The layout is pulled wide -- x-gravity
+    // weaker than y, longer links -- so it fills the width instead of balling
+    // up in the middle.
     //
     // No walls: nodes are NOT clamped to the canvas (clamping pinned every
     // loosely-connected node flat against the edge). Instead gravity is
     // stronger the fewer links a node has, so stragglers stay near the
     // cluster, and the finished layout is framed by fitToContent().
     const width = Math.max(560, Math.round(container.clientWidth) || 760);
-    const height = 525;
+    const height = 368;
     const degree = {};
     links.forEach(l => {
       degree[l.source] = (degree[l.source] || 0) + 1;

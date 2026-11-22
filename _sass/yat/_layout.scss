@@ -311,7 +311,7 @@ html {
 
   .post-meta {
     color: var(--c-muted);
-    font-size: $base-font-size;
+    font-size: fs($base-font-size);
     margin-bottom: $spacing-unit * 0.5;
   }
 
@@ -388,10 +388,13 @@ html {
   .post-content {
     /* One step up from the site default (14px). Headings are unaffected:
        relative-font-size() bakes them to absolute px at compile time. */
-    font-size: 16px;
+    font-size: fs(16px);
     margin-bottom: $spacing-unit;
-    overflow-wrap: normal;
-    word-wrap: normal;
+    /* the text fits the screen: a run with no place to break (a long
+       identifier in inline code, a bare URL) breaks where it meets the edge
+       instead of pushing the page wider than a phone. Words still break at
+       spaces as usual; tables keep whole words and scroll (_base.scss). */
+    overflow-wrap: anywhere;
     word-break: normal;
 
     h2 {
@@ -704,7 +707,7 @@ html {
   padding: 0px 3px;
   background-color: var(--k-gray-bg);
   color: var(--k-gray);
-  font-size: 10px;
+  font-size: fs(10px);
   font-weight: 600;
   border-radius: var(--r-xs);
   transition-duration: $base-transition-duration;

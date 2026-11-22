@@ -57,8 +57,13 @@
     reactionTitle: {{ w.reaction_title | default: "How was this post?" | jsonify }},
     nick: 'login as',
     placeholder: 'leave a comment -- Enter to send',   // (then the hints take turns: HINTS)
-    sofa: 'No logs yet.',
+    sofa: '> no comments yet',      // a log line from "system" (misc/waline.scss: .wl-empty)
     submit: 'send',
+    // Waline's one button under the list: "load more", or "refresh" when the
+    // list didn't load -- the same markup, so the script tells them apart by
+    // these labels (opButton)
+    more: 'more',
+    refresh: 'retry',
   };
 
   // ---- the terminal login: banner -> name -> comments ------------------------
@@ -157,12 +162,39 @@
   const LIGHTS = ['#e06c75', '#d19a66', '#e5c07b', '#98c379', '#56b6c2', '#61afef', '#c678dd', '#abb2bf'];
   const FLAKES = ['·', '•', '*', '❄︎', '·', '•', '*'];
 
+  // A big letter drawn as pixels: each character row is two pixel rows (top
+  // half: ▀ or █, bottom half: ▄ or █), each run of pixels one rectangle of a
+  // single SVG path (one shape: no seams between the pieces). CSS masks the
+  // letter's colours with it -- no font involved, so every device draws the
+  // same letters.
+  function bigMask(rows) {
+    const cols = Math.max(...rows.map((r) => r.length));
+    let d = '';
+    rows.forEach((row, r) => [0, 1].forEach((half) => {
+      const on = (c) => row[c] === '█' || row[c] === (half ? '▄' : '▀');
+      for (let c = 0; c < cols; c++) {
+        if (!on(c)) continue;
+        let w = 1;
+        while (on(c + w)) w++;
+        d += `M${c} ${r * 2 + half}h${w}v1h-${w}z`;
+        c += w - 1;
+      }
+    }));
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${cols} ${rows.length * 2}" ` +
+      `preserveAspectRatio="none"><path d="${d}"/></svg>`;
+    return { cols, url: `url('data:image/svg+xml,${encodeURIComponent(svg)}')` };
+  }
+
   function buildBanner() {
     const el = document.createElement('div');
     el.className = 'wl-banner';
     el.setAttribute('aria-hidden', 'true');
     let n = 0;                        // the small letters pop in one after another
-    const big = (ch, k) => `<span class="wl-big wl-big-${ch}" style="--k:${k}">${BIG[ch].join('\n')}</span>`;
+    const big = (ch, k) => {
+      const { cols, url } = bigMask(BIG[ch]);
+      return `<span class="wl-big wl-big-${ch}" style="--k:${k};--cols:${cols};--rows:${BIG[ch].length}">` +
+        `<i style="--mask:${url}"></i></span>`;
+    };
     const small = (word, cls) => `<span class="wl-small ${cls}">` +
       [...word].map((c) => `<i style="--i:${n++}">${c}</i>`).join('') + '</span>';
     const logo =
@@ -418,7 +450,18 @@
   const LIST_STEP = 3;
   let listShown = LIST_FIRST;
 
+  // Waline's button under the list, if it is the one kind asked for: 'more'
+  // (a next page to fetch) or 'refresh' (the list failed to load -- shown as
+  // an error line with a retry, misc/waline.scss)
+  function opButton(kind) {
+    const b = box.querySelector(':scope > [data-waline] > .wl-operation button');
+    return b && b.textContent.trim() === locale[kind] ? b : null;
+  }
+
   function foldList() {
+    const op = box.querySelector(':scope > [data-waline] > .wl-operation');
+    const failed = !!opButton('refresh');
+    if (op && failed !== ('error' in op.dataset)) op.toggleAttribute('data-error', failed);
     const cards = box.querySelector(':scope > [data-waline] > .wl-cards');
     if (!cards) return;
     const roots = [...cards.children].filter((el) => el.matches('.wl-card-item'));
@@ -427,7 +470,7 @@
       if (hide !== ('folded' in item.dataset)) item.toggleAttribute('data-folded', hide);
     });
     const hidden = Math.max(0, roots.length - listShown);
-    const nextPage = box.querySelector(':scope > [data-waline] > .wl-operation button');
+    const nextPage = opButton('more');
     let older = cards.querySelector(':scope > .wl-older');
     if (!hidden && !nextPage) { if (older) older.remove(); return; }
     if (!older) {
@@ -452,7 +495,7 @@
       setTimeout(() => { delete item.dataset.opening; }, 400);
     });
     if (roots.length < listShown) {
-      const nextPage = box.querySelector(':scope > [data-waline] > .wl-operation button');
+      const nextPage = opButton('more');
       if (nextPage) nextPage.click();   // the rest arrive with Waline's next page (decorate folds them)
     }
     foldList();
@@ -570,6 +613,9 @@
       const s = STAMPS.get(item.id);
       if (card && s && card.dataset.stamp !== s) card.dataset.stamp = s;
     });
+    // no comments: "system" says so, stamped with the time it found none
+    const empty = box.querySelector(':scope > [data-waline] > .wl-empty');
+    if (empty && !empty.dataset.stamp) empty.dataset.stamp = stampOf(Date.now());
     // likes: the count (a liked comment keeps its heart in sight)
     box.querySelectorAll('.wl-like').forEach((like) => {
       const n = String(parseInt(like.textContent, 10) || 0);

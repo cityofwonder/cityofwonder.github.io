@@ -32,7 +32,7 @@
 
 .ar-year-num {
   margin: 0;
-  font-size: 56px;
+  font-size: fs(56px);
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -47,7 +47,7 @@
 }
 
 .ar-stat-value {
-  font-size: 24px;
+  font-size: fs(24px);
   font-weight: 700;
   line-height: 1.15;
   color: var(--c-ink);
@@ -55,7 +55,7 @@
 
 .ar-stat-label {
   margin-top: 2px;
-  font-size: 12px;
+  font-size: fs(12px);
   color: var(--c-muted);
 }
 
@@ -112,7 +112,7 @@
   bottom: calc(100% + 3px);
   left: 50%;
   transform: translateX(-50%);
-  font-size: 11px;
+  font-size: fs(11px);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--c-ink);
@@ -126,7 +126,7 @@
 .ar-month:focus-visible .ar-val { opacity: 1; }
 
 .ar-mlabel {
-  font-size: 11px;
+  font-size: fs(11px);
   color: var(--c-muted);
 }
 
@@ -147,7 +147,7 @@
 
 .ar-row-label {
   margin-right: 6px;
-  font-size: 12px;
+  font-size: fs(12px);
   font-weight: 600;
   color: var(--c-muted);
 }
@@ -173,13 +173,13 @@
 }
 
 .ar-mname {
-  font-size: 14px;
+  font-size: fs(14px);
   font-weight: 700;
   color: var(--c-ink);
 }
 
 .ar-mcount {
-  font-size: 12px;
+  font-size: fs(12px);
   font-variant-numeric: tabular-nums;
   color: var(--c-muted);
 }
@@ -203,14 +203,14 @@
 
 .ar-day {
   flex: none;
-  font-size: 12px;
+  font-size: fs(12px);
   font-variant-numeric: tabular-nums;
   color: var(--c-muted);
 }
 
 .ar-title {
   @extend %ix-ellipsis;
-  font-size: 14px;
+  font-size: fs(14px);
   color: var(--c-ink);
 }
 
@@ -219,12 +219,12 @@
  * Small screens
  * ------------------------------------------------------------------------- */
 @media (max-width: 768px) {
-  .ar-year-num { font-size: 42px; }
+  .ar-year-num { font-size: fs(42px); }
   .ar-stats { gap: 8px 22px; }
-  .ar-stat-value { font-size: 20px; }
+  .ar-stat-value { font-size: fs(20px); }
   .ar-months { gap: 3px; }
   .ar-bar-track { height: 64px; }
-  .ar-mlabel { font-size: 10px; }
+  .ar-mlabel { font-size: fs(10px); }
   .ar-mblock { grid-template-columns: minmax(0, 1fr); }
   .ar-mhead { padding: 0 6px 4px; }
 }
