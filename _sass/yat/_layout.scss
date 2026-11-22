@@ -224,7 +224,6 @@ html {
     color: var(--accent);
 
     &:hover {
-      // was lighten($brand-color, 10%); lighten() can't take a var()
       color: color-mix(in srgb, var(--accent) 80%, #fff);
     }
   }
@@ -267,7 +266,14 @@ html {
   @extend %flex-1; /* <-- Keep footer on the bottom */
   -ms-flex: none; /* <-- Fix IE footer issue */
   padding: $spacing-unit * 2 0;
-  padding-top: 72px;
+  // the fixed site header, then a 56px strip holding the Light / Dark toggle
+  // with 16px above and below it (misc/theme-toggle.scss)
+  padding-top: calc(#{$header-height} + 56px);
+}
+
+// under a banner (the header floats over it) only the toggle's strip
+.page-banner ~ .page-content {
+  padding-top: 56px;
 }
 
 /**
@@ -426,6 +432,12 @@ html {
       margin: 60px 0 19px;
     }
 
+    // whatever opens the post -- callout, heading, paragraph -- starts on
+    // the line the sidebar's ToC starts on
+    > :first-child {
+      margin-top: 0;
+    }
+
     p {
       margin-bottom: 24px;
     }
@@ -515,12 +527,13 @@ html {
 /**
  * Page banner
  */
+/* As tall as what it holds -- title, subtitle, meta, tags -- plus a margin:
+   room for the transparent site header above it, a little below. The photo
+   fills whatever height that comes to. */
 .page-banner {
   display: block;
   position: relative;
-  height: $banner-height;
   background-color: $banner-background;
-  transition: height 0.2s;
 
   .page-banner-img {
     position: absolute;
@@ -543,15 +556,10 @@ html {
     }
   }
 
-  .wrapper {
-    height: 100%;
-  }
-
   .page-banner-inner {
-    @include vertical-center(relative);
-
+    position: relative;
     color: $banner-text-color;
-    padding: 10px 5px;
+    padding: calc(#{$header-height} + 24px) 5px 32px;
     text-shadow: 1px 1px 2px #33333355;
 
     & > *:first-child {
@@ -611,19 +619,13 @@ html {
         padding-right: 0;
       }
 
-      /* the site's tag chip (_base.scss), in glass: on the photo the per-tag
-         colour (a pale tone in light mode) would swallow the white text */
+      /* exactly the tags view's chip (_base.scss, hover: spotlight.scss) --
+         its own colour and ink -- spaced like the tags view's filter row */
       .post-tag {
-        margin: 9px 6px 0 0;
-        color: #fff;
-        background: rgba(255, 255, 255, 0.14) !important;
-        background-image: none !important;
+        margin: 6px 6px 0 0;
+        text-shadow: none;
       }
     }
-  }
-
-  @include media-query($on-palm) {
-    height: divide($banner-height, 1.5);
   }
 }
 
@@ -647,8 +649,10 @@ html {
     @include flex-sticky($header-height + 20px);
 
     /* MUST come after flex-sticky (which sets `transform: scale(...)`); keep the
-       scale so the sticky x-overflow fix stays, plus a rightward nudge. */
-    transform: translateX(40px) scale(0.9999);
+       scale so the sticky x-overflow fix stays. No sideways nudge: the
+       sidebar ends at the framework's right edge, so the page's right margin
+       matches its left. */
+    transform: scale(0.9999);
 
     /* visibility is controlled by JS — see extensions/sidebar-responsive.html */
     &.is-hidden {

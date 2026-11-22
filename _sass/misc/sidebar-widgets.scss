@@ -1,127 +1,75 @@
 /**
- * Sidebar widgets -- Visitors, Activity and the Posts notepad. Their styles
- * used to sit in <style> blocks inside each include; one place now, with the
- * sticky-note frame (tape, surface, folded corner, title) shared by Visitors
- * and Activity instead of written twice.
+ * Sidebar widgets -- Visitors, Activity and the Posts list. No boxes: each
+ * sits on the page with a | title, and the ones after the first are set
+ * off by a hairline rule above them.
  */
 
 /* ---------------------------------------------------------------------------
- * Visitors (sidebar/visitor-stats.html) -- also the sticky-note base the Activity widget shares
+ * Shared frame
  * ------------------------------------------------------------------------- */
-/* Sticky Note Widget Base - Grayscale */
 .sticky-note-widget {
   position: relative;
-  margin-bottom: 20px;
-  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.1));
-}
-
-.sticky-tape {
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 20px;
-  background: linear-gradient(180deg, var(--c-line-strong) 0%, var(--c-line) 100%);
-  border-radius: var(--r-xs);
-  z-index: 1;
 }
 
 .sticky-content {
-  background: var(--c-surface);
-  padding: 20px 16px 16px;
-  border-radius: var(--r-xs);
   position: relative;
 }
 
-.sticky-corner {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 0 20px 20px;
-  border-color: transparent transparent var(--c-line-strong) transparent;
-}
-
-.sticky-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 700;
+.sticky-title,
+.notepad-title {
+  margin: 0 0 10px;
+  padding-left: 9px;
+  border-left: 3px solid var(--c-line-strong);   // the | mark
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
   color: var(--c-text);
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 2px dashed var(--c-line);
 }
 
-.sticky-icon {
-  font-size: 16px;
+/* the widgets after the first: a rule above them; the first starts right at
+   the sidebar's top, 16px under the Light / Dark toggle */
+.activity-sticky,
+.notepad-widget {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--c-line);
 }
 
-/* Visitor Stats Grid */
-.visitor-stats-grid {
-  display: flex;
-  gap: 12px;
+.sidebar > div:first-of-type {
+  margin-top: 0;
 }
 
+/* ---------------------------------------------------------------------------
+ * Visitors (sidebar/visitor-stats.html): "label .... value" rows
+ * ------------------------------------------------------------------------- */
 .visitor-stat {
-  flex: 1;
-  background: var(--c-card);
-  border-radius: var(--r-sm);
-  padding: 10px 8px;
-  text-align: center;
-  border: 1px dashed var(--c-line-strong);
-}
-
-.visitor-stat .stat-emoji {
-  display: block;
-  font-size: 18px;
-  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 3px 0;
 }
 
 .visitor-stat .stat-label {
   display: block;
-  font-size: 10px;
-  color: var(--c-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
   margin-bottom: 4px;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--c-muted);
 }
 
 .visitor-stat .stat-value {
   display: block;
-  font-size: 18px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
   color: var(--c-ink);
-  font-family: 'Georgia', serif;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  .sticky-note-widget {
-    margin-bottom: 16px;
-  }
-
-  .sticky-content {
-    padding: 16px 12px 12px;
-  }
-
-  .visitor-stat .stat-value {
-    font-size: 16px;
-  }
 }
 
 /* ---------------------------------------------------------------------------
  * Activity chart (sidebar/posting-heatmap.html)
  * ------------------------------------------------------------------------- */
-
-
-
 .activity-unit {
-  margin-left: auto;
   font-size: 10px;
   font-weight: 500;
   color: var(--c-muted);
@@ -250,211 +198,69 @@
 }
 
 /* ---------------------------------------------------------------------------
- * Posts notepad (sidebar/common-list.html)
+ * Posts list (sidebar/common-list.html)
  * ------------------------------------------------------------------------- */
-/* Cute Notepad Widget - Grayscale with Accent */
 .notepad-widget {
-  background: var(--c-surface);
-  border-radius: var(--r-md);
-  box-shadow: 0 2px 8px rgba(20, 28, 48, 0.1);
+  position: relative;
   overflow: hidden;
   margin-bottom: 20px;
-  border: 1px solid var(--c-line);
-  position: relative;
 }
 
-/* Notepad Header with Rings */
-.notepad-header {
-  background: var(--c-surface);
-  padding: 12px 16px 8px;
-  position: relative;
-  border-bottom: 2px solid var(--c-line-strong);
-}
-
-.notepad-rings {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 8px;
-}
-
-.notepad-rings .ring {
-  width: 12px;
-  height: 12px;
-  background: linear-gradient(180deg, #888 0%, #666 100%);
-  border-radius: 50%;
-  border: 2px solid #999;
-  box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    0 2px 3px rgba(0, 0, 0, 0.2);
-}
-
-.notepad-title {
-  text-align: center;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--c-text); /* was white on the old dark header strip */
-  letter-spacing: 1px;
-}
-
-/* Notepad Content */
-.notepad-content {
-  padding: 16px;
-  background: repeating-linear-gradient(
-    transparent,
-    transparent 23px,
-    var(--c-line) 24px
-  );
-  background-size: 100% 24px;
-  background-position: 0 8px;
-}
-
-/* Notepad Sections */
 .notepad-section {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .notepad-section:last-child {
   margin-bottom: 0;
 }
 
-/* All Posts Link */
-.notepad-item.all-posts {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: color-mix(in srgb, var(--c-hover) 50%, transparent); /* half the hover tint */
-  border-radius: var(--r-sm);
-  text-decoration: none;
-  color: var(--c-text);
-  transition: all 0.2s ease;
-  border: 1px dashed var(--c-line-strong);
-}
-
-.notepad-item.all-posts:hover {
-  background: var(--c-hover);
-  transform: translateX(3px);
-}
-
-.notepad-item .item-icon {
-  font-size: 16px;
-}
-
-.notepad-item .item-label {
-  flex: 1;
-  font-weight: 600;
-  font-size: 13px;
-}
-
-.notepad-item .item-count {
-  background: var(--c-card);
-  color: var(--c-muted);
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: var(--r-pill);
-}
-
-/* Section Headers */
 .section-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
+  margin: 8px 0 4px;
   padding-bottom: 4px;
   border-bottom: 1px dotted var(--c-line-strong);
-}
-
-.section-icon {
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .section-title {
   font-size: 12px;
   font-weight: 600;
-  color: var(--c-muted);
-  text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-/* Recent List */
-.recent-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.recent-item {
-  margin-bottom: 4px;
-}
-
-.recent-item a {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 8px;
-  text-decoration: none;
-  color: var(--c-text);
-  font-size: 12px;
-  border-radius: var(--r-xs);
-  transition: all 0.2s ease;
-}
-
-.recent-item a:hover {
-  background: var(--c-hover);
-  color: var(--c-ink);
-}
-
-.recent-title {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.recent-date {
-  font-size: 10px;
+  text-transform: uppercase;
   color: var(--c-muted);
-  margin-left: 8px;
-  flex-shrink: 0;
 }
 
-/* Hot Topics List */
+.recent-list,
 .hot-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
+.recent-item,
 .hot-item {
   margin-bottom: 4px;
 }
 
+.recent-item a,
 .hot-item a {
   display: flex;
   align-items: center;
-  gap: 8px;
   padding: 6px 8px;
+  border-radius: var(--r-xs);
+  font-size: 12px;
   text-decoration: none;
   color: var(--c-text);
-  font-size: 12px;
-  border-radius: var(--r-xs);
-  transition: all 0.2s ease;
+  transition: color 0.2s ease;
+
+  &:hover { color: var(--c-ink); }   // + glide and bold: misc/spotlight.scss
 }
 
-.hot-item a:hover {
-  background: var(--c-hover);
-  color: var(--c-ink);
-}
+.recent-item a { justify-content: space-between; }
+.hot-item a { gap: 8px; }
 
-.hot-rank {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--c-muted);
-  min-width: 20px;
-}
-
+.recent-title,
 .hot-title {
   flex: 1;
   overflow: hidden;
@@ -462,61 +268,23 @@
   white-space: nowrap;
 }
 
-.hot-placeholder {
-  padding: 8px;
-  text-align: center;
+.recent-date {
+  flex-shrink: 0;
+  margin-left: 8px;
+  font-size: 10px;
+  color: var(--c-muted);
 }
 
-.placeholder-text {
-  font-size: 11px;
-  color: var(--c-faint);
-  font-style: italic;
+.hot-rank {
+  min-width: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-muted);
 }
 
-/* Notepad Footer */
-.notepad-footer {
-  padding: 8px;
-  text-align: center;
-  border-top: 1px dashed var(--c-line);
-}
-
-.notepad-doodle {
-  font-size: 12px;
-  color: var(--c-faint);
-}
-
-/* Dark Theme (colours come from the tokens; only the shadow and the
-   decorative ring holes keep their own dark values) */
-html[data-theme="dark"] .notepad-widget {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-html[data-theme="dark"] .notepad-rings .ring {
-  background: linear-gradient(180deg, #555 0%, #333 100%);
-  border-color: #666;
-}
-
-/* Mobile Responsive */
 @media (max-width: 768px) {
   .notepad-widget {
     margin-bottom: 16px;
-  }
-
-  .notepad-header {
-    padding: 10px 12px 6px;
-  }
-
-  .notepad-rings {
-    gap: 16px;
-  }
-
-  .notepad-rings .ring {
-    width: 10px;
-    height: 10px;
-  }
-
-  .notepad-content {
-    padding: 12px;
   }
 
   .recent-item a,

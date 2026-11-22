@@ -1,144 +1,7 @@
-<style>
-/* Inline "바로가기" (narrow screens): no box — just indented, gray,
-   underlined links following the heading (h2/h3/h4) hierarchy. */
-.toc-card {
-  margin: 4px 0 28px;
-}
-.toc-inline-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--c-muted);
-  margin-bottom: 8px;
-}
-.toc-tree ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.toc-tree li {
-  margin: 4px 0;
-}
-.toc-tree li a {
-  color: var(--c-muted);      /* text-gray */
-  text-decoration: none;
-  font-size: 0.9em;
-  transition: color 0.15s ease;
-}
-.toc-tree li a:hover { color: var(--c-text); text-decoration: underline; } /* underline on hover only */
-/* strip the file-tree rail/node markers inherited from .post-content li */
-.toc-tree li::before,
-.toc-tree li::after { content: none !important; display: none !important; }
-.toc-tree li:hover { background: none !important; }
-/* hierarchy indent */
-.toc-tree li.h-h3 { padding-left: 16px; }
-.toc-tree li.h-h4 { padding-left: 32px; }
-.toc-tree li.h-h5 { padding-left: 48px; }
-.toc-tree li.h-h6 { padding-left: 64px; }
-
-/* ===== Simplified sidebar widgets =====
-   Flatten the post-it look into a clean card: no shadow/tape/folded-corner/
-   gradient, no emojis, left-aligned title with a | bar (like the ToC). */
-.sidebar .sticky-note-widget {
-  filter: none;          /* drop the post-it shadow */
-  margin-bottom: 0;
-}
-.sidebar .sticky-tape,
-.sidebar .sticky-corner,
-.sidebar .sticky-icon,
-.sidebar .stat-emoji,
-.sidebar .item-icon,
-.sidebar .section-icon {
-  display: none;         /* remove decorations + emojis */
-}
-/* No boxes — widgets sit on the page bg; separated by divider lines only */
-.sidebar .sticky-content {
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-}
-.sidebar .sticky-title {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--c-text);
-  margin-bottom: 10px;
-  padding: 0 0 0 9px;
-  border: 0;
-  border-left: 3px solid var(--c-line-strong); /* the | symbol */
-  line-height: 1.25;
-}
-/* heatmap sits directly on the page bg → the left black/white fade blends */
-.sidebar .heatmap-wrapper {
-  border: 0 !important;
-  background: transparent !important;
-}
-.sidebar .heatmap-grid,
-.sidebar .heatmap-months {
-  padding-right: 8px; /* keep the recent cells off the right edge after scroll */
-}
-
-/* Visitors: plain stacked "label .... value" rows (no inner boxes) */
-.sidebar .visitor-stats-grid { display: block; }
-.sidebar .visitor-stat {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  background: none !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  padding: 3px 0 !important;
-  text-align: left;
-}
-.sidebar .visitor-stat .stat-label { font-size: 13px; color: var(--c-muted); }
-.sidebar .visitor-stat .stat-value { font-weight: 700; font-size: 14px; font-family: inherit !important; }
-
-/* "Posts" notepad: no box either, just content */
-.sidebar .notepad-widget {
-  background: transparent !important;
-  background-image: none !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-}
-.sidebar .notepad-header,
-.sidebar .notepad-content {
-  background: transparent !important;
-  background-image: none !important;
-  border: 0 !important;
-  padding: 0 !important;
-}
-.sidebar .notepad-rings,
-.sidebar .notepad-footer,
-.sidebar .notepad-doodle {
-  display: none !important;
-}
-.sidebar .notepad-title {
-  text-align: left !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  color: var(--c-text) !important;
-  border-left: 3px solid var(--c-line-strong) !important;
-  padding: 0 0 0 9px !important;
-  margin: 0 0 10px !important;
-}
-.sidebar .notepad-section { margin-bottom: 8px; }
-.sidebar .section-header { margin: 8px 0 4px; font-size: 12px; color: var(--c-muted); }
-
-/* The three widgets are separated by a divider line (no boxes) */
-.sidebar .activity-sticky,
-.sidebar .notepad-widget {
-  border-top: 1px solid var(--c-line) !important;
-  margin-top: 18px !important;
-  padding-top: 18px !important;
-}
-</style>
-
 <script>
-// Hide the (TOC / heatmap) sidebar with JS when the window isn't wide enough.
-// On a post page, when the TOC disappears we fold its links into a "바로가기"
-// card at the top of the body (styled like the Categories page).
+// Hide the sidebar (ToC / widgets) when the window isn't wide enough. On a
+// post page, when the ToC disappears its links are folded into a "바로가기"
+// card at the top of the body (styles: misc/article-menu.scss).
 (function () {
   var THRESHOLD = 1320; // below this width the sidebar is hidden
 
@@ -159,13 +22,8 @@
       var body = document.createElement('div');
       body.className = 'toc-tree';
       var ul = srcUl.cloneNode(true);
-      // sidebar links are shortened ("#Q1."); restore the full heading text here
-      var headings = content.querySelectorAll('h2, h3, h4, h5, h6');
-      [].forEach.call(ul.querySelectorAll('li'), function (li, i) {
-        li.style.display = '';
-        var a = li.querySelector('a');
-        if (a && headings[i]) a.textContent = headings[i].textContent.trim();
-      });
+      // the sidebar ToC folds other sections away on long posts; show them all
+      [].forEach.call(ul.querySelectorAll('li'), function (li) { li.style.display = ''; });
       body.appendChild(ul);
       box.appendChild(body);
       content.insertBefore(box, content.firstChild);

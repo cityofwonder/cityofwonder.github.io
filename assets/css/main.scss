@@ -2,37 +2,8 @@
 # Only the main Sass file needs front matter (the dashes are enough)
 ---
 
-// Default theme colors
-$theme-colors: (
-  "coolblack": #090a0b,
-  "spacegrey": #353535,
-  "snowwhite": #ffffff,
-);
-
-// Brand color: Notion red, the same value as --k-red / --accent in
-// _sass/misc/tokens.scss. Only Notion's palette is used on this site, so the
-// theme's stock brand colours (orangered, greatgold, ...) are gone.
-$brand-colors: (
-  "notionred": #d44c47,
-);
-
-$theme-name: "{{ site.theme_color }}";
-$brand-name: "{{ site.brand_color }}";
-$theme-color: map-get($theme-colors, "snowwhite");
-$brand-color: map-get($brand-colors, "notionred");
-
-@if map-has-key($theme-colors, $theme-name) {
-  $theme-color: map-get($theme-colors, $theme-name);
-} @else if str-index($theme-name, "#") == 1 {
-  $theme-color: {{ site.theme_color | default: '#ffffff' }};
-}
-
-@if map-has-key($brand-colors, $brand-name) {
-  $brand-color: map-get($brand-colors, $brand-name);
-} @else if str-index($brand-name, "#") == 1 {
-  $brand-color: {{ site.brand_color | default: '#d44c47' }};
-}
-
+// Colours live in _sass/misc/tokens.scss (CSS variables); only the content
+// width and the text selection come from _config.yml.
 $content-width: {{ site.content_width | default: '800px' }};
 
 // Selection styles
@@ -43,7 +14,7 @@ $selection-background-color: unquote("{{ site.selection.background_color }}");
   $selection-color: inherit;
 }
 @if $selection-background-color == "" {
-  // Notion blue (--k-blue); the old default inverted the brand red into cyan
+  // Notion blue (--k-blue)
   $selection-background-color: unquote("color-mix(in srgb, var(--k-blue) 28%, transparent)");
 }
 

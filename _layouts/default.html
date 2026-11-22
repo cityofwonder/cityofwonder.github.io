@@ -15,12 +15,12 @@
 
     {%- include extensions/hashlocate.html -%}
 
-    {%- include extensions/theme-toggle.html -%}
-
     {%- include extensions/click-to-top.html -%}
 
     <main class="page-content" aria-label="Content">
       <div class="wrapper">
+        {%- comment -%} first in the content box: it sits just above the sidebar, on its right edge (misc/theme-toggle.scss) {%- endcomment -%}
+        {%- include extensions/theme-toggle.html -%}
         {{ content }}
       </div>
     </main>

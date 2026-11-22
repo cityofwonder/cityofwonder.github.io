@@ -10,7 +10,7 @@
  *   .t-kind       the "[paper #85]" part of a post title (bold, --c-kind)
  *
  * And two placeholders the page partials @extend:
- *   %ix-row       a clickable row: hover tint, no underline on the row
+ *   %ix-row       a clickable row (its hover is the spotlight, misc/spotlight.scss)
  *   %ix-ellipsis  one line, cut with an ellipsis
  */
 .ix-page {
@@ -89,14 +89,10 @@
   color: var(--c-kind);
 }
 
-%ix-row {
+%ix-row {                       // hover glow + bold: misc/spotlight.scss
   border-radius: var(--r-xs);
-  transition: background-color 0.15s ease;
 
-  &:hover {
-    text-decoration: none;
-    background: var(--c-hover);
-  }
+  &:hover { text-decoration: none; }
 }
 
 %ix-ellipsis {

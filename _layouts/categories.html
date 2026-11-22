@@ -96,7 +96,7 @@ sidebar: common-list
   </div>
 
   <nav class="fg-crumbs" aria-label="Path"></nav>
-  <div class="files-list" id="files-list"></div>
+  <div class="files-list" id="files-list" data-glide=".fx-file, .fx-folder"></div>
   <p class="ix-empty" hidden>No posts match.</p>
 </div>
 
@@ -109,6 +109,7 @@ sidebar: common-list
       "title": {{ post.title | jsonify }},
       "url": {{ post.url | relative_url | jsonify }},
       "date": "{{ post.date | date: '%Y-%m-%d' }}",
+      "kind": {{ post.kind | default: '' | jsonify }},
       "categories": {{ post.categories | jsonify }}
     }{% unless forloop.last %},{% endunless %}
     {%- endfor -%}
@@ -134,12 +135,11 @@ sidebar: common-list
   const baseurl = {{ site.baseurl | default: '' | jsonify }};
   const keyOf = window.tagColorKey || (() => 'blue');
 
-  // ---- posts, with what every view needs
-  const KIND_RE = /^\[([^\]]+)\]\s*/;
+  // ---- posts, with what every view needs (`kind` comes from the build:
+  // _plugins/kind_numbering.rb)
   const hasWord = s => /[\p{L}\p{N}]/u.test(s);
   const posts = data.posts.map(p => {
-    const m = KIND_RE.exec(p.title);
-    const kindRaw = m ? m[1].replace(/\s*#?\d+(\.\d+)*\.?\s*$/, '').trim() : '';
+    const kindRaw = p.kind || '';
     const paths = (p.categories || []).map(c => c.split('/').map(s => s.trim()).filter(s => s && hasWord(s)));
     return Object.assign({}, p, {
       kind: kindRaw,

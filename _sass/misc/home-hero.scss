@@ -85,9 +85,11 @@
   .fa { margin-right: 2px; }
 }
 
-/* the main content no longer needs to clear the fixed header itself */
+/* the main content no longer needs to clear the fixed header itself: only
+   the Light / Dark toggle's strip -- 16px, the toggle, 16px
+   (misc/theme-toggle.scss) */
 .home-hero ~ .page-content {
-  padding-top: 16px;
+  padding-top: 56px;
 }
 
 /* at the very top the header is part of the hero band */

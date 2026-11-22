@@ -1,0 +1,63 @@
+{%- comment -%}
+  Two pictures side by side (styles: .img-pair in _sass/yat/_base.scss).
+  - Each picture gets --ar, its aspect ratio, so the pair shares one height
+    and nothing is cropped.
+  - While the window is half the screen's width or less, every pair is a
+    slide strip (.is-slide); besides touch / sideways scroll, a mouse can drag it.
+{%- endcomment -%}
+<script>
+  (function () {
+    var pairs = document.querySelectorAll('.post-content .img-pair');
+    if (!pairs.length) return;
+
+    function fit(img) {
+      if (img.naturalWidth && img.naturalHeight)
+        img.style.setProperty('--ar', (img.naturalWidth / img.naturalHeight).toFixed(4));
+    }
+    pairs.forEach(function (pair) {
+      pair.querySelectorAll('.img-pair-row img').forEach(function (img) { if (img.complete) fit(img); });
+    });
+    // `load` doesn't bubble, so catch it on the way down. (The lightbox script
+    // re-creates each <img> inside a link; the inline --ar carries over.)
+    document.addEventListener('load', function (e) {
+      var img = e.target;
+      if (img.tagName === 'IMG' && img.closest('.img-pair-row')) fit(img);
+    }, true);
+
+    function mode() {
+      var slide = window.innerWidth <= screen.width / 2;
+      pairs.forEach(function (pair) { pair.classList.toggle('is-slide', slide); });
+    }
+    mode();
+    window.addEventListener('resize', mode);
+
+    // mouse drag in slide mode; a drag that moved is not a click (no lightbox)
+    pairs.forEach(function (pair) {
+      var row = pair.querySelector('.img-pair-row'), drag = null;
+      if (!row) return;
+      function swallow(ev) { ev.preventDefault(); ev.stopPropagation(); }
+      row.addEventListener('pointerdown', function (e) {
+        if (!pair.classList.contains('is-slide') || e.pointerType !== 'mouse' || e.button !== 0) return;
+        drag = { x: e.clientX, left: row.scrollLeft, moved: false };
+      });
+      window.addEventListener('pointermove', function (e) {
+        if (!drag) return;
+        var dx = e.clientX - drag.x;
+        if (Math.abs(dx) > 4) { drag.moved = true; row.classList.add('is-dragging'); }
+        if (drag.moved) row.scrollLeft = drag.left - dx;
+      });
+      window.addEventListener('pointerup', function () {
+        if (!drag) return;
+        var moved = drag.moved;
+        drag = null;
+        row.classList.remove('is-dragging');           // snapping resumes: lands on a picture
+        if (!moved) return;
+        row.addEventListener('click', swallow, true);  // the click that ends this drag only
+        setTimeout(function () { row.removeEventListener('click', swallow, true); }, 0);
+      });
+      row.addEventListener('dragstart', function (e) {
+        if (pair.classList.contains('is-slide')) e.preventDefault();
+      });
+    });
+  })();
+</script>

@@ -32,6 +32,7 @@ sidebar: common-list
     "title": {{ post.title | jsonify }},
     "url": {{ post.url | relative_url | jsonify }},
     "date": "{{ post.date | date: '%Y-%m-%d' }}",
+    "kind": {{ post.kind | default: '' | jsonify }},
     "tags": {{ post.tags | jsonify }}
   }{% unless forloop.last %},{% endunless %}
   {%- endfor -%}
@@ -50,8 +51,6 @@ sidebar: common-list
   const tagsBase = {{ '/tags/' | relative_url | jsonify }};
   const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
                   'August', 'September', 'October', 'November', 'December'];
-  const KIND_RE = /^\[([^\]]+)\]/;
-
   function el(tag, cls, text) {
     const e = document.createElement(tag);
     if (cls) e.className = cls;
@@ -63,10 +62,6 @@ sidebar: common-list
     if (m) { parent.appendChild(el('b', 't-kind', m[1])); parent.appendChild(document.createTextNode(m[2])); }
     else parent.textContent = title;
     return parent;
-  }
-  function kindOf(title) {
-    const m = KIND_RE.exec(title);
-    return m ? m[1].replace(/\s*#?\d+(\.\d+)*\.?\s*$/, '').trim() : '';
   }
   function topCounts(values, n) {
     const c = new Map();
@@ -110,7 +105,7 @@ sidebar: common-list
     const counts = g.months.map(m => m.length);
     const busiest = counts.indexOf(Math.max.apply(null, counts));
     const tagCount = new Set([].concat.apply([], g.posts.map(p => p.tags))).size;
-    const topKind = topCounts(g.posts.map(p => kindOf(p.title)), 1)[0];
+    const topKind = topCounts(g.posts.map(p => p.kind), 1)[0];   // kind: from the build
     stats.appendChild(stat(g.posts.length, g.posts.length === 1 ? 'post' : 'posts'));
     stats.appendChild(stat(tagCount, tagCount === 1 ? 'tag' : 'tags'));
     stats.appendChild(stat(MONTHS[busiest].slice(0, 3), 'busiest month · ' + counts[busiest]));
@@ -162,6 +157,7 @@ sidebar: common-list
 
     // -- the posts, month by month (newest month first)
     const list = el('div', 'ar-list');
+    list.dataset.glide = '.ar-post';               // gliding row highlight (spotlight.scss)
     for (let i = 11; i >= 0; i--) {
       const ps = g.months[i];
       if (!ps.length) continue;

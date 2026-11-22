@@ -1,22 +1,6 @@
-<style type="text/css" media="screen">
-.post-menu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-/* one line per entry; the right end fades out and long titles get an ellipsis */
-.post-menu-content li a {
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  -webkit-mask-image: linear-gradient(to right, #000 62%, rgba(0, 0, 0, 0.35) 100%);
-          mask-image: linear-gradient(to right, #000 62%, rgba(0, 0, 0, 0.35) 100%);
-}
-</style>
-
+{%- comment -%} styles: _sass/misc/article-menu.scss {%- endcomment -%}
 <div class="post-menu">
-  <div class="post-menu-title">📂Table of contents</div>
+  <div class="post-menu-title">Table of contents</div>
   <div class="post-menu-content"></div>
 </div>
 
@@ -32,19 +16,20 @@
     }
 
     // Generate post menu (full heading text; the right edge fades + ellipsis
-    // truncates long titles via CSS)
+    // truncates long titles via CSS). The title sits in a span so the hover
+    // can highlight the text itself, not the whole row.
     var menuHTML = '';
     for (var i = 0; i < headings.length; i++) {
       var h = headings[i];
       menuHTML += (
         '<li class="h-' + h.tagName.toLowerCase() + '">'
-        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+        + '<a href="#h-' + h.getAttribute('id') + '"><span class="toc-text">' + h.textContent + '</span></a></li>');
     }
 
     menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
 
-    // Hover: highlight the hovered entry and its heading ancestry, so the
-    // hierarchy lights up without drawing fixed tree connectors.
+    // Hover, like a list item's (in yellow): the hovered entry and the
+    // headings it sits under light up (styles: misc/article-menu.scss).
     var tocItems = Array.prototype.slice.call(menuContent.querySelectorAll('li'));
     function levelOf(li) {
       var m = li.className.match(/h-h(\d)/);

@@ -1,17 +1,17 @@
 <script>
-// Notion-style comments. Wide screens (>=1500px, enough left margin) show the
-// notes pinned in the left page margin, open by default — click the word to
-// collapse/expand. Narrow screens open a popover on click that stays until you
-// click elsewhere. Bubbles are moved to be direct children of .post-content so
-// the file-tree list items (position:relative) can't capture their positioning.
+// Notion-style comments (styles: .notion-comment / .comment-bubble in
+// _sass/yat/_base.scss). When the left page margin has room, the notes are
+// pinned there, open by default -- click the word to collapse/expand.
+// Otherwise a click opens a popover that stays until you click elsewhere.
+// Bubbles are moved to be direct children of .post-content so list items
+// (position:relative) can't capture their positioning.
 (function () {
-  // Margin-note geometry. MIN_MARGIN is derived rather than hard-coded: with a
-  // threshold below NOTE_MIN + GAP + PAGE_EDGE the note was allowed to be wider
-  // than the margin it sits in and lapped over the body text.
-  var NOTE_MIN  = 110;  // narrowest a note may be
-  var NOTE_MAX  = 300;
-  var PAGE_EDGE = 60;   // gap from the window's left edge
-  var GAP       = 10;   // gap between the note and the body
+  // Margin-note geometry. Margin mode needs room for the narrowest note
+  // plus both gaps, or the note would lap over the body text.
+  var NOTE_MIN  = 160;  // narrowest a note may be
+  var NOTE_MAX  = 340;
+  var PAGE_EDGE = 24;   // gap from the window's left edge
+  var GAP       = 16;   // gap between the note and the body
   var MIN_MARGIN = NOTE_MIN + GAP + PAGE_EDGE;
 
   function init() {
@@ -23,16 +23,7 @@
 
     var pairs = words.map(function (w) {
       var b = w.querySelector('.comment-bubble');
-      if (b) {
-        content.appendChild(b); // re-parent to the content box
-        var label = w.textContent.trim(); // anchor text (bubble already removed)
-        if (label && !b.querySelector('.comment-quote')) {
-          var q = document.createElement('div');
-          q.className = 'comment-quote';
-          q.textContent = label; // (2) show what this note is attached to
-          b.insertBefore(q, b.firstChild);
-        }
-      }
+      if (b) content.appendChild(b); // re-parent to the content box
       return { word: w, bubble: b };
     }).filter(function (p) { return p.bubble; });
 
@@ -68,16 +59,24 @@
       });
     }
 
+    // The popover hangs under the LAST line of the word: a word that wraps
+    // starts at the far right of one line and ends on the next, and the note
+    // must not cover either part. Its arrow points at that line's piece of
+    // the word wherever the note itself has to sit (a word near the right
+    // edge pushes the note left).
+    var ARROW = 7;   // half the arrow's width (the ::after border)
     function openPopover(p) {
       pairs.forEach(function (q) { q.bubble.classList.remove('is-open'); });
-      var cRect = content.getBoundingClientRect();
-      var w = p.word.getClientRects()[0] || p.word.getBoundingClientRect();
-      p.bubble.style.left = (w.left - cRect.left) + 'px';
-      p.bubble.style.top = (w.bottom - cRect.top + 8) + 'px';
-      p.bubble.classList.add('is-open');
-      // keep it inside the content's right edge
-      var over = (p.bubble.offsetLeft + p.bubble.offsetWidth) - content.clientWidth;
-      if (over > 0) p.bubble.style.left = Math.max(0, p.bubble.offsetLeft - over - 4) + 'px';
+      var b = p.bubble, cRect = content.getBoundingClientRect();
+      var rects = [].filter.call(p.word.getClientRects(), function (r) { return r.width > 1; });
+      var w = rects[rects.length - 1] || p.word.getBoundingClientRect();
+      var aim = w.left - cRect.left + Math.min(w.width / 2, 24);          // arrow tip, in content coords
+      var left = Math.max(0, Math.min(aim - 16 - ARROW, content.clientWidth - b.offsetWidth - 4));
+      b.style.left = left + 'px';
+      b.style.top = (w.bottom - cRect.top + 8) + 'px';
+      b.style.setProperty('--arrow-x',
+        Math.max(8, Math.min(aim - left - ARROW, b.offsetWidth - 2 * ARROW - 8)) + 'px');
+      b.classList.add('is-open');
     }
 
     function apply() {
@@ -91,9 +90,23 @@
     }
 
     pairs.forEach(function (p) {
-      // (3) hover either the word or the note -> brighten both
-      function on() { p.bubble.classList.add('nc-active'); p.word.classList.add('nc-word-active'); }
-      function off() { p.bubble.classList.remove('nc-active'); p.word.classList.remove('nc-word-active'); }
+      // hover either the word or the note -> both turn bold. Letting go waits
+      // a beat: on its way the pointer crosses the gaps between a wrapped
+      // word's lines and the gap down to its popover -- neither is part of
+      // the word, and switching off there made both blink.
+      var offTimer;
+      function on() {
+        clearTimeout(offTimer);
+        p.bubble.classList.add('nc-active');
+        p.word.classList.add('nc-word-active');
+      }
+      function off() {
+        clearTimeout(offTimer);
+        offTimer = setTimeout(function () {
+          p.bubble.classList.remove('nc-active');
+          p.word.classList.remove('nc-word-active');
+        }, 160);
+      }
       p.word.addEventListener('mouseenter', on);
       p.word.addEventListener('mouseleave', off);
       p.bubble.addEventListener('mouseenter', on);

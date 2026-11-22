@@ -199,8 +199,6 @@
   padding: 5px 6px;
   color: inherit;
   @extend %ix-row;
-
-  &:hover .ar-title { text-decoration: underline; }
 }
 
 .ar-day {

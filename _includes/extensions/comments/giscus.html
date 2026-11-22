@@ -1,5 +1,5 @@
 {%- comment -%}
-Giscus Comments with Theme Support
+Giscus Comments with Theme Support (themes: assets/css/giscus-*.css)
 Configure in _config.yml:
 giscus:
   repo: "username/repo"
@@ -17,10 +17,19 @@ giscus:
 
 <script>
 (function() {
-  // Get current theme
+  // The site's own giscus themes (assets/css/giscus-light.css / -dark.css):
+  // the post's colours instead of GitHub's white / black boxes and green button.
+  // giscus loads them into its iframe, so they need absolute URLs; ?v= makes a
+  // rebuilt theme reach readers right away. Production only: under `jekyll
+  // serve` the URL is localhost, and browsers won't let a public page
+  // (giscus.app) load a stylesheet off localhost -- giscus came out unstyled --
+  // so local previews keep giscus's own light / dark.
+  const CUSTOM_THEME = {% if jekyll.environment == 'production' %}true{% else %}false{% endif %};
+  const THEME_URL = '{{ "/assets/css/giscus-" | absolute_url }}';
+  const THEME_VER = '{{ site.time | date: "%s" }}';
   function getGiscusTheme() {
-    const dataTheme = document.documentElement.getAttribute('data-theme');
-    return dataTheme === 'dark' ? 'dark' : 'light';
+    const name = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    return CUSTOM_THEME ? THEME_URL + name + '.css?v=' + THEME_VER : name;
   }
 
   // Create Giscus script

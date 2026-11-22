@@ -8,15 +8,26 @@ layout: default
      {{ content }}
 
   </section>
-  <section class="sidebar" style="margin-left: 15px;">
-    <!-- Get sidebar items -->
-    {%- if page.sidebar -%}
-      {%- assign sidebar = page.sidebar -%}
-    {%- elsif site.defaults[page.layout].sidebar -%}
-      {%- assign sidebar = site.defaults[page.layout].sidebar -%}
-    {%- elsif layout.sidebar -%}
-      {%- assign sidebar = layout.sidebar -%}
-    {%- endif -%}
+  {%- if page.sidebar -%}
+    {%- assign sidebar = page.sidebar -%}
+  {%- elsif site.defaults[page.layout].sidebar -%}
+    {%- assign sidebar = site.defaults[page.layout].sidebar -%}
+  {%- elsif layout.sidebar -%}
+    {%- assign sidebar = layout.sidebar -%}
+  {%- endif -%}
+  {%- comment -%}
+    Page-to-page transitions (misc/page-transitions.scss): a sidebar is named
+    after its widgets, so moving between pages with the SAME sidebar (tags,
+    archives, categories, about) keeps it still, while a different one
+    (home's, a post's ToC -- different on every post, so never named) fades
+    with the page instead of being laid over the other.
+  {%- endcomment -%}
+  {%- assign sidebar_list = sidebar | join: '-' -%}
+  {%- assign sidebar_vt = '' -%}
+  {%- unless sidebar_list contains 'article-menu' -%}
+    {%- assign sidebar_vt = ' view-transition-name: sidebar-' | append: sidebar_list | append: ';' -%}
+  {%- endunless %}
+  <section class="sidebar" style="margin-left: 15px;{{ sidebar_vt }}">
 
     {%- for item in sidebar -%}
 

@@ -1,0 +1,65 @@
+{%- comment -%}
+  Toggle motion: a toggle (<details> with .toggle-content) grows open and
+  folds shut instead of jumping -- its height glides while the content
+  fades in (or out), and the caret turns at the start. A click mid-motion
+  turns it around from where it is. With reduced motion asked for, the
+  browser's instant toggle stays. Styles: details in _sass/yat/_base.scss.
+{%- endcomment -%}
+<script>
+  (function () {
+    var EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var running = new WeakMap();   // details -> { anim, fade, closing }
+
+    function glide(d, body) {
+      var now = running.get(d);
+      var closing = now ? !now.closing : d.open;
+      var from = d.getBoundingClientRect().height;    // mid-motion: where it is now
+      if (now) { now.anim.cancel(); now.fade.cancel(); }
+
+      var to;
+      if (closing) {
+        d.open = false;                               // measure the closed height,
+        to = d.getBoundingClientRect().height;        // stay open while folding
+        d.open = true;
+        d.classList.add('is-closing');                // caret turns back now
+      } else {
+        d.classList.remove('is-closing');
+        d.open = true;
+        to = d.getBoundingClientRect().height;
+      }
+
+      var time = Math.round(Math.min(440, Math.max(240, Math.abs(to - from) * 0.5)));
+      d.style.overflow = 'hidden';
+      var anim = d.animate({ height: [from + 'px', to + 'px'] }, { duration: time, easing: EASE });
+      var fade = body.animate(
+        closing ? { opacity: [getComputedStyle(body).opacity, 0] }
+                : { opacity: [0, 1], transform: ['translateY(-4px)', 'none'] },
+        { duration: time, easing: EASE, fill: 'both' });
+
+      var me = { anim: anim, fade: fade, closing: closing };
+      running.set(d, me);
+      anim.onfinish = function () {
+        if (running.get(d) !== me) return;
+        running.delete(d);
+        if (closing) {
+          d.open = false;
+          d.classList.remove('is-closing');
+        }
+        d.style.overflow = '';
+        fade.cancel();
+      };
+    }
+
+    document.addEventListener('click', function (e) {
+      var summary = e.target.closest ? e.target.closest('summary') : null;
+      if (!summary || reduce.matches || e.target.closest('a')) return;
+      var d = summary.parentElement;
+      if (!d || d.tagName !== 'DETAILS' || d.querySelector(':scope > summary') !== summary) return;
+      var body = d.querySelector(':scope > .toggle-content');
+      if (!body || !d.animate) return;
+      e.preventDefault();
+      glide(d, body);
+    });
+  })();
+</script>

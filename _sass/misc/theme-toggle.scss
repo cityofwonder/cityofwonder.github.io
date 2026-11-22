@@ -1,9 +1,14 @@
+/* Light / Dark: right above the sidebar, on its right edge -- the page's
+   right margin. It is the first thing in the content box, pulled up into the
+   page's top padding (-40px = its 24px + a 16px gap, given back below), so
+   nothing under it moves: that padding ends in a 56px strip -- 16px, the
+   toggle, 16px -- so it sits equally far from the header (or banner) above
+   and the sidebar below. Without a sidebar it keeps that corner. */
 .theme-toggle {
   position: relative;
   width: $base-font-size * 7.65;
-  margin-top: 10px;
-  margin-right: 60px;
-  margin-left: auto;
+  height: 24px;
+  margin: -40px 0 16px auto;
   transition: .3s cubic-bezier(.4,.03,0,1);
 
   label, .toggle {
@@ -20,8 +25,7 @@
     position: absolute;
     width: 50%;
     height: 100%;
-    background-color: var(--c-card);
-    box-shadow: 0 2px 15px rgba(0,0,0,.15);
+    background-color: var(--c-card);       // flat: no shadow, the tone sets it off the track
     transition: transform .2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
@@ -70,13 +74,8 @@
     color: var(--c-text);
   }
 
-  @include media-query(1024px) {
-    margin-right: 35px;
-  }
-
   @include media-query($on-palm) {
     width: $base-font-size * 6.65;
-    margin-right: 20px;
 
     .names {
       font-size: .85em;

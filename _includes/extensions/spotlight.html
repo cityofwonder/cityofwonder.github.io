@@ -1,0 +1,125 @@
+{%- comment -%}
+  Glide: the hover for lists (styles: _sass/misc/spotlight.scss). Mouse only.
+
+  A list marked data-glide="<row selector>" gets one highlight block
+  (.glide-pill) behind its rows. It fades in on the row under the pointer,
+  then slides from row to row: the edge facing the next row leads and the
+  far edge follows a beat later, so the block briefly stretches. The stretch
+  never reaches more than one row back, and that tail fades out. It fades
+  away when the pointer leaves the list. Lists can nest; each keeps its own
+  block. (Tag chips don't glide: they light up in place, CSS only.)
+{%- endcomment -%}
+<script>
+  (function () {
+    var GROUP = '[data-glide]';
+    var active = [];   // { list, pill, row } for every list under the pointer
+
+    function groupsOf(el) {
+      var out = [], g = el && el.closest ? el.closest(GROUP) : null;
+      while (g) { out.push(g); g = g.parentElement ? g.parentElement.closest(GROUP) : null; }
+      return out;
+    }
+
+    function pillOf(list) {
+      var pill = list.querySelector(':scope > .glide-pill');
+      if (!pill) {
+        pill = document.createElement('span');
+        pill.className = 'glide-pill';
+        pill.setAttribute('aria-hidden', 'true');
+        list.appendChild(pill);
+      }
+      return pill;
+    }
+
+    // a client rect as insets inside the list (what the block's edges use)
+    function box(list, r) {
+      var c = list.getBoundingClientRect();
+      var top = r.top - c.top - list.clientTop + list.scrollTop;
+      var left = r.left - c.left - list.clientLeft + list.scrollLeft;
+      return { t: top, l: left, h: r.height,
+               b: list.clientHeight - top - r.height, r: list.clientWidth - left - r.width };
+    }
+    function setBox(pill, b) {
+      pill.style.setProperty('--gt', b.t + 'px');
+      pill.style.setProperty('--gl', b.l + 'px');
+      pill.style.setProperty('--gb', b.b + 'px');
+      pill.style.setProperty('--gr', b.r + 'px');
+      pill.style.setProperty('--gh', b.h + 'px');
+    }
+    function visibleRows(list) {
+      return Array.prototype.filter.call(list.querySelectorAll(list.getAttribute('data-glide')),
+        function (r) { return r.getClientRects().length > 0; });
+    }
+
+    function place(entry, row, instant) {
+      var list = entry.list, pill = entry.pill;
+      var target = box(list, row.getBoundingClientRect());
+      if (instant) {                      // land there, then fade in
+        pill.classList.remove('go-down', 'go-up');
+        pill.classList.add('no-anim');
+        setBox(pill, target);
+        void pill.offsetWidth;
+        pill.classList.remove('no-anim');
+        pill.classList.add('is-on');
+        return;
+      }
+      var down = target.t > parseFloat(pill.style.getPropertyValue('--gt'));
+
+      // Freeze the block where it is right now (mid-flight included), but no
+      // further back than the row next to the new one. Then head off.
+      var now = box(list, pill.getBoundingClientRect());
+      var rows = visibleRows(list), i = rows.indexOf(row);
+      var near = rows[down ? i - 1 : i + 1];
+      if (near) {
+        var n = box(list, near.getBoundingClientRect());
+        if (down) now.t = Math.max(now.t, n.t);
+        else now.b = Math.max(now.b, n.b);
+      }
+      var H = list.clientHeight;
+      if (now.t > H - now.b) {            // fully cut: start as a sliver at the near row
+        if (down) now.b = H - now.t; else now.t = H - now.b;
+      }
+
+      pill.classList.add('no-anim');
+      setBox(pill, { t: now.t, l: now.l, b: now.b, r: now.r, h: target.h });
+      void pill.offsetWidth;
+      pill.classList.remove('no-anim', 'go-down', 'go-up');
+      pill.classList.add(down ? 'go-down' : 'go-up', 'is-on');
+      setBox(pill, target);
+    }
+
+    function fade(entry) { entry.pill.classList.remove('is-on'); }
+
+    document.addEventListener('pointerover', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      var groups = groupsOf(e.target);
+      active = active.filter(function (a) {        // lists the pointer left
+        if (groups.indexOf(a.list) === -1) { fade(a); return false; }
+        return true;
+      });
+      groups.forEach(function (list) {
+        var row = e.target.closest(list.getAttribute('data-glide'));
+        if (!row || !list.contains(row)) return;   // between rows: stay put
+        var entry = null;
+        active.forEach(function (a) { if (a.list === list) entry = a; });
+        var pill = pillOf(list);
+        if (entry && entry.pill !== pill) {        // the list was re-rendered
+          active.splice(active.indexOf(entry), 1);
+          entry = null;
+        }
+        if (entry && entry.row === row) return;
+        if (!entry) {
+          entry = { list: list, pill: pill, row: row };
+          active.push(entry);
+          place(entry, row, true);
+        } else {
+          place(entry, row, false);
+        }
+        entry.row = row;
+      });
+    });
+    document.addEventListener('mouseout', function (e) {
+      if (!e.relatedTarget) { active.forEach(fade); active = []; }   // left the window
+    });
+  })();
+</script>

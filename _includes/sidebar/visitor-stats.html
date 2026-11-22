@@ -1,65 +1,69 @@
-<!-- Cute Sticky Note - Visitor Stats -->
+{%- comment -%} Visitors: today / total from GoatCounter (styles: _sass/misc/sidebar-widgets.scss) {%- endcomment -%}
 <div class="sticky-note-widget visitor-sticky">
-  <div class="sticky-tape"></div>
   <div class="sticky-content">
-    <div class="sticky-title">
-      <span class="sticky-icon">👀</span>
-      <span>Visitors</span>
-    </div>
+    <div class="sticky-title">Visitors</div>
     <div class="visitor-stats-grid">
       <div class="visitor-stat">
-        <span class="stat-emoji">🌅</span>
         <span class="stat-label">Today</span>
         <span class="stat-value" id="today-visitors">-</span>
       </div>
       <div class="visitor-stat">
-        <span class="stat-emoji">🌍</span>
         <span class="stat-label">Total</span>
         <span class="stat-value" id="total-visitors">-</span>
       </div>
     </div>
   </div>
-  <div class="sticky-corner"></div>
 </div>
-
-{%- comment -%} styles: _sass/misc/sidebar-widgets.scss {%- endcomment -%}
 
 <script>
 // Site-wide visitor counts from GoatCounter's public counter
-// (_data/goatcounter.yml). These used to be kept in each visitor's own
-// localStorage, so every browser showed only its own visits.
-// GoatCounter caches these responses for up to 4 hours.
+// (_data/goatcounter.yml). GoatCounter caches these responses for up to
+// 4 hours.
+// The last counts fetched are kept in this browser and shown at once (this
+// script runs before the page first paints), so the numbers don't pop in
+// late when you come back to the home page; the fresh fetch then updates
+// them. Today's count is only reused on the same day.
 (function() {
   var code = {{ site.data.goatcounter.code | jsonify }};
-
-  // the old per-browser tally is meaningless now; drop it
-  try {
-    localStorage.removeItem('blog_visitor_stats');
-    localStorage.removeItem('blog_last_visit_date');
-  } catch (e) {}
-
-  if (!code || !window.fetch) return;
+  if (!code) return;
+  var KEY = 'visitor-counts';
   var base = 'https://' + code + '.goatcounter.com/counter/TOTAL.json';
 
   function ymd(d) {
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') +
       '-' + String(d.getDate()).padStart(2, '0');
   }
+  var today = ymd(new Date());
 
-  function show(id, url) {
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {}
+  if (saved.day !== today) { delete saved.today; saved.day = today; }
+
+  function put(id, value) {
     var el = document.getElementById(id);
-    if (!el) return;
+    if (el && value != null) el.textContent = value;
+  }
+  put('total-visitors', saved.total);
+  put('today-visitors', saved.today);
+
+  if (!window.fetch) return;
+  function load(field, id, url) {
     fetch(url)
       .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
-      .then(function (d) { el.textContent = d.count; })
+      .then(function (d) {
+        put(id, d.count);
+        saved[field] = d.count;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      })
       .catch(function () {
-        el.textContent = '-';
-        el.title = 'Visitor count unavailable';
+        var el = document.getElementById(id);
+        if (el && saved[field] == null) {
+          el.textContent = '-';
+          el.title = 'Visitor count unavailable';
+        }
       });
   }
-
-  var today = ymd(new Date());
-  show('total-visitors', base);
-  show('today-visitors', base + '?start=' + today + '&end=' + today);
+  load('total', 'total-visitors', base);
+  load('today', 'today-visitors', base + '?start=' + today + '&end=' + today);
 })();
 </script>

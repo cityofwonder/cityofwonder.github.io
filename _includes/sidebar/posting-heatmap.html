@@ -1,9 +1,9 @@
-<!-- Generate posting dates data -->
 {%- comment -%}
   Posting activity: posts per week as a line chart that scrolls sideways
   (drag with the mouse, swipe, or focus it and use the arrow keys). Opens on
   the most recent weeks; older weeks are off to the left.
   (The file keeps its old name because sidebar lists refer to it.)
+  Styles: _sass/misc/sidebar-widgets.scss.
 
   Key off the FILENAME date (_posts/YYYY-MM-DD-title.md), not post.date.
   post.date renders in the build machine's timezone (UTC on Actions), so a
@@ -18,12 +18,9 @@
 {%- endfor -%}
 
 <div class="sticky-note-widget activity-sticky">
-  <div class="sticky-tape"></div>
   <div class="sticky-content">
     <div class="sticky-title">
-      <span class="sticky-icon">📝</span>
-      <span>Activity</span>
-      <span class="activity-unit">posts / week</span>
+      Activity <span class="activity-unit">posts / week</span>
     </div>
     <div class="activity-chart">
       <div class="activity-yaxis" aria-hidden="true"></div>
@@ -39,10 +36,7 @@
       <tbody></tbody>
     </table>
   </div>
-  <div class="sticky-corner activity-corner"></div>
 </div>
-
-{%- comment -%} styles: _sass/misc/sidebar-widgets.scss {%- endcomment -%}
 
 <script>
 (function () {

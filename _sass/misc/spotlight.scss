@@ -1,0 +1,117 @@
+/**
+ * Hover, site-wide (script: _includes/extensions/spotlight.html).
+ *
+ *   Lists       [data-glide] -- one quiet block behind the rows slides from
+ *               row to row; its far edge follows a beat later, so it briefly
+ *               stretches (never past the neighbouring row) and the tail
+ *               fades. The row under the pointer turns bold.
+ *   Tag chips   no movement: the hovered chip turns bold and its colour
+ *               deepens in place.
+ *
+ * The bold is a thin text stroke, not font-weight, so nothing re-wraps --
+ * hovering never moves the layout.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Lists: the gliding block
+ * ------------------------------------------------------------------------- */
+[data-glide] {
+  position: relative;
+  isolation: isolate;               // the block sits behind the rows, inside the list
+
+  a:hover { text-decoration: none; }   // hover is the block + bold, not an underline
+}
+
+/* Edges are insets (--gt / --gr / --gb / --gl, set by the script). The edge
+   facing the move leads, the far one trails a little behind and eases in --
+   no overshoot. The stretched part (beyond the row's own --gh) fades out.
+   A list can set its colour with --glide-bg. */
+.glide-pill {
+  --lead: 0.16s cubic-bezier(0.2, 0, 0, 1);
+  --trail: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  --et: var(--trail);
+  --eb: var(--trail);
+
+  position: absolute;
+  z-index: -1;
+  top: var(--gt, 0);
+  right: var(--gr, 0);
+  bottom: var(--gb, 0);
+  left: var(--gl, 0);
+  border-radius: var(--r-sm);
+  background: var(--glide-bg, color-mix(in srgb, var(--c-ink) 8%, transparent));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease,
+              top var(--et), bottom var(--eb),
+              left var(--trail), right var(--trail);
+
+  &.go-down {
+    --eb: var(--lead);
+    -webkit-mask-image: linear-gradient(to top, #000 var(--gh, 100%), transparent);
+            mask-image: linear-gradient(to top, #000 var(--gh, 100%), transparent);
+  }
+  &.go-up {
+    --et: var(--lead);
+    -webkit-mask-image: linear-gradient(to bottom, #000 var(--gh, 100%), transparent);
+            mask-image: linear-gradient(to bottom, #000 var(--gh, 100%), transparent);
+  }
+
+  &.no-anim { transition: opacity 0.2s ease; }   // first landing: jump, then fade in
+
+  &.is-on { opacity: 1; }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Tag chips: bold, and the chip's own colour deepens -- in place
+ * ------------------------------------------------------------------------- */
+.post-tag,
+.tag-filter-all {
+  -webkit-text-stroke: 0 currentColor;
+  transition: background-color 0.18s ease, -webkit-text-stroke-width 0.15s ease;
+}
+
+.post-tag:hover,
+.tag-filter:hover .post-tag,
+.tag-filter-all:hover {
+  -webkit-text-stroke-width: 0.35px;
+}
+
+.post-tag[class*="highlight-"]:hover,
+.tag-filter:hover .post-tag[class*="highlight-"] {
+  background-color: color-mix(in srgb, var(--tag-hi) 26%, var(--tag-bg));
+}
+
+.tag-filter-all:hover {
+  background-color: color-mix(in srgb, var(--c-text) 16%, transparent);
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Bold on the row under the pointer
+ * ------------------------------------------------------------------------- */
+.tt-title .tt-clip,
+.ar-title,
+.fx-title,
+.fx-name,
+.fg-name,
+.recent-title,
+.hot-title {
+  -webkit-text-stroke: 0 currentColor;
+  transition: -webkit-text-stroke-width 0.15s ease;
+}
+
+.tt-table tbody tr:hover .tt-title .tt-clip,
+.ar-post:hover .ar-title,
+.fx-file:hover .fx-title,
+.fx-folder:hover .fx-name,
+.fg-tile:hover .fg-name,
+.recent-item a:hover .recent-title,
+.hot-item a:hover .hot-title {
+  -webkit-text-stroke-width: 0.4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glide-pill { transition: opacity 0.2s ease; }
+}

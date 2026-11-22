@@ -2,7 +2,8 @@
   Sets has_banner (true/false) plus the banner_* values. A Notion post with
   no cover is synced as `banner: { image: "" }`; Liquid treats "" as truthy,
   so empty strings are turned into nil here or the page would get an empty
-  640px banner.
+  banner. (No height setting: a banner is as tall as its heading block plus
+  a margin -- .page-banner in _sass/yat/_layout.scss.)
 {%- endcomment -%}
 {% assign has_banner = false %}
 
@@ -29,16 +30,6 @@
 {% assign name = 'banner.opacity' %}
 {%- include functions.html func='get_value' -%}
 {% assign banner_opacity = return %}
-
-{%- include functions.html func='log' level='debug' msg='Get banner_height value' -%}
-{% assign name = 'banner.height' %}
-{%- include functions.html func='get_value' -%}
-{% assign banner_height = return %}
-
-{%- include functions.html func='log' level='debug' msg='Get banner_min_height value' -%}
-{% assign name = 'banner.min_height' %}
-{%- include functions.html func='get_value' -%}
-{% assign banner_min_height = return %}
 
 {%- include functions.html func='log' level='debug' msg='Get banner_heading_style value' -%}
 {% assign name = 'banner.heading_style' %}

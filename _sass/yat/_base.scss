@@ -40,8 +40,7 @@ body {
  */
 h1, h2, h3, h4, h5, h6,
 p, blockquote, pre,
-ul, ol, dl, figure,
-%vertical-rhythm {
+ul, ol, dl, figure {
   margin-bottom: divide($spacing-unit, 2);
 }
 
@@ -64,12 +63,10 @@ img {
   vertical-align: middle;
 }
 
-// Enhanced image styles for post/page content
+// Pictures in posts / pages: flat -- square corners, no shadow
 .post-content,
 .page-content {
   img {
-    border-radius: var(--r-md);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin: 0.75em 0;
   }
 
@@ -86,15 +83,6 @@ img {
 // nothing) get a light backing in both to stay readable.
 .post .post-content img:not(.emoji):not([raw]) {
   background-color: #ffffff33;
-}
-
-[data-theme="dark"] {
-  .post-content,
-  .page-content {
-    img {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-  }
 }
 
 /**
@@ -125,182 +113,188 @@ li {
 }
 
 /**
- * Enhanced List Styles with File-Tree Rail + Node Markers
- * Scoped to .post-content only, so home / sidebars / other pages keep
- * their plain lists.
+ * Lists in posts (scoped to .post-content: home / sidebars keep plain lists)
  *
- * Each list level draws a shared vertical rail; every item carries an
- * opaque round node centred on the rail (a number for <ol>, a dot for
- * <ul>). The node sits on top of the rail and masks the line behind it,
- * so the marker never visually collides with the connector. The last
- * sibling trims the rail at its node so no tail dangles below the group.
+ * Markers change with depth, the way Notion draws them -- bullets: disc,
+ * circle, square; numbers: 1. a. i. -- left of the text. A top-level list
+ * lines up with the toggles: its markers start where a toggle's caret does
+ * and its text where a toggle's label does (the --toggle-* / --caret-x
+ * tokens); each deeper level steps in from there.
+ * A nested list carries a faint indent guide under its parent's marker,
+ * like a code editor's. Hovering traces your place in the blue key colour:
+ * every guide you are inside and the markers of the items on the way down
+ * (the parents you came through and the item itself) turn blue, and the
+ * item's own text fades in a very faint blue highlight -- its text only,
+ * not its sub-list (.li-text: extensions/list-text.html).
  */
 .post-content {
-  // all tokens, so the tree reads on either theme (both are dark surfaces)
-  $rail: var(--c-line-strong);
-  $rail-hover: var(--accent);
-  $node-bg: var(--c-page);            // opaque chip masking the rail
-  $node-border: var(--c-muted);
-  $node-text: var(--c-text);
-  $rail-x: 1em;                       // rail distance left of item content
-  $node-y: 0.85em;                    // vertical centre, aligned to 1st line
-  $node-size: 1.5em;                  // ordered-node diameter
-  $dot-size: 0.5em;                   // unordered-node diameter
+  $t-x: calc(var(--toggle-pad) + var(--toggle-indent));   // top-level text: a toggle label's x (34px)
+  $m-x: calc(var(--caret-x) - var(--toggle-indent));      // marker start, from the item's text: a caret's x (-18px)
+  $indent: 24px;                      // each deeper level
+  $dot: 6px;                          // bullet size
+  $mark: var(--c-muted);
+  $mark-on: var(--k-blue);
+  $guide: var(--c-line);
+  $guide-on: color-mix(in srgb, var(--k-blue) 45%, transparent);
+  $text-on: color-mix(in srgb, var(--k-blue-glow) var(--wash), transparent);
 
   ul, ol {
     list-style: none;
     margin: 0.4em 0;
-    padding-left: 1.9em;
-    position: relative;
-  }
-
-  > ul,
-  > ol {
-    margin-left: 0.3em;
-  }
-
-  ol {
-    counter-reset: ol-node;
+    padding-left: $t-x;
   }
 
   li {
     position: relative;
-    padding: 0.12em 0.4em;
     margin: 0.18em 0;
-    border-radius: var(--r-xs);
-    transition: background-color 0.2s ease-in-out;
   }
 
-  // RAIL: vertical line shared by siblings (painted behind the node)
+  // Inside an item, what follows its text -- a code block, a toggle -- sits
+  // as close as a nested list does (0.4em), not a body paragraph's gap away.
+  // (A list with blank lines between items wraps each item's text in a <p>,
+  // which brought the 24px paragraph gap -- .post .post-content p -- along.)
+  li > p:first-child { margin-bottom: 0.4em; }
+  li > .highlighter-rouge pre,
+  li > details { margin-block: 0.4em; }
+
+  // A top-level list in a callout or a quote sits one level in: its markers
+  // and text line up with a body list's second level. (The box's own inset
+  // brings its text to the caret's x; the list adds the marker-to-text step
+  // and one level's indent.)
+  :is(.box-note, .box-success, .box-warning, .box-danger, blockquote.notion-quote) > :is(ul, ol) {
+    padding-left: calc(var(--toggle-indent) - var(--caret-x) + #{$indent});
+  }
+
+  // the marker
   li::before {
-    content: "";
     position: absolute;
+    left: $m-x;
+    color: $mark;
+    transition: color 0.15s ease;
+  }
+
+  // numbers: 1. -> a. -> i. -> 1.
+  ol { counter-reset: li-n; }
+  ol > li { counter-increment: li-n; }
+  ol > li::before {
+    content: counter(li-n, decimal) ".";
     top: 0;
-    bottom: 0;
-    left: -$rail-x;
-    width: 1.5px;
-    background: $rail;
-    border-radius: var(--r-xs);
+    font-variant-numeric: tabular-nums;
   }
+  li ol > li::before { content: counter(li-n, lower-alpha) "."; }
+  li li ol > li::before { content: counter(li-n, lower-roman) "."; }
+  li li li ol > li::before { content: counter(li-n, decimal) "."; }
+  // a two-digit number would run into the text: that list's numbers start
+  // a little further left
+  ol:has(> li:nth-child(10)) > li::before { left: calc(#{$m-x} - 0.6em); }
 
-  // Last sibling: stop the rail at its node (no dangling tail)
-  li:last-child::before {
-    bottom: auto;
-    height: $node-y;
-  }
-
-  // First sibling: start the rail AT its node. Otherwise a list that opens
-  // with an item shows a stub hanging above the dot, connected to nothing.
-  li:first-child::before {
-    top: $node-y;
-  }
-
-  // A lone item has no sibling to connect to, so it gets no rail at all.
-  // (first-child + last-child would otherwise leave a stub below the dot.)
-  li:only-child::before {
-    display: none;
-  }
-
-  // NODE: opaque round marker centred on the rail (painted on top)
-  li::after {
-    position: absolute;
-    top: $node-y;
-    left: -$rail-x;
-    transform: translate(-50%, -50%);
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: $node-size;
-    height: $node-size;
-    background: $node-bg;
-    border: 1.5px solid $node-border;
-    border-radius: 50%;
-    color: $node-text;
-    font-weight: 700;
-    line-height: 1;
-    transition: border-color 0.2s ease-in-out, color 0.2s ease-in-out,
-      background-color 0.2s ease-in-out;
-  }
-
-  // Ordered: number inside the node, restyled per depth
-  ol > li {
-    counter-increment: ol-node;
-  }
-  ol > li::after {
-    content: counter(ol-node, decimal);
-  }
-  ol ol > li::after {
-    content: counter(ol-node, lower-alpha);
-  }
-  ol ol ol > li::after {
-    content: counter(ol-node, lower-roman);
-  }
-  ol ol ol ol > li::after {
-    content: counter(ol-node, decimal);
-  }
-
-  // Unordered: small filled dot node (no glyph)
-  ul > li::after {
+  // bullets: disc -> circle -> square -> disc (drawn, centred on the first line)
+  ul > li::before {
     content: "";
-    width: $dot-size;
-    height: $dot-size;
-    background: $node-border;
-    border: none;
+    box-sizing: border-box;
+    top: 0.62em;
+    top: calc(0.5lh - #{$dot * 0.5});
+    width: $dot;
+    height: $dot;
+    border-radius: 50%;
+    background: currentColor;
   }
-  ul ul > li::after {
-    background: var(--c-faint);
-  }
-  ul ul ul > li::after {
+  li ul > li::before {
     background: transparent;
-    border: 1.5px solid $node-border;
+    border: 1.5px solid currentColor;
+  }
+  li li ul > li::before {
+    border: 0;
+    border-radius: 1px;
+    background: currentColor;
+  }
+  li li li ul > li::before {
+    border-radius: 50%;
   }
 
-  // Hover: light up the rail and node only — no background fill (a parent's
-  // fill would otherwise bleed behind its nested children).
-  li:hover {
-    background-color: transparent;
+  // indent guide: a hairline under the parent's marker, down its sub-list
+  li > ul,
+  li > ol {
+    position: relative;
+    padding-left: $indent;
   }
-  li:hover::before {
-    background: $rail-hover;
-  }
-  li:hover::after {
-    border-color: $rail-hover;
-    color: $rail-hover;
-  }
-  ul > li:hover::after {
-    background: $rail-hover;
-    border-color: $rail-hover;
-  }
-
-  // Depth 3+: a real file tree. Keep the continuous vertical rail (base
-  // li::before is already continuous and auto-trimmed at the last child) and
-  // swap the round node for a short horizontal tick, so siblings read as
-  // ├ … ├ … └.
-  li li li::after {
-    content: "" !important;
-    top: $node-y;
-    left: -$rail-x;
-    width: $rail-x !important;
-    height: 1.5px !important;
-    min-width: 0 !important;
-    background: $rail !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    transform: translateY(-50%) !important;
-    display: block !important;
+  li > ul::before,
+  li > ol::before {
+    content: "";
+    position: absolute;
+    top: 0.15em;
+    bottom: 0.15em;
+    left: calc(#{$m-x} + #{$dot * 0.5} - 0.5px);   // through a bullet's centre
+    width: 1px;
+    background: $guide;
+    transition: background-color 0.15s ease;
   }
 
-  // Depth 3+ hover: no background / opacity change — just light the connector.
-  li li li:hover {
-    background-color: transparent;
+  // where you are: the path down to the item under the pointer
+  li:hover::before { color: $mark-on; }
+  li > ul:hover::before,
+  li > ol:hover::before { background: $guide-on; }
+
+  // ...and that item's own text (the deepest hovered item)
+  .li-text {
+    border-radius: 2px;
+    -webkit-box-decoration-break: clone;
+            box-decoration-break: clone;
+    transition: background-color 0.2s ease;
   }
-  li li li:hover::after {
-    background: $rail-hover !important;
+  li:hover:not(:has(li:hover)) > .li-text,
+  li:hover:not(:has(li:hover)) > p:first-child > .li-text {
+    background-color: $text-on;
+  }
+
+  // to-do items: a drawn checkbox in the marker column. (The real one is
+  // disabled, and browsers grey a disabled box out on either theme; it stays
+  // for screen readers, invisible.) Done: filled box + tick, text struck.
+  .task-list-item::before {
+    content: "";
+    box-sizing: border-box;
+    top: 0.35em;
+    top: calc(0.5lh - 6.5px);
+    width: 13px;
+    height: 13px;
+    border: 1.5px solid var(--c-muted);
+    border-radius: 2px;
+    background: transparent;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .task-list-item:hover::before { border-color: $mark-on; }
+
+  .task-list-item-checkbox {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .task-list-item:has(> .task-list-item-checkbox:checked) {
+    color: var(--c-muted);
+    text-decoration: line-through;
+
+    &::before {
+      border-color: var(--c-ink);
+      background: var(--c-ink);
+    }
+    &::after {                        // the tick, in the page colour
+      content: "";
+      position: absolute;
+      top: 0.43em;
+      top: calc(0.5lh - 5px);
+      left: calc(#{$m-x} + 4.75px);
+      width: 3.5px;
+      height: 7px;
+      border: solid var(--c-page);
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
   }
 }
-
-// (No dark-mode block for lists: rail and nodes are tokens.)
 
 
 
@@ -346,6 +340,7 @@ blockquote {
  */
 pre,
 code {
+  font-family: $code-font-family;
   @include relative-font-size(0.9375);
 }
 
@@ -353,13 +348,14 @@ pre code {
   color: #abb2bf;
 }
 
-/* Inline code the way Notion draws it: red text on a gray tint */
+/* Inline code the way Notion draws it: red text on a gray tint. No side
+   margin: a chip that wraps to the start of a line sits on the text's edge
+   instead of indenting the line (its padding keeps it off its neighbours). */
 *:not(pre) > code {
   padding: 3px 6px;
   border-radius: var(--r-xs);
   background-color: var(--k-gray-bg);
   color: var(--k-red);
-  margin: 0 5px;
 }
 
 pre {
@@ -370,15 +366,6 @@ pre {
     display: inline-block;
     background-color: transparent;
     border: 0;
-  }
-
-  table, pre {
-    margin-bottom: 0;
-
-    .gutter, .code {
-      padding: 6px;
-      border: none;
-    }
   }
 }
 
@@ -419,11 +406,7 @@ table {
   border-collapse: collapse;
   overflow: auto;
 
-  tr {
-    &:nth-child(even) {
-      background-color: var(--c-hover);
-    }
-  }
+  // no zebra striping: rows are plain unless a post colours them
 
   th, td {
     padding: divide($spacing-unit, 3) divide($spacing-unit, 2);
@@ -437,6 +420,16 @@ table {
 
   td {
     border: 1px solid var(--c-line);
+  }
+}
+
+// a table in a post: text 2pt under the body's, rows fitted close to it
+.post-content table {
+  font-size: calc(1em - 2pt);
+
+  th, td {
+    padding: 0.4em 0.8em;
+    line-height: 1.45;
   }
 }
 
@@ -464,24 +457,6 @@ table {
   align-self: flex-start; /* <-- fix the sticky not work issue */
   transform: scale(0.9999); /* <-- fix the sticky x overflow issue */
   top: $top;
-}
-
-/**
- * Vertical center
- */
-@mixin vertical-center($position) {
-  position: $position;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/**
- * Horizontal center
- */
-@mixin horizontal-center($position) {
-  position: $position;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 /**
@@ -552,6 +527,7 @@ $notion-colors: (
 @each $name, $key in $notion-colors {
   .highlight-#{$name} {
     --tag-bg: var(--k-#{$key}-bg);     // read by the tag chip below
+    --tag-hi: var(--k-#{$key}-glow);   // its vivid tone (chip hover, spotlight.scss)
     background-image: linear-gradient(
       to bottom,
       transparent 14%,
@@ -561,7 +537,8 @@ $notion-colors: (
     );
     background-repeat: no-repeat;
     border-radius: 0.15em;
-    padding: 0 0.12em;
+    // no side padding: cloned onto every line the band wraps to, it pushed
+    // a wrapped line's first letter off the text's edge
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
@@ -569,6 +546,13 @@ $notion-colors: (
   /* Text colours */
   .text-#{$name} {
     color: var(--k-#{$key});
+  }
+
+  /* Dark: coloured body text a step lighter than the key tone, so it reads
+     on navy and stays lighter than the headings (--h*-ink, tokens.scss) */
+  html[data-theme="dark"] .post-content .text-#{$name},
+  html[data-theme="dark"] .post-content blockquote.notion-quote.text-#{$name} {
+    color: color-mix(in srgb, var(--k-#{$key}) 75%, #fff);
   }
 }
 
@@ -578,7 +562,7 @@ $notion-colors: (
  * table), about. Same colours as the highlighter band above but a different
  * shape (a solid chip), so a tag never reads as highlighted body text.
  * Shape and type live only here; other .post-tag rules add spacing (margin)
- * and, on photos, a glass background -- nothing else.
+ * -- nothing else. (Hover: misc/spotlight.scss.)
  */
 .post-tag {
   display: inline-block;
@@ -625,8 +609,10 @@ $notion-colors: (
   text-decoration: line-through;
 }
 
-/* Box (callout) styles: the key colour's background tone with a bar in its
-   text tone. note = blue, success = green, warning = yellow, danger = red. */
+/* Box (callout) styles: the key colour washed over the page (--wash, the
+   list hover's strength), slightly rounded like the code blocks; flat (no
+   side bar); a faint lift on hover.
+   note = blue, success = green, warning = yellow, danger = red. */
 $box-colors: (
   "note":    "blue",
   "success": "green",
@@ -636,92 +622,118 @@ $box-colors: (
 
 @each $name, $key in $box-colors {
   .box-#{$name} {
-    background-color: var(--k-#{$key}-bg);
-    border-left: 4px solid var(--k-#{$key});
+    background-color: color-mix(in srgb, var(--k-#{$key}-glow) var(--wash), transparent);
     padding: 8px 16px;
+    padding-left: calc(var(--toggle-pad) + var(--caret-x));   // text at a toggle caret's x (16px)
     margin: 16px 0;
-    border-radius: var(--r-sm);
+    border-radius: var(--r-xs);
+    transition: box-shadow 0.2s ease;
+
+    &:hover { box-shadow: var(--shadow-hover); }
   }
 }
 
 /* kramdown wraps markdown="1" content in <p>, whose top/bottom margin
-   adds a blank line inside these blocks. Strip the edge margins. */
-.box-note,
-.box-warning,
-.box-danger,
-.box-success,
-.toggle-content {
+   adds a blank line inside these blocks. Strip the edge margins. (Scoped
+   under .page-content so it outranks the post's `.post .post-content p`
+   24px gap -- otherwise a callout ending in a paragraph kept it.) */
+.page-content :is(.box-note, .box-warning, .box-danger, .box-success, .toggle-content) {
   > :first-child {
     margin-top: 0;
   }
   > :last-child {
     margin-bottom: 0;
   }
+  // a code block is wrapped twice (div.highlighter-rouge > div > pre); its
+  // own margin would leave the same gap
+  > .highlighter-rouge:first-child pre { margin-top: 0; }
+  > .highlighter-rouge:last-child pre { margin-bottom: 0; }
+}
+
+/* Inside a callout or a quote, blocks follow each other as closely as list
+   items do (0.18em) -- the opening line, a list, a code block -- instead of
+   a body paragraph's 24px apart. */
+.page-content :is(.box-note, .box-warning, .box-danger, .box-success, blockquote.notion-quote) {
+  > :is(p, ul, ol, div, figure, details, table, blockquote) { margin-block: 0.18em; }
+  > .highlighter-rouge pre { margin-block: 0.18em; }
+
+  // A line of text keeps half its leading above and below the letters; a
+  // code block, table or picture is flush to its edges. Opening or closing
+  // the box with one, give it that half-leading, so the space around it
+  // matches the space around text.
+  > :is(.highlighter-rouge, table, figure):first-child { padding-top: calc((1lh - 1em) / 2); }
+  > :is(.highlighter-rouge, table, figure):last-child { padding-bottom: calc((1lh - 1em) / 2); }
 }
 
 /**
- * Collapsible Toggle (Accordion)
+ * Toggle (Notion's toggle block): a caret and its label, nothing else -- no
+ * panel, no border. The caret points right while closed and down once open;
+ * the content sits indented under the label, closed off by a hairline.
+ * Opening and folding glide: extensions/toggle-motion.html.
+ *
+ * Every toggle -- plain, coloured (a box) or heading-sized -- shares one
+ * geometry in px, so carets and labels line up in a single column: the
+ * coloured box's inset on both sides, the caret at the same x and size,
+ * the label and the content at the same indent.
  */
 details {
-  /* Closed: nothing but the caret and its label, the way Notion draws it.
-     The panel chrome only appears once the toggle is opened. */
-  background-color: transparent;
-  border-radius: var(--r-sm);
-  padding: 10px 20px;
-  margin: 16px 0;
-  box-shadow: none;
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
+  // geometry: --toggle-pad, --caret-x, --caret, --toggle-indent (tokens.scss)
+  margin: 0.6em 0;
+  padding: 0 var(--toggle-pad);
 
-  /* Open: a flat surface panel, like a directory column */
-  &[open] {
-    background-color: var(--c-surface);
-    border-color: var(--c-line);
-  }
-
-  summary {
-    cursor: pointer;
+  > summary {
+    position: relative;
+    padding-left: var(--toggle-indent);
     font-weight: 600;
     color: var(--c-ink);
-    user-select: none;
+    cursor: pointer;
     list-style: none;
-    position: relative;
-    padding-left: 24px;
-    transition: color 0.2s ease;
+    user-select: none;
 
-    &::-webkit-details-marker {
-      display: none;
-    }
+    &::-webkit-details-marker { display: none; }
 
-    &::marker {
-      display: none;
-    }
-
-    &:hover {
-      color: var(--accent);
-    }
-
+    // the caret: a drawn triangle (a ▶ glyph can turn into an emoji),
+    // centred on the label's first line whatever its size
     &::before {
-      content: '▼';
+      content: "";
       position: absolute;
-      left: 0;
-      transition: transform 0.3s ease;
-      color: var(--c-muted);
-      font-size: 0.8em;
+      left: var(--caret-x);
+      top: 0.4em;
+      top: calc(0.5lh - var(--caret) / 2);
+      width: var(--caret);
+      height: var(--caret);
+      background: var(--c-muted);
+      clip-path: polygon(20% 6%, 90% 50%, 20% 94%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
-  &[open] summary::before {
-    transform: rotate(-180deg);
-    content: '▲';
-  }
+  // opening and folding glide (extensions/toggle-motion.html); while it
+  // folds the toggle is still [open], so .is-closing turns the caret back
+  &[open] > summary::before { transform: rotate(90deg); }
+  &.is-closing > summary::before { transform: none; }
 
-  .toggle-content {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--c-line);
-    animation: fadeIn 0.3s ease;
+  > .toggle-content {
+    margin-top: 0.4em;
+    padding-left: var(--toggle-indent);
+
+    // where an open toggle ends: a hairline across the whole toggle, edge
+    // to edge, fading in a beat after the content (it goes with the content
+    // on closing)
+    &::after {
+      content: "";
+      display: block;
+      height: 1px;
+      margin: 0.8em calc(-1 * var(--toggle-pad)) 0 calc(-1 * (var(--toggle-indent) + var(--toggle-pad)));
+      background: var(--c-line-strong);
+      animation: toggle-end 0.4s ease 0.15s both;
+    }
   }
+}
+
+@keyframes toggle-end {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Notion quote. Notion draws an uncoloured quote as a bare left bar with no
@@ -734,33 +746,55 @@ details {
   font-style: normal;
   letter-spacing: normal;
   border-left: 3px solid var(--c-muted);
-  padding: 2px 0 2px 14px;
+  padding: 2px 0 2px calc(var(--toggle-pad) + var(--caret-x) - 3px);   // text (past the 3px bar) at a toggle caret's x
   margin: 14px 0;
-  border-radius: 0 var(--r-xs) var(--r-xs) 0;
+  border-radius: 0 var(--r-xs) var(--r-xs) 0;   // the bar side stays square; the far side rounds like a callout
 
   > :first-child { margin-top: 0; }
   > :last-child { margin-bottom: 0; }
 }
 
 @each $name, $key in $notion-colors {
+  // a coloured quote is a box: it lifts on hover like a callout (a plain
+  // quote, just a bar, doesn't)
   .post-content blockquote.notion-quote.quote-#{$name} {
-    background-color: var(--k-#{$key}-bg);
+    background-color: color-mix(in srgb, var(--k-#{$key}-glow) var(--wash), transparent);
     border-left-color: var(--k-#{$key});
-    padding: 10px 14px;
+    padding-block: 10px;
+    padding-right: 14px;
+    transition: box-shadow 0.2s ease;
+
+    &:hover { box-shadow: var(--shadow-hover); }
+  }
+  // a text colour on the quote: its text and bar wear it (the quote's own
+  // `color: inherit` above would otherwise outrank the plain .text-* class)
+  .post-content blockquote.notion-quote.text-#{$name} {
+    color: var(--k-#{$key});
+    border-left-color: var(--k-#{$key});
   }
 }
 
-/* A toggle carrying a Notion block colour uses it for the open panel. */
+/* A toggle carrying a Notion block colour is a box like a callout: the same
+   wash, the callout's corners on top only -- open, it is cut
+   square at its end line, which runs edge to edge -- and the callout's
+   hover shadow. The caret wears the colour too. */
 @each $name, $key in $notion-colors {
-  details.toggle-#{$name}[open] {
-    background-color: var(--k-#{$key}-bg);
-    border-color: color-mix(in srgb, var(--k-#{$key}) 35%, transparent);
+  details.toggle-#{$name} {
+    padding-block: 6px;
+    background-color: color-mix(in srgb, var(--k-#{$key}-glow) var(--wash), transparent);
+    border-radius: var(--r-xs) var(--r-xs) 0 0;
+    transition: box-shadow 0.2s ease;
+
+    &:hover { box-shadow: var(--shadow-hover); }
+    &[open] { padding-bottom: 0; }
+
+    > summary::before { background: var(--k-#{$key}); }
+    > .toggle-content::after { background: color-mix(in srgb, var(--k-#{$key}) 45%, transparent); }
   }
 }
 
-/* Toggle headings (Notion collapsible headings). Reuse the toggle chrome but
-   size the summary like the matching heading, and keep the caret inline with
-   the heading text instead of floating as a tiny triangle. */
+/* Toggle headings (Notion collapsible headings): the summary is sized like
+   the matching heading; caret and indent stay those of every toggle. */
 details.toggle-heading > summary {
   font-weight: 700;
   color: inherit;
@@ -769,19 +803,21 @@ details.toggle-heading.toggle-h1 > summary { font-size: 1.5em; }
 details.toggle-heading.toggle-h2 > summary { font-size: 1.3em; }
 details.toggle-heading.toggle-h3 > summary { font-size: 1.12em; }
 
-details.toggle-heading > summary::before {
-  font-size: 0.7em;
-  top: 0.15em;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+/* Post headings -- Notion's H1 / H2 / H3, written ## / ### / #### -- in
+   Pretendard Bold, each in a deepened key colour over a fixed highlight of
+   the same hue: H1 red, H2 yellow, H3 green (tokens --h1-ink / --h1-hl ...,
+   misc/tokens.scss). The collapsible headings (toggle-h1..h3) match. The
+   highlight is a thick underline drawn behind the letters, so it follows
+   the words across a line break like the highlights in the text. */
+@each $tag, $n in ("h2": 1, "h3": 2, "h4": 3) {
+  .post-content #{$tag},
+  details.toggle-heading.toggle-h#{$n} > summary {
+    font-weight: 700;
+    color: var(--h#{$n}-ink);
+    text-decoration: underline var(--h#{$n}-hl);
+    text-decoration-thickness: 0.9em;
+    text-underline-offset: -0.72em;
+    text-decoration-skip-ink: none;
   }
 }
 
@@ -798,84 +834,48 @@ details.toggle-heading > summary::before {
   background-color: var(--k-yellow-bg);
   border-bottom: 1px dashed var(--k-yellow);
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Opacity of the sticky note (registered so the hover bump can animate) */
-@property --note-alpha {
-  syntax: "<number>";
-  inherits: false;
-  initial-value: 0.55;
-}
-
+/* The note: plain glass -- one key colour (yellow, its vivid tone) at 30%
+   over a blur of whatever is behind it. Key colours switch with the theme,
+   so this is the dark-mode note too. */
 .comment-bubble {
-  /* Sticky-note look, mixed from the yellow key colour (red while its word is
-     hovered). Opacity via --note-alpha. The key colours switch with the
-     theme, so the same mixes give the dark-mode note too. */
-  --note-c1: color-mix(in srgb, var(--k-yellow) 30%, var(--k-yellow-bg));
-  --note-c2: color-mix(in srgb, var(--k-yellow) 45%, var(--k-yellow-bg));
-  --note-alpha: 0.55;
-  --note-ink: color-mix(in srgb, var(--k-yellow) 40%, var(--c-ink));
-  --note-line: color-mix(in srgb, var(--note-ink) 22%, transparent);
-  --note-fold: rgba(0, 0, 0, 0.15);
+  --note-bg: color-mix(in srgb, var(--k-yellow-glow) 30%, transparent);
 
+  box-sizing: border-box;             // the width JS gives it includes the padding
   z-index: 30;
-  padding: 12px 14px;
-  /* Absolute, not em: the post body was enlarged and the bubble should stay
-     at the size it had before (14px * 0.85). */
-  font-size: 12px;
+  padding: 10px 12px;
+  /* Absolute, not em: a note keeps its size wherever its word sits */
+  font-size: 13.5px;
   font-style: normal;
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1.55;
   text-align: left;
-  color: var(--note-ink);
-  background: linear-gradient(135deg,
-              color-mix(in srgb, var(--note-c1) calc(var(--note-alpha) * 100%), transparent) 0%,
-              color-mix(in srgb, var(--note-c2) calc(var(--note-alpha) * 100%), transparent) 100%);
+  color: var(--c-ink);
+  background: var(--note-bg);
   border-radius: var(--r-xs);
-  box-shadow: 1px 3px 8px rgba(0, 0, 0, 0.14);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-/* (2) Quote prefix: the body text this note is attached to */
-.comment-quote {
-  font-style: italic;
-  font-size: 0.92em;
-  line-height: 1.4;
-  opacity: 0.72;
-  border-left: 2px solid currentColor;
-  padding-left: 8px;
-  margin-bottom: 7px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+/* Hover the word or its note: both fade to bold and their yellow deepens a
+   little -- the tag chips' hover (spotlight.scss): same stroke, same timing.
+   (Bold is a text stroke, so nothing re-wraps.) */
+.notion-comment,
+.comment-bubble {
+  -webkit-text-stroke: 0 currentColor;
+  transition: background-color 0.18s ease, -webkit-text-stroke-width 0.15s ease;
 }
-
-/* (3) Hover link: the paired note + its anchor word both turn red
-   (opacity stays the same — only the colour changes) */
+.notion-comment.nc-word-active,
 .comment-bubble.nc-active {
-  --note-c1: color-mix(in srgb, var(--k-red) 30%, var(--k-red-bg));
-  --note-c2: color-mix(in srgb, var(--k-red) 45%, var(--k-red-bg));
-  --note-ink: color-mix(in srgb, var(--k-red) 60%, var(--c-ink));
+  -webkit-text-stroke-width: 0.35px;
 }
 .notion-comment.nc-word-active {
-  background-color: color-mix(in srgb, var(--k-red) 30%, transparent);
-  color: var(--k-red);
+  background-color: color-mix(in srgb, var(--k-yellow-glow) 26%, var(--k-yellow-bg));
 }
-
-/* folded corner (dog-ear) at bottom-right */
-.comment-bubble::before {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 18px;
-  height: 18px;
-  background: linear-gradient(135deg, transparent 50%, var(--note-fold) 50%);
-  border-bottom-right-radius: var(--r-xs);
+.comment-bubble.nc-active {
+  --note-bg: color-mix(in srgb, var(--k-yellow-glow) 40%, transparent);
 }
 
 .comment-item {
@@ -885,7 +885,7 @@ details.toggle-heading > summary::before {
 .comment-item + .comment-item {
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px dashed var(--note-line);
+  border-top: 1px solid color-mix(in srgb, var(--c-ink) 12%, transparent);
 }
 
 /* Hide bubbles until JS picks a mode (avoids a raw text dump on first paint) */
@@ -910,9 +910,8 @@ html.nc-animate .comment-bubble {
   transition: top 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
               opacity 0.22s ease,
               transform 0.24s cubic-bezier(0.22, 0.61, 0.36, 1),
-              background 0.2s ease,
-              color 0.2s ease,
-              box-shadow 0.2s ease;
+              background-color 0.18s ease,
+              -webkit-text-stroke-width 0.15s ease;
 }
 
 /* Wide: notes open by default; collapsed ones fade out (others slide up) */
@@ -925,7 +924,7 @@ html.nc-margin .comment-bubble.is-collapsed {
 /* Narrow: hidden until its word is clicked */
 html.nc-popover .comment-bubble {
   width: max-content;
-  max-width: min(320px, 80vw);
+  max-width: min(400px, 85vw);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-6px);
@@ -941,25 +940,16 @@ html.nc-popover .comment-bubble::after {
   content: "";
   position: absolute;
   bottom: 100%;
-  left: 16px;
+  left: var(--arrow-x, 16px);         // set by the script: under the word
   border: 7px solid transparent;
-  border-bottom-color: color-mix(in srgb, var(--note-c1) calc(var(--note-alpha) * 100%), transparent);
-}
-
-html[data-theme="dark"] .comment-bubble {
-  --note-alpha: 0.5;
-  --note-fold: rgba(0, 0, 0, 0.3);
-}
-
-/* Narrow-screen popover overlays the body text, so make it more opaque */
-html.nc-popover .comment-bubble {
-  --note-alpha: 0.9;
+  border-bottom-color: var(--note-bg);
+  transition: border-bottom-color 0.18s ease;
 }
 
 /**
- * Two-image side-by-side block with a single shared caption
- * 모바일에서도 줄바꿈 없이 가로 병렬 유지 (작아지더라도)
- * Usage:
+ * Two pictures side by side with one shared caption
+ * (script: _includes/extensions/img-pair.html)
+ *
  *   <figure class="img-pair">
  *     <div class="img-pair-row">
  *       <img src="/assets/images/.../a.jpg">
@@ -967,25 +957,49 @@ html.nc-popover .comment-bubble {
  *     </div>
  *     <figcaption>묶음 캡션 하나</figcaption>
  *   </figure>
+ *
+ * Nothing is cropped: each picture's width is in proportion to its aspect
+ * ratio (--ar, set by the script), so together they fill the row at one
+ * common height. Once the window is half the screen's width or less, the
+ * pair becomes a slide strip (.is-slide): one picture at a time, the next
+ * peeking in -- swipe, scroll sideways or drag.
  */
-.img-pair {
+.post-content .img-pair {          // (scoped so it beats the post's 50vh image cap)
   margin: 16px 0;
   text-align: center;
 
   .img-pair-row {
     display: flex;
-    gap: 10px;
-    justify-content: center;
-    align-items: center;
-    // flex-wrap 없음 → 좁은 화면에서도 두 장이 나란히, 대신 각자 줄어듦
+    gap: 4px;
+    align-items: flex-start;
 
-    img {
-      flex: 1 1 0;     // 둘이 공간을 균등하게 나눠 가짐
-      min-width: 0;    // 좁아지면 이미지가 함께 줄어들 수 있게
-      width: 100%;
-      height: clamp(140px, 40vh, 360px); // 두 장 공통 높이 → 항상 같게 맞춰짐
-      object-fit: cover;                 // 높이에 맞춰 채우고 넘치는 부분만 크롭
-      border-radius: var(--r-md);
+    > a.photo-swipe { display: contents; }   // the lightbox link: the picture stays the flex item
+
+    img:not(.emoji) {
+      flex: var(--ar, 1) 1 0px;
+      min-width: 0;
+      width: auto;
+      height: auto;
+      max-height: none;
+      margin: 0;
+    }
+  }
+
+  &.is-slide .img-pair-row {
+    align-items: center;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    cursor: grab;
+
+    &.is-dragging {
+      cursor: grabbing;
+      scroll-snap-type: none;
+    }
+
+    img:not(.emoji) {
+      flex: 0 0 88%;
+      scroll-snap-align: start;
     }
   }
 

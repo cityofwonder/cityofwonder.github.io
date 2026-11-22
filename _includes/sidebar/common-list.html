@@ -1,20 +1,18 @@
 {%- comment -%}
-  The Posts notepad: the one sidebar the index pages (tags, archives,
+  The Posts list: the one sidebar the index pages (tags, archives,
   categories, about) share; the home page shows it under Visitors and
   Activity. Directories (layout: directory) live in the feed only.
+  Styles: _sass/misc/sidebar-widgets.scss.
 {%- endcomment -%}
 {%- assign list_posts = site.posts | where_exp: "p", "p.layout != 'directory'" -%}
 
-<!-- Cute Notepad Widget -->
 <div class="notepad-widget">
   <div class="notepad-header">
     <div class="notepad-title">Posts</div>
   </div>
-  <div class="notepad-content">
-    <!-- Recently Added -->
+  <div class="notepad-content" data-glide=".recent-item a, .hot-item a">
     <div class="notepad-section">
       <div class="section-header">
-        <span class="section-icon">✨</span>
         <span class="section-title">Recently Added</span>
       </div>
       <ul class="recent-list">
@@ -29,10 +27,9 @@
       </ul>
     </div>
 
-    <!-- Hot Topics (Placeholder for future) -->
+    {%- comment -%} Hot Topics: no view counts per post yet, so the newest three {%- endcomment %}
     <div class="notepad-section">
       <div class="section-header">
-        <span class="section-icon">🔥</span>
         <span class="section-title">Hot Topics</span>
       </div>
       <ul class="hot-list">
@@ -49,5 +46,3 @@
     </div>
   </div>
 </div>
-
-{%- comment -%} styles: _sass/misc/sidebar-widgets.scss {%- endcomment -%}

@@ -8,34 +8,26 @@
  * lands on one of them:
  *     purple -> blue      pink -> red      brown -> orange
  * Nothing outside Notion's palette is used (no cyan / lime / teal / indigo).
- * Each key colour has a text tone (--k-*) and a background tone (--k-*-bg).
- * The accent (links, focus) is red, the blog's brand colour.
+ * Each key colour has a text tone (--k-*), a background tone (--k-*-bg) and
+ * a vivid tone (--k-*-glow) for washes and highlights (--wash). The accent
+ * (focus rings, the activity chart) is red.
  *
- * NEUTRALS: the directory view's structure (misc/directory.scss) --
- * surfaces with hairline borders. Two low-glare themes:
+ * NEUTRALS: surfaces with hairline borders. Two low-glare themes:
  *   light = OVERCAST SLATE: a muted blue-grey well below white, with dark
  *           navy text. Nothing on screen is near white.
  *   dark  = DEEP NAVY.
  *
  * RADII: five steps. Pick by the size of the thing, not by taste:
- *     --r-xs   4px  tags, badges, inline code, tiny tiles
- *     --r-sm   8px  buttons, inputs, list rows, callouts, toggles
- *     --r-md  12px  cards, code blocks, images, embeds
- *     --r-lg  16px  panels: page cards, board columns, hero, banners
+ *     --r-xs   4px  tags, badges, inline code, callouts, code blocks
+ *     --r-sm   8px  buttons, inputs, list rows
+ *     --r-md  12px  cards and their pictures
+ *     --r-lg  16px  panels: page cards, board columns, hero
  *     --r-pill      chips and pills; circles stay 50%
  */
 
-// Sass copies, for the few places that need a colour at compile time
-// (lighten(), rgba($c, a), ...). Keep in sync with the variables below.
+// The dark key tones as Sass, for code blocks: they are dark in both themes,
+// so inside them the key colours always take these (see `pre` below).
 // (Keys are quoted: bare `red`, `gray` ... would be parsed as colours.)
-$k-light: (            // the light (slate) theme's deepened Notion tones
-  "gray":   #555451,
-  "red":    #a3302c,
-  "orange": #8c4705,
-  "yellow": #7a530c,
-  "green":  #2f6045,
-  "blue":   #235a7a,
-);
 $k-dark: (
   "gray":   #9b9b9b,
   "red":    #df5452,
@@ -46,6 +38,13 @@ $k-dark: (
 );
 
 :root {
+  /* toggle geometry, shared with lists (a top-level list's markers start at
+     the caret's x, its text at the label's) -- _sass/yat/_base.scss */
+  --toggle-pad: 12px;      // a toggle's side inset (the coloured box's padding)
+  --caret-x: 4px;          // the caret's left edge, inside that inset
+  --caret: 10px;           // caret size
+  --toggle-indent: 22px;   // where a toggle's label and content start
+
   /* radii */
   --r-xs: 4px;
   --r-sm: 8px;
@@ -88,6 +87,17 @@ $k-dark: (
 
   --accent: var(--k-red);
 
+  /* the one tint strength for a key colour laid over the page: callouts,
+     coloured quotes and toggles, and the hover light on list items and
+     links -- color-mix(in srgb, var(--k-*-glow) var(--wash), transparent) */
+  --wash: 12%;
+
+  /* post headings (Notion H1-H3): an exception to the key colours -- the
+     hue deepened for the text, a light marker of it behind */
+  --h1-ink: #8a2622;    --h1-hl: rgba(212, 76, 71, 0.2);     // red
+  --h2-ink: #6a4708;    --h2-hl: rgba(203, 145, 47, 0.24);   // yellow
+  --h3-ink: #24513a;    --h3-hl: rgba(68, 131, 97, 0.2);     // green
+
   /* a quiet second ink for labels inside titles (the "[paper #85]" part):
      the ink with a share of a key colour mixed in -- navy here, ivory in
      dark mode -- so it reads as a variation of the title, not a link */
@@ -95,6 +105,11 @@ $k-dark: (
 
   /* code blocks: an always-dark slate card (the syntax theme is dark) */
   --c-code-bg: #232736;
+
+  /* the soft lift under code blocks */
+  --shadow-box: 0 1px 2px rgba(20, 28, 48, 0.06), 0 4px 12px rgba(20, 28, 48, 0.1);
+  /* a hovered callout / quote: tight blur, fairly crisp edge, faint */
+  --shadow-hover: 0 2px 3px rgba(20, 28, 48, 0.14);
 }
 
 /* Code blocks are dark in both themes, so inside them the key colours use
@@ -141,6 +156,16 @@ html[data-theme="dark"] {
   --k-blue-glow: #379ad3;
 
   --c-kind: color-mix(in srgb, var(--k-yellow) 28%, var(--c-ink));
+
+  --shadow-box: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 14px rgba(0, 0, 0, 0.3);
+
+  /* on navy: a touch under the key tones (still 4:1+ as bold headings), so
+     coloured body text -- lifted above the key tones, _base.scss -- always
+     reads lighter than a heading */
+  --h1-ink: #cf4f4b;    --h1-hl: rgba(223, 84, 82, 0.22);
+  --h2-ink: #bd8c40;    --h2-hl: rgba(202, 152, 73, 0.22);
+  --h3-ink: #4a9468;    --h3-hl: rgba(82, 158, 114, 0.22);
+  --shadow-hover: 0 2px 3px rgba(0, 0, 0, 0.35);
 
   --c-code-bg: #12141f;              // a well below the navy page
 }

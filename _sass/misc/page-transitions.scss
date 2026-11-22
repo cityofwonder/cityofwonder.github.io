@@ -15,9 +15,32 @@
 
 .site-header { view-transition-name: site-header; }
 
-/* the sidebar too: tags, archives, categories and about share one, so it
-   stays put between them instead of fading and sliding with the content */
-.framework > .sidebar { view-transition-name: site-sidebar; }
+/* the sidebar too, when the next page has the same one (named after its
+   widgets in _layouts/framework.html: tags, archives, categories and about
+   share one), and the Light / Dark toggle on top of it */
+.theme-toggle { view-transition-name: theme-toggle; }
+
+/* Never glide a named element from where it was to where it is: leaving a
+   scrolled page, the sidebar was stuck to the top, the toggle scrolled away
+   and the header hidden, and the default animation slid each one across the
+   screen into its place -- a visible jump. They land in place at once and
+   only cross-fade old to new, which shows nothing when the two are the same.
+   (animation-NAME only: the shorthand would also zero the duration the
+   cross-fade inherits, leaving old and new both fully shown -- added up,
+   text looked bold, or two different sidebars overlapped.) */
+::view-transition-group(*) {
+  animation-name: none;
+}
+
+/* A named element with no partner on the other page (home's sidebar on the
+   way to categories, say) leaves and arrives with the page itself. */
+::view-transition-old(*):only-child {
+  animation: 0.18s ease-in both page-fade-out;
+}
+
+::view-transition-new(*):only-child {
+  animation: 0.32s ease-out 0.06s both page-fade-in;
+}
 
 ::view-transition-old(root) {
   animation: 0.18s ease-in both page-fade-out;

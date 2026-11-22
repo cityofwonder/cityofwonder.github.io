@@ -138,9 +138,11 @@ sidebar: common-list
         const card = el('a', 'ts-card');
         card.href = p.url;
         card.dataset.tags = p.tags.join('|');
-        const img = el('div', 'ts-img');
-        if (p.image) img.style.backgroundImage = 'url("' + p.image.replace(/"/g, '%22') + '")';
-        else { img.classList.add('is-empty'); img.appendChild(el('i', 'fa fa-file-text-o')); }
+        const img = el('div', 'ts-img');               // fixed frame; the picture inside zooms on hover
+        const pic = el('div', 'ts-pic');
+        if (p.image) pic.style.backgroundImage = 'url("' + p.image.replace(/"/g, '%22') + '")';
+        else { img.classList.add('is-empty'); pic.appendChild(el('i', 'fa fa-file-text-o')); }
+        img.appendChild(pic);
         card.appendChild(img);
         card.appendChild(putTitle(el('span', 'ts-title'), p.title));
         card.appendChild(el('span', 'ts-date', fmtDate(p.date)));
@@ -194,6 +196,7 @@ sidebar: common-list
     // ===== Table view: a sortable database table
     function buildTable() {
       const scroll = el('div', 'tt-scroll');
+      scroll.dataset.glide = 'tbody tr';               // gliding row highlight (spotlight.scss)
       const table = el('table', 'tt-table');
       const thead = el('thead');
       const hr = el('tr');
@@ -234,14 +237,21 @@ sidebar: common-list
       rows.forEach(p => {
         const tr = el('tr');
         tr.dataset.tags = p.tags.join('|');
+        // title and category: at most two lines (.tt-clip > .tt-clamp);
+        // markClamped() flags the ones that are cut so they fade out
         const tdTitle = el('td', 'tt-title');
-        const a = putTitle(el('a'), p.title); a.href = p.url;
+        const a = el('a', 'tt-clip'); a.href = p.url; a.title = p.title;
+        a.appendChild(putTitle(el('span', 'tt-clamp'), p.title));
         tdTitle.appendChild(a);
         tr.appendChild(tdTitle);
         const tdTags = el('td', 'tt-tags');
         p.tags.forEach(tag => tdTags.appendChild(tagSpan(tag)));
         tr.appendChild(tdTags);
-        tr.appendChild(el('td', 'tt-cat', category(p.category)));
+        const tdCat = el('td', 'tt-cat');
+        const cat = el('span', 'tt-clip'); cat.title = category(p.category);
+        cat.appendChild(el('span', 'tt-clamp', category(p.category)));
+        tdCat.appendChild(cat);
+        tr.appendChild(tdCat);
         tbody.appendChild(tr);
       });
       table.querySelectorAll('th').forEach(th => {
@@ -265,14 +275,53 @@ sidebar: common-list
       });
       countEl.textContent = shown;
       emptyEl.hidden = shown > 0;
+      // the slide strip fills row by row in three rows: as many columns as
+      // a third of its shown cards, rounded up
+      const track = built.slide && views.slide.querySelector('.ts-track');
+      if (track) {
+        const cards = track.querySelectorAll('.ts-card:not([hidden])').length;
+        track.style.setProperty('--cols', Math.max(1, Math.ceil(cards / 3)));
+      }
       if (views.slide._edges && currentView === 'slide') views.slide._edges();
+      markClamped();
     }
+
+    // a title / category cut at two lines gets .is-clamped: its second line
+    // fades out and ends in "…" (rows hidden by the filter are skipped, and
+    // checked again when they show)
+    // For a cut one, --ex is where its second line actually ends (it can wrap
+    // short of the edge), so the fade runs into the "…" instead of leaving a gap.
+    function markClamped() {
+      if (!built.table || currentView !== 'table') return;
+      views.table.querySelectorAll('tbody tr:not([hidden]) .tt-clamp').forEach(c => {
+        const clip = c.parentNode;
+        const cut = c.scrollHeight > c.clientHeight + 1;
+        clip.classList.toggle('is-clamped', cut);
+        if (!cut) return;
+        const box = c.getBoundingClientRect();
+        const r = document.createRange();
+        r.selectNodeContents(c);
+        let end = 0;
+        Array.prototype.forEach.call(r.getClientRects(), rect => {
+          const mid = rect.top + rect.height / 2;
+          if (rect.width && mid > box.top + box.height / 2 && mid < box.bottom) end = Math.max(end, rect.right - box.left);
+        });
+        const ex = Math.min(end || box.width, box.width - 12);
+        clip.style.setProperty('--ex', Math.round(ex) + 'px');
+      });
+    }
+    let clampTimer;
+    window.addEventListener('resize', () => { clearTimeout(clampTimer); clampTimer = setTimeout(markClamped, 120); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(markClamped);
+
+    let onTagChange = null;   // the graph holds the picked tag's node (set below)
 
     function filterByTag(tag) {
       currentTag = tag;
       filters.forEach(f => f.classList.toggle('is-active', f.dataset.tag === tag));
       filterBox.classList.toggle('has-active', tag !== 'all');
       applyFilter();
+      if (onTagChange) onTagChange(tag);
     }
 
     function setView(name) {
@@ -400,48 +449,82 @@ sidebar: common-list
 
     node.append('circle').attr('class', 'node-dot').attr('r', d => d.radius);
     // label + the highlight band drawn behind it on hover (sized in mouseenter)
-    node.append('rect').attr('class', 'node-label-bg').attr('rx', 3);
+    node.append('rect').attr('class', 'node-label-bg').attr('rx', 4);   // a chip's corners
     node.append('text').attr('class', 'node-label').attr('dy', d => -d.radius - 5).text(d => d.id);
 
     // Hover: the hovered tag's colour (the one its chip gets in the feed)
     // paints it, its neighbours and the links between them -- one colour,
     // set as --hl on the svg. No tooltip: the node's own label grows in.
+    //
+    // Click: the tag is picked (the filter below follows) and its light is
+    // HELD -- hovering elsewhere shows that node for a moment, then the held
+    // one comes back. A click on empty canvas lets go and returns to All.
+    // Picking a chip below holds its node too.
     const keyOf = window.tagColorKey || (() => 'gray');
+    let held = null;   // the held node's datum
 
-    node.on('mouseenter', function(event, d) {
-      svg.style('--hl', `var(--k-${keyOf(d.id)}-glow)`);
-      d3.select(this).classed('is-hovered', true).raise();
-      // fit the highlight band to the (now bold, larger) label
-      const bb = this.querySelector('.node-label').getBBox();
-      d3.select(this).select('.node-label-bg')
+    // the band behind a lit label is the tag's chip colour (its highlight)
+    node.select('.node-label-bg').style('--tag-bg', d => `var(--k-${keyOf(d.id)}-bg)`);
+
+    // fit the highlight band to the (bold, larger) label
+    function sizeBand(el) {
+      const bb = el.querySelector('.node-label').getBBox();
+      d3.select(el).select('.node-label-bg')
         .attr('x', bb.x - 5).attr('y', bb.y - 1)
         .attr('width', bb.width + 10).attr('height', bb.height + 2);
+    }
 
+    function lightUp(d) {
+      svg.style('--hl', `var(--k-${keyOf(d.id)}-glow)`);
       const connected = new Set([d.id]);
       link.each(function(l) {
-        if (l.source.id === d.id || l.target.id === d.id) {
-          connected.add(l.source.id);
-          connected.add(l.target.id);
-          d3.select(this).classed('highlighted', true).classed('dimmed', false);
-        } else {
-          d3.select(this).classed('dimmed', true).classed('highlighted', false);
-        }
+        const on = l.source.id === d.id || l.target.id === d.id;
+        if (on) { connected.add(l.source.id); connected.add(l.target.id); }
+        d3.select(this).classed('highlighted', on).classed('dimmed', !on);
       });
       node.each(function(n) {
-        d3.select(this).classed(connected.has(n.id) ? 'highlighted' : 'dimmed', true);
-        if (connected.has(n.id)) d3.select(this).classed('dimmed', false);
+        const on = connected.has(n.id);
+        d3.select(this).classed('highlighted', on).classed('dimmed', !on);
       });
+    }
+
+    function restore() {
+      if (held) { lightUp(held); return; }
+      link.classed('highlighted', false).classed('dimmed', false);
+      node.classed('highlighted', false).classed('dimmed', false);
+    }
+
+    function hold(tag) {
+      held = nodes.find(n => n.id === tag) || null;
+      node.classed('is-held', n => n === held);
+      restore();                                  // first: the label takes its held size
+      if (held) sizeBand(node.filter(n => n === held).raise().node());
+    }
+
+    node.on('mouseenter', function(event, d) {
+      d3.select(this).classed('is-hovered', true).raise();
+      sizeBand(this);
+      lightUp(d);
     })
     .on('mouseleave', function() {
       d3.select(this).classed('is-hovered', false);
-      link.classed('highlighted', false).classed('dimmed', false);
-      node.classed('highlighted', false).classed('dimmed', false);
+      restore();
     })
     .on('click', function(event, d) {
       event.preventDefault();
-      filterByTag(d.id);
+      filterByTag(d.id);                          // holds it (onTagChange)
       history.replaceState(null, '', '#' + encodeURIComponent(d.id));
     });
+
+    // empty canvas: let go, back to All (a pan or a node drag is no click)
+    svg.on('click.release', function(event) {
+      if (event.target.closest && event.target.closest('.graph-node')) return;
+      if (currentTag === 'all') return;
+      filterByTag('all');
+      history.replaceState(null, '', window.location.pathname);
+    });
+
+    onTagChange = hold;
 
     // Links run edge to edge, not centre to centre: each end is pulled back
     // along the line by that node's radius (+1 for a hairline gap), so a
@@ -512,6 +595,7 @@ sidebar: common-list
     for (let i = 0; i < settleTicks; i++) simulation.tick();
     render();
     fitToContent(0);
+    hold(currentTag);   // a tag picked by the address (#tag) is held from the start
 
     document.querySelectorAll('.graph-btn').forEach(btn => {
       btn.addEventListener('click', () => {

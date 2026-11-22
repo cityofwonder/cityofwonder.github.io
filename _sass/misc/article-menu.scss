@@ -1,11 +1,48 @@
 /*
- * Post menu
+ * Post menu: the ToC in the sidebar (sidebar/article-menu.html), and on
+ * narrow screens its copy folded into the top of the post (.toc-card,
+ * extensions/sidebar-responsive.html)
  */
+
+/* "바로가기" (narrow screens): no box -- muted links indented by heading
+   level. They sit inside .post-content, so the list markers and link
+   colour posts give lists and links are switched off here. */
+.toc-card {
+  margin: 4px 0 28px;
+}
+
+.toc-tree {
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    margin: 4px 0;
+
+    &::before,
+    &::after { content: none !important; }
+  }
+
+  li a {
+    font-size: 0.9em;
+    text-decoration: none;
+    color: var(--c-muted);
+    transition: color 0.15s ease;
+
+    &:hover { color: var(--c-text); text-decoration: underline; }
+  }
+
+  li.h-h3 { padding-left: 16px; }
+  li.h-h4 { padding-left: 32px; }
+  li.h-h5 { padding-left: 48px; }
+  li.h-h6 { padding-left: 64px; }
+}
 
 .post-menu {
   padding-left: 20px;
-  min-width: 200px;
-  max-width: 230px;
+  min-width: 200px;                 // fills the sidebar: its right edge is the page's right margin
 
   .post-menu-title {
     font-size: $base-font-size * 1.15;
@@ -16,6 +53,9 @@
 
   .post-menu-content {
     ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
       border-left: 1px solid var(--c-line);
       $indent: divide($base-font-size, 4);
 
@@ -27,10 +67,16 @@
         }
       }
 
+      // one line per entry: the right end fades out, a long title ends in "…"
       a {
-        display: flex;
+        display: block;
         padding: 2px 8px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
         color: var(--c-text);
+        -webkit-mask-image: linear-gradient(to right, #000 62%, rgba(0, 0, 0, 0.35) 100%);
+                mask-image: linear-gradient(to right, #000 62%, rgba(0, 0, 0, 0.35) 100%);
 
         * {
           pointer-events: none;
@@ -38,7 +84,6 @@
 
         &:hover {
           text-decoration: none;
-          color: var(--c-muted)!important;
         }
       }
 
@@ -58,33 +103,25 @@
         }
       }
 
-      // Hover hierarchy: the hovered entry and its heading ancestry light up
+      // Hover, the way a list item lights up (_base.scss), in yellow: the
+      // headings the hovered entry sits under and the entry itself mark
+      // their stretch of the rail -- a list's guides -- and the entry fades
+      // in a faint highlight behind its title (the list item's text wash).
       li {
-        transition: background-color 0.18s ease, box-shadow 0.18s ease;
-        border-radius: 0 var(--r-xs) var(--r-xs) 0;
+        transition: box-shadow 0.15s ease;
       }
 
-      // Achromatic (grayscale) emphasis — the red point colour is reserved
-      // for content interactions, the TOC stays neutral. The inset shadows
-      // are left bars (strokes), so they take line / muted tokens too.
+      .toc-text {
+        border-radius: 2px;
+        transition: background-color 0.2s ease;
+      }
+
       .toc-hl {
-        background-color: var(--c-hover);
-        box-shadow: inset 2px 0 0 var(--c-line-strong);
-
-        a {
-          color: var(--c-ink) !important;
-        }
+        box-shadow: inset 2px 0 0 color-mix(in srgb, var(--k-yellow) 55%, transparent);
       }
 
-      .toc-hl-self {
-        // a step stronger than --c-hover
-        background-color: color-mix(in srgb, var(--c-ink) 10%, transparent);
-        box-shadow: inset 3px 0 0 var(--c-muted);
-
-        a {
-          color: var(--c-ink) !important;
-          font-weight: 600;
-        }
+      .toc-hl-self .toc-text {
+        background-color: color-mix(in srgb, var(--k-yellow-glow) var(--wash), transparent);
       }
     }
   }

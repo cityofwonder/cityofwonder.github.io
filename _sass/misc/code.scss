@@ -1,14 +1,13 @@
 /**
  * Code blocks (highlight.js, wired up in _includes/extensions/code-highlight.html):
- * a flat dark card with the language caption and a copy button in its top
- * strip. Colours and radii from misc/tokens.scss.
+ * a dark block, slightly rounded (like the callouts) and softly lifted --
+ * hairline edge, no window chrome. The top strip holds the language caption
+ * (left) and the copy button (right). Colours / shadow: misc/tokens.scss.
  */
-/* Code block: a flat dark card like the directory view's -- hairline edge,
-   no window chrome. The top strip holds the language caption (left) and
-   the copy button (right). Colours/radii: _sass/misc/tokens.scss. */
 pre {
   position: relative;
-  border-radius: var(--r-md);
+  border-radius: var(--r-xs);
+  box-shadow: var(--shadow-box);
   background-color: var(--c-code-bg) !important;
   border: 1px solid rgba(255, 255, 255, 0.06);
   padding: 44px 20px 20px 20px !important;
@@ -27,39 +26,55 @@ pre code.hljs {
   padding: 0 !important;
 }
 
-/* Copy button */
+/* Copy button: just the icon, no box around it. It shows it's a button by
+   brightening under the pointer and spelling out COPY beside itself (in the
+   language caption's style); a press nudges it in. After copying it turns
+   green and says COPIED. */
 .code-copy-btn {
   position: absolute;
   top: 8px;
-  right: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--r-sm);
-  color: rgba(255, 255, 255, 0.72);
-  cursor: pointer;
-  padding: 5px 9px;
-  font-size: 12px;
-  transition: all 0.2s ease;
+  right: 12px;
+  z-index: 2;
   display: flex;
   align-items: center;
-  gap: 5px;
-  z-index: 2;
-}
+  gap: 6px;
+  padding: 4px;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.1s ease;
 
-.code-copy-btn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.18);
-}
+  &::before {
+    content: "Copy";
+    opacity: 0;
+    transform: translateX(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
 
-.code-copy-btn.copied {
-  color: var(--k-green);
-  background: color-mix(in srgb, var(--k-green) 20%, transparent);
-  border-color: color-mix(in srgb, var(--k-green) 45%, transparent);
-}
+  &:hover,
+  &:focus-visible { color: #fff; }
 
-.code-copy-btn svg {
-  display: block;
+  &:hover::before,
+  &:focus-visible::before,
+  &.copied::before {
+    opacity: 1;
+    transform: none;
+  }
+
+  &:active { transform: scale(0.92); }
+
+  &:focus-visible { outline: 1px solid rgba(255, 255, 255, 0.4); outline-offset: 2px; }
+
+  &.copied { color: var(--k-green); }
+  &.copied::before { content: "Copied"; }
+
+  svg { display: block; }
 }
 
 /* code language caption (top-left), styled like the directory kicker */
@@ -76,11 +91,6 @@ pre.badge::before {
   font-weight: 700;
   line-height: 1;
   z-index: 2;
-}
-
-/* fix wrong badge display for firefox browser */
-code > table pre::before {
-  display: none;
 }
 
 /* Diff syntax highlighting (dark key tones: see `pre` in tokens.scss) */

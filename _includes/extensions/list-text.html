@@ -1,0 +1,31 @@
+{%- comment -%}
+  Wraps each post list item's own text -- what comes before its sub-list --
+  in <span class="li-text">, so the hover can highlight the item's text
+  without painting its sub-list (styles: lists in _sass/yat/_base.scss).
+  A to-do item's checkbox stays outside the span; a loose list's item text
+  is inside a <p>, so the span goes in there.
+{%- endcomment -%}
+<script>
+  (function () {
+    var BLOCK = /^(UL|OL|P|DIV|PRE|DETAILS|FIGURE|TABLE|BLOCKQUOTE)$/;
+    function isBlock(n) { return n.nodeType === 1 && BLOCK.test(n.tagName); }
+    function lead(el) {
+      var n = el.firstChild;
+      while (n && n.nodeType === 3 && !n.textContent.trim()) n = n.nextSibling;
+      return n;
+    }
+    document.querySelectorAll('.post-content li').forEach(function (li) {
+      var first = lead(li);
+      var host = first && first.nodeType === 1 && first.tagName === 'P' ? first : li;
+      var nodes = [];
+      for (var n = host.firstChild; n && !isBlock(n); n = n.nextSibling) {
+        if (!(n.nodeType === 1 && n.tagName === 'INPUT')) nodes.push(n);
+      }
+      if (!nodes.some(function (x) { return x.textContent.trim(); })) return;
+      var span = document.createElement('span');
+      span.className = 'li-text';
+      host.insertBefore(span, nodes[0]);
+      nodes.forEach(function (x) { span.appendChild(x); });
+    });
+  })();
+</script>

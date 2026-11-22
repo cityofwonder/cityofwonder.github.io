@@ -150,8 +150,6 @@ html:not([data-scroll-status="down"]) .files-bar { top: $header-height; }
   padding: 6px 6px;
   color: var(--c-text);
   @extend %ix-row;
-
-  &:hover .fx-title { text-decoration: underline; }
 }
 
 .fx-title {
@@ -254,7 +252,7 @@ html:not([data-scroll-status="down"]) .files-bar { top: $header-height; }
   &:hover { text-decoration: none; }
 }
 
-/* hover: no box -- the icon lifts and casts a shadow, like a directory card */
+/* hover: no box -- the icon lifts and casts a callout's hover shadow */
 .fg-icon {
   display: flex;
   align-items: flex-end;
@@ -264,15 +262,12 @@ html:not([data-scroll-status="down"]) .files-bar { top: $header-height; }
   transition: transform 0.2s ease, filter 0.2s ease;
 }
 
+// the shadow is a callout's / quote's hover shadow (--shadow-hover, either
+// theme): tight blur, fairly crisp edge, faint -- traced around the icon
 .fg-tile:hover .fg-icon,
 .fg-tile:focus-visible .fg-icon {
   transform: translateY(-3px);
-  filter: drop-shadow(0 10px 12px rgba(20, 28, 48, 0.25));
-}
-
-html[data-theme="dark"] .fg-tile:hover .fg-icon,
-html[data-theme="dark"] .fg-tile:focus-visible .fg-icon {
-  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(var(--shadow-hover));
 }
 
 .fg-tile .fi { width: 140px; height: 122.5px; }

@@ -1,34 +1,87 @@
+/**
+ * Back to top (extensions/click-to-top.html): no button chrome -- a cat
+ * (assets/images/catgoestop.png) floating in the corner, bobbing gently,
+ * with a solid chevron above its raised paws. It fades in once the page is
+ * scrolled; hovering lifts the chevron a touch.
+ */
 .click-to-top {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: fixed;
-  width: 64px;
-  height: 64px;
-  border-radius: var(--r-pill);
   right: 60px;
-  bottom: 48px;
+  bottom: 40px;
+  z-index: 10;
+  padding: 0;
+  border: 0;
+  background: none;
   cursor: pointer;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(10px);
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
-  background-color: var(--c-card);
-  color: var(--c-text);
-  font-size: 24px;
-  user-select: none;
-  transition: 0.3s;
-  z-index: 10;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
+  -webkit-tap-highlight-color: transparent;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--c-ink);
+    outline-offset: 4px;
+    border-radius: var(--r-xs);
+  }
 
   @include media-query($on-laptop) {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--r-pill);
-    right: 35px;
-    font-size: 20px;
+    right: 28px;
+    bottom: 28px;
   }
 }
 
-.click-to-top.show {
-  opacity: 1;
-  transform: translateY(0);
+/* the float: a slow, small drift up and down */
+.ctt-float {
+  position: relative;
+  display: block;
+  padding-top: 20px;                 // room for the chevron
+  animation: ctt-float 3.4s ease-in-out infinite alternate;
+}
+
+@keyframes ctt-float {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-4px); }
+}
+
+.ctt-cat {
+  display: block;
+  width: 88px;
+  height: auto;
+  pointer-events: none;
+
+  @include media-query($on-laptop) {
+    width: 66px;
+  }
+}
+
+/* the chevron: solid ink, between the two raised paws */
+.ctt-chevron {
+  position: absolute;
+  top: 6px;
+  left: 22%;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-top: 3px solid var(--c-ink);
+  border-left: 3px solid var(--c-ink);
+  border-radius: 1px;
+  transform: rotate(45deg);
+  transition: top 0.2s ease;
+}
+
+.click-to-top:hover .ctt-chevron,
+.click-to-top:focus-visible .ctt-chevron {
+  top: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctt-float { animation: none; }
 }

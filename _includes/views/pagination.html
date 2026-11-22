@@ -38,22 +38,40 @@
       {%- endfor -%}
     {%- endif -%}
 
-    <!-- Normal list item: newest post is featured (large), rest are compact -->
+    <!-- Normal list item: the first post(s) fill the featured slots, rest are compact -->
     {%- assign is_first_page = false -%}
     {%- if paginator == site or paginator.page == 1 -%}
       {%- assign is_first_page = true -%}
     {%- endif -%}
 
     {%- comment -%}
-      Pinned posts are skipped ONLY on page 1, where they are already shown in
-      the block above. Skipping them everywhere meant they still consumed a
-      paginator slot on their real page but rendered nothing -- the posts
-      vanished from the listing and the page came up short.
+      Every page holds exactly `paginate` cards, so the 2-column grid ends on
+      a full row. Pinned posts (shown above, on page 1 only) take slots on
+      page 1, so page 1 lists that many fewer posts and every later page is
+      shifted back by the same amount. jekyll-paginate's own slice can't do
+      that (pinned posts sat on top of a full page -- 9 cards, a lone card on
+      the last row -- and showed up again on their real page), so the slice
+      is taken here from the post list without the pinned posts. The total is
+      unchanged, so paginator.total_pages still fits.
     {%- endcomment -%}
-    {%- for post in paginator.posts -%}
-      {%- if post.top and is_first_page -%}
-        {%- continue -%}
+    {%- if paginator == site -%}
+      {%- assign list_posts = paginator.posts | where_exp: "item", "item.top == nil or item.top <= 0" -%}
+      {%- assign list_offset = 0 -%}
+      {%- assign list_limit = list_posts.size -%}
+    {%- else -%}
+      {%- assign pinned_posts = site.posts | where_exp: "item", "item.top > 0" -%}
+      {%- assign list_posts = site.posts | where_exp: "item", "item.top == nil or item.top <= 0" -%}
+      {%- assign per_page = paginator.per_page -%}
+      {%- assign first_page_slots = per_page | minus: pinned_posts.size | at_least: 0 -%}
+      {%- if paginator.page == 1 -%}
+        {%- assign list_offset = 0 -%}
+        {%- assign list_limit = first_page_slots -%}
+      {%- else -%}
+        {%- assign list_offset = paginator.page | minus: 2 | times: per_page | plus: first_page_slots -%}
+        {%- assign list_limit = per_page -%}
       {%- endif -%}
+    {%- endif -%}
+    {%- for post in list_posts limit: list_limit offset: list_offset -%}
       {%- comment -%} only fill slots the pinned posts left over {%- endcomment -%}
       {%- if is_first_page and featured_used < featured_slots -%}
         {%- assign post_item_class = "featured" -%}
