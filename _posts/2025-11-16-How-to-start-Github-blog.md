@@ -9,7 +9,7 @@ banner:
   opacity: 0.8
   background: "rgba(0, 0, 0, 0.7)"
 ---
-## **📍 개요**
+## 📍 개요
 
 github 블로그를 시작하게 되었다. 기존에 tistory 블로그를 운영했는데, 사용할 수 있는 스킨이 제한적이라 자꾸 커스텀 욕구가 올라와서 github으로 이관하게 되었다. 
 
@@ -18,9 +18,9 @@ github 블로그를 시작하게 되었다. 기존에 tistory 블로그를 운�
 막상 쓰려고 github blog를 이것저것 만져본지 한달 정도 되어가는 시점에, 한편으론 매번 md 작성하고 push하는 과정이 귀찮기도 해서 아마 tistory와 github 둘 다 적절히 사용하지 않을까 싶다.
 ㄴ
 
-## **📍 How to start Github blog in Window**
+## 📍 How to start Github blog in Window
 
-### **1. ruby, gem 설치 / Jekyll, Bundler 설치**
+### 1. ruby, gem 설치 / Jekyll, Bundler 설치
 
 이미 설치된 경우 아래와 같이 확인 가능하다.
 
@@ -47,7 +47,7 @@ github 블로그를 시작하게 되었다. 기존에 tistory 블로그를 운�
 > gem install jekyll bundler
 ```
 
-### **2. git repository ({site이름}.gihub.io)생성 / 원하는 테마 선택 + git copy / git push**
+### 2. git repository ({site이름}.gihub.io)생성 / 원하는 테마 선택 + git copy / git push
 
 public 옵션을 체크하여 `*{site이름}.gihub.io`* repository를 생성한다. 그 외 옵션은 크게 중요치 않다.(맘대로)
 

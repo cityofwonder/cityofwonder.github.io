@@ -9,7 +9,7 @@ banner:
   opacity: 0.4
   background: "rgba(0, 0, 0, 0.7)"
 ---
-## 0. <span class="highlight-orange">📍 개요</span>
+## 0. 📍 개요
 
 기존의 docker 내부 process에 대해, WSL root 계정으로 <code>gdb-pwndbg -p PID </code>로 attach하는 방식이 <span class="text-red text-bold"><span class="highlight-yellow">더 이상 유효하지 않아</span> 새로운 방법</span>을 찾아보았다.
 <details>
@@ -25,7 +25,7 @@ banner:
 
 ---
 
-## 1. <span class="highlight-orange">Docker, gdbserver - CykorCTF2025-pwn-2-dbfs</span>
+## 1. Docker, gdbserver - CykorCTF2025-pwn-2-dbfs
 
 1. <span class="highlight-blue">**dockerfile setting + run, exec**</span><br>
   보통 로컬에서 p.remote가 가능하게 하기 위해, 제공되는 dockerfile은 EXPOSE nnnn 포트를 하나 열어둔다.
@@ -110,7 +110,7 @@ banner:
 
 ---
 
-## <span class="highlight-orange">2. qemu-user-static + ARM + pwndbg/gef - 내부CTF-pwn-forty-seven-bells</span>
+## 2. qemu-user-static + ARM + pwndbg/gef - 내부CTF-pwn-forty-seven-bells
 
 <figure style="text-align: center;">
     <img src="/assets/images/2025-12-10/kakao_screenshot1765342125215.png" alt="고마워...">

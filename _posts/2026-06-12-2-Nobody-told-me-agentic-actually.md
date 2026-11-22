@@ -10,7 +10,7 @@ banner:
   background: "rgba(0, 0, 0, 0.7)"
 ---
 
-## <span class="text-red text-bold">#Q01.</span> agent의 일반적 기술적 정의는 무엇일까?
+## <span class="text-red">#Q01.</span> agent의 일반적 기술적 정의는 무엇일까?
 - <span class="highlight-yellow">inference 호출</span>은 곧 우리가 LLM에게 질의하는 것이다.
 - control loop란, control theory로 부터, 컨트롤러+플랜트+피드백을 통째로 묶은 시스템 전체를 부르는 말이다
   - agent 문맥에서는 loop 자체만으론 반복되는 순환 구조, 즉, 관측 -> 추론 -> 행동 -> 관측.. 이라는 사이틀을 지칭해야하지만

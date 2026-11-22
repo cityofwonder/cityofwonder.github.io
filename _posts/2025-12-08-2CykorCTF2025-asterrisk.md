@@ -67,7 +67,7 @@ C:.
 
 ---
 
-## <span class="highlight-blue">1. 👀 primitive - static analysis</span>
+## 1. 👀 primitive - static analysis
 
 첫 시작은 index.js를 분석하는 것이다.
 <details>
@@ -316,7 +316,7 @@ index.js 안에서의 <span class =  "text-bold text-orange">데이터 흐름의
 
 ---
 
-## <span class="highlight-blue">2. Setting docker for Debugging</span>
+## 2. Setting docker for Debugging
 
 <span class="text-italic text-gray">~~나는 디버깅 안되면 절대 익스를 못 작성하는데, 딱히 그러지 않고도 잘 솔브 하는 사람을 보면 신기하다..~~</span>
 
@@ -338,7 +338,7 @@ run까지만 해도 http://localhost:3000 접속은 가능하다. 익스 과정�
 
 ---
 
-## <span class="highlight-blue">3. Dynamic Analysis with Docker</span>
+## 3. Dynamic Analysis with Docker
 
 메인 페이지에서 보이는 몇개 버튼을 눌러보면 http://localhost:3000/nnn.html 와 같은 방식으로 접속되는 것을 확인할 수 있다.
 
@@ -418,7 +418,7 @@ submit handler는 $('#submit')이 눌릴 때 트리거된다.
 
 ---
 
-## <span class="highlight-blue">4. exploit 작성</span>
+## 4. exploit 작성
 
 <details>
 <summary><span class = "text-bold highlight-purple">🎮Exploit Code🎮</span></summary>

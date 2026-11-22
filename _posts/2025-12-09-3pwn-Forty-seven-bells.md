@@ -61,7 +61,7 @@ C:.
 </figure>
 </div>
 ---
-## 1. <span class="highlight-blue"> Premitive - Static Analysis</span>
+## 1. Premitive - Static Analysis
 ~~시험공부하다가 너무 졸려서 적는 롸업..~~<br>
 ~~탈모탈모빔,, 교수님께서 답장이 오질않는다~~
 

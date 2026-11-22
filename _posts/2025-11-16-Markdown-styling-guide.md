@@ -10,13 +10,13 @@ banner:
   background: "rgba(0, 0, 0, 0.7)"
 ---
 
-## **📍 개요**
+## 📍 개요
 
 markdown을 사이트에서 보여주는 형식인 github blog에서는 더 자유로운 스타일링이 가능하다. 나중에 쓸 때 참고해야하니.. 적어둔다
 
 ---
 
-## **🖍️ 형광펜 효과**
+## 🖍️ 형광펜 효과
 
 <span class="highlight-yellow">노란색 형광펜</span>
 
@@ -42,7 +42,7 @@ markdown을 사이트에서 보여주는 형식인 github blog에서는 더 자�
 
 ---
 
-## **💬 인라인 댓글 (hover)**
+## 💬 인라인 댓글 (hover)
 
 본문 중간에 <span class="notion-comment">댓글이 달린 텍스트<span class="comment-bubble"><span class="comment-item">이렇게 마우스를 올리면 댓글이 보입니다. Notion에서 옮겨온 주석 기능이에요.</span></span></span>를 두면, 마우스를 올렸을 때 주석이 나타난다. 문장 끝에 달아도 <span class="notion-comment">자연스럽게 동작<span class="comment-bubble"><span class="comment-item">문장 끝에 단 테스트 댓글입니다.</span></span></span>한다.
 
@@ -59,7 +59,7 @@ markdown을 사이트에서 보여주는 형식인 github blog에서는 더 자�
 
 ---
 
-## **🎨 글자 색상 변경**
+## 🎨 글자 색상 변경
 
 <span class="text-red">빨간색</span> /
 <span class="text-blue">파란색</span> /

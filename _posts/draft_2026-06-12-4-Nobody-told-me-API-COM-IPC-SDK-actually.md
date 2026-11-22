@@ -17,7 +17,7 @@ banner:
 
 </div>
 
-## <span class="highlight-yellow">#0. terminology</span>
+## #0. terminology
 
 **❓ <span class="highlight-yellow">서버</span>, <span class="text-gray">외부 요청을 기다리는 하드웨어+프로그램</span>**
 <div class="box-note">
@@ -51,13 +51,13 @@ banner:
 
 **❓ <span class="highlight-yellow">웹 API</span>란 뭘까, <span class="text-gray"></span>**
 
-## <span class="highlight-yellow">#1. IPC (Inter-Process Communication)</span>
+## #1. IPC (Inter-Process Communication)
 
 1. Shared Memory
    1. 
 2. Message passing
 
-## <span class="highlight-yellow">#2. API (Application Programming Interface)</span>
+## #2. API (Application Programming Interface)
 
 소프트웨어의 기능을 외부에서 호출할 수 있게 정의해둔 인터페이스 전체. ➡ SDK, COM, IPC를 포괄한다.
 실무에서의 API는 HTTP 기반 웹 
