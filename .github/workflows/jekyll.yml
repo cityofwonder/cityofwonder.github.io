@@ -31,7 +31,31 @@ jobs:
         run: bundle exec jekyll build
         env:
           JEKYLL_ENV: production
-      
+
+      # Link previews (_plugins/og_image.rb): a post without a banner, and every
+      # other page, points its og:image at assets/og/<name>.png -- a photo of
+      # its card page (og/<name>/, _layouts/og-card.html), taken here; the card
+      # pages themselves are not deployed. A card that fails only loses its
+      # picture, never the deploy.
+      - name: Draw the link-preview cards
+        run: |
+          CHROME=$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)
+          if [ -z "$CHROME" ]; then echo "::warning::no Chrome: link-preview cards skipped"; exit 0; fi
+          python3 -m http.server 4100 --bind 127.0.0.1 --directory _site >/dev/null 2>&1 &
+          SERVER=$!
+          sleep 1
+          mkdir -p _site/assets/og
+          for dir in _site/og/*/; do
+            name=$(basename "$dir")
+            "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars \
+              --force-device-scale-factor=1 --window-size=1200,630 --virtual-time-budget=5000 \
+              --screenshot="$PWD/_site/assets/og/$name.png" "http://127.0.0.1:4100/og/$name/" >/dev/null 2>&1 \
+              || echo "::warning::link-preview card failed: $name"
+          done
+          kill "$SERVER" || true
+          rm -rf _site/og
+          ls -1 _site/assets/og
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 

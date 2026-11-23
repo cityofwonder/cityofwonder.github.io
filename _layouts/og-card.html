@@ -1,0 +1,120 @@
+{%- comment -%}
+  A link-preview card, 1200 x 630 (_plugins/og_image.rb): what a chat app
+  or SNS shows above a shared link to a post that has no banner picture (and
+  to the blog's other pages: og_for = "site"). The page hero in the dark
+  theme -- the title over its bits, the subtitle, the meta line and the tags
+  -- under the blog's name in dots. The deploy workflow photographs it into
+  assets/og/<name>.png; locally it can be looked at at /og/<name>/.
+  The twinkling digits are held still, so the picture is the same each time.
+{%- endcomment -%}
+{%- assign og_doc = nil -%}
+{%- if page.og_for == 'site' -%}
+  {%- assign home = site.pages | where: "url", "/" | first -%}
+  {%- assign og_title = home.heading | default: site.title | strip -%}
+  {%- comment -%} without a leading emoji ("🚩 ..."): the build machine may have no emoji font {%- endcomment -%}
+  {%- assign og_words = og_title | split: ' ' -%}
+  {%- if og_words.size > 1 and og_words[0].size <= 2 -%}
+    {%- assign og_title = og_title | remove_first: og_words[0] | strip -%}
+  {%- endif -%}
+  {%- assign og_sub = site.description -%}
+  {%- assign og_bits = site.title -%}
+  {%- assign og_tags = home.subheading | split: '|' -%}
+{%- else -%}
+  {%- assign og_doc = site.posts | where: "url", page.og_for | first -%}
+  {%- assign og_title = og_doc.title -%}
+  {%- assign og_sub = og_doc.subtitle -%}
+  {%- assign og_bits = og_doc.title -%}
+  {%- assign og_tags = og_doc.tags -%}
+{%- endif -%}
+{%- assign date_format = site.yat.date_format | default: "%b %-d, %Y" -%}
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'en' }}" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex">
+  <title>{{ og_title | escape }}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wan2land/d2coding@e2659bacb50fd3e5f81b1beededb73ffebda134d/d2coding-subset.css">
+  <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+  <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+  {%- include extensions/tag-colors.html -%}
+  <style>
+    html, body { width: 1200px; height: 630px; margin: 0; overflow: hidden; background: var(--c-page); }
+    body { display: block; min-height: 0; }
+    .og {
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+      width: 1200px;
+      height: 630px;
+      padding: 38px 48px 48px;
+    }
+    .og-top { display: flex; align-items: center; justify-content: space-between; }
+    .og-top .site-brand-inner { line-height: 0; color: var(--c-ink); }
+    .og-top .site-brand-dots { width: 196px; height: auto; fill: currentColor; }
+    .og-domain { font: 500 20px/1 "D2Coding", Consolas, monospace; color: var(--c-muted); }
+    .og .page-hero.og-hero {
+      flex: 1;
+      min-height: 0;
+      margin: 0;
+      padding: 48px 56px 42px;
+      border-radius: 18px;
+    }
+    .og .page-hero-inner { max-width: 100%; }
+    .og-hero .post-title,
+    .og-hero .post-subtitle {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .og-hero .post-title { -webkit-line-clamp: 3; margin: 0 0 14px; font-size: 60px; line-height: 1.16; }
+    .og-hero .post-subtitle { -webkit-line-clamp: 2; margin: 0 0 16px; font-size: 26px; }
+    .og-hero .post-meta { font-size: 21px; }
+    .og-hero .post-meta .left-vsplit:before { height: 18px; }
+    .og-hero .post-tags { margin-top: 14px; }
+    .og-hero .post-tag { margin: 0 8px 8px 0; padding: 3px 10px; font-size: 20px; }
+    /* the bits a size up: the card is shown small */
+    .og .hero-bits-row { font-size: calc(var(--fs) * 1.4); line-height: calc(var(--lh) * 1.4); }
+    .og .hb-tw { animation-play-state: paused !important; }
+  </style>
+</head>
+<body>
+  <main class="og">
+    <div class="og-top">
+      {%- include views/site-brand.html -%}
+      <span class="og-domain">{{ site.url | remove: 'https://' | remove: 'http://' }}</span>
+    </div>
+    <div class="page-hero post-hero og-hero">
+      <div class="hero-bits" aria-hidden="true" data-bits="{{ og_bits | escape }}"></div>
+      <div class="page-hero-inner">
+        <h1 class="post-title">{% include views/kind-title.html title=og_title %}</h1>
+        {%- if og_sub and og_sub != '' %}
+        <p class="post-subtitle">{{ og_sub | strip | escape }}</p>
+        {%- endif -%}
+        {%- if og_doc %}
+        <div class="post-meta">
+          {%- if og_doc.layout == 'directory' -%}
+          <span><i class="fa fa-refresh"></i> {{ og_doc.date | date: date_format }}</span>
+          <span class="left-vsplit"><i class="fa fa-th-large"></i> {{ og_doc.directory.size }} sections</span>
+          <span class="left-vsplit"><i class="fa fa-file-text-o"></i> {{ og_doc.dir_total }} posts</span>
+          {%- else -%}
+          <span><i class="fa fa-calendar"></i> {{ og_doc.date | date: date_format }}</span>
+          {%- endif -%}
+        </div>
+        {%- endif -%}
+        {%- if og_tags.size > 0 %}
+        <div class="post-tags">
+          {%- for tag in og_tags -%}
+          {%- assign t = tag | strip -%}
+          {%- if t != '' %}<span class="post-tag">{% if og_doc %}#{% endif %}{{ t | escape }}</span>{% endif -%}
+          {%- endfor -%}
+        </div>
+        {%- endif %}
+      </div>
+    </div>
+  </main>
+  {%- include extensions/hero-bits.html -%}
+</body>
+</html>
