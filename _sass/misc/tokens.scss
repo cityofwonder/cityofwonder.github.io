@@ -117,6 +117,10 @@ $k-dark: (
      the ink with a share of a key colour mixed in -- navy here, ivory in
      dark mode -- so it reads as a variation of the title, not a link */
   --c-kind: color-mix(in srgb, var(--k-blue) 45%, var(--c-ink));
+  /* the same recipe for a sub-kind and its number ("[Devlog; repo #2]"):
+     green and orange, only a tint away from the title ink */
+  --c-kind-sub: color-mix(in srgb, var(--k-green) 45%, var(--c-ink));
+  --c-kind-no: color-mix(in srgb, var(--k-orange) 45%, var(--c-ink));
 
   /* code blocks: an always-dark slate card (the syntax theme is dark) */
   --c-code-bg: #232736;
@@ -176,6 +180,8 @@ html[data-theme="dark"] {
   --k-blue-glow: #379ad3;
 
   --c-kind: color-mix(in srgb, var(--k-yellow) 28%, var(--c-ink));
+  --c-kind-sub: color-mix(in srgb, var(--k-green) 28%, var(--c-ink));
+  --c-kind-no: color-mix(in srgb, var(--k-orange) 28%, var(--c-ink));
 
   --sticker-edge: #fff;
   --t-green: #50fa7b;

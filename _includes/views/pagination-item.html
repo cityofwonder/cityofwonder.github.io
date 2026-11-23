@@ -9,10 +9,6 @@
 {%- assign article_excerpt = return -%}
 {%- assign post_url = post.url | relative_url -%}
 
-{%- assign name = 'excerpt.default_image' -%}
-{%- include functions.html func='get_value' -%}
-{%- assign default_image = return -%}
-
 {%- comment -%}
   `banner` is either a URL string or a hash with `image`. A post synced
   without a cover has `banner: { image: "" }` -- no image, so the card gets
@@ -24,28 +20,43 @@
     {%- assign post_image = post.banner -%}
   {%- endunless -%}
 {%- endif -%}
-{%- assign post_image = post_image | default: default_image -%}
 {%- if post_image == "" -%}{%- assign post_image = nil -%}{%- endif -%}
 
-{%- comment -%} 작성중: `draft: true` 이거나 Notion 상태가 진행 중/작성중 {%- endcomment -%}
-{%- assign status_class = '' -%}
-{%- if post.draft or post.status == '작성중' or post.status == '진행 중' -%}
-  {%- assign status_class = ' draft-post' -%}
-{%- elsif post.status == '작성완료' -%}
-  {%- assign status_class = ' done-post' -%}
-{%- endif -%}
+{%- include functions.html func='get_status_class' post=post -%}
+{%- assign status_class = return -%}
 {%- assign has_image = false -%}
 {%- if post_image and post_image != 'NO_EXCERPT_IMAGE' -%}{%- assign has_image = true -%}{%- endif -%}
-<li class="post-item {{ post_item_class }}{{ status_class }}{% unless has_image %} no-image{% endunless %}">
+<li class="post-item {{ post_item_class }}{% if status_class != '' %} {{ status_class }}{% endif %}{% unless has_image %} no-image{% endunless %}">
   {%- if has_image -%}
   <a class="post-image" href="{{ post_url }}">
     <div style="background-image: url({{ post_image | relative_url }})"></div>
   </a>
   {%- endif -%}
+  {%- comment -%}
+    An ordinary card's body: the excerpt, the date and reading time, the
+    tags. A featured card (the pinned / newest ones) shows the rendered post
+    instead -- but carries this too, for a narrow feed (a phone), where it
+    looks like every other card (misc/feed.scss: feed-narrow).
+  {%- endcomment -%}
+  {%- capture compact_body -%}
+    <a class="post-text" href="{{ post_url }}">
+      <p>{{ article_excerpt }} <span class="read_more">Read More</span></p>
+    </a>
+    <div class="post-meta">
+      <span class="post-date"><i class="fa fa-calendar"></i> {{ post.date | date: date_format }}</span>
+      {%- if post.author -%}
+      <span class="post-author left-vsplit"><i class="fa fa-pencil"></i> {{ post.author | escape }}</span>
+      {%- endif -%}
+      <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> {{ reading_time }}</span>
+    </div>
+    <div class="post-tags">
+      {%- include views/tag-chips.html tags=post.tags -%}
+    </div>
+  {%- endcapture -%}
   <div class="post-body">
     <h2 class="post-title">
       <a class="post-link" href="{{ post_url }}">
-        {{ post.title | escape }}
+        {% include views/kind-title.html title=post.title -%}
         {%- include views/post-badges.html -%}
       </a>
     </h2>
@@ -68,25 +79,12 @@
         {%- endif -%}
       {%- endfor -%}
     {%- endcapture -%}
-    <div class="post-content featured-preview">
+    <div class="post-content featured-preview featured-only">
       {{ preview_html }}
     </div>
+    <div class="featured-compact">{{ compact_body }}</div>
     {%- else -%}
-    <a class="post-text" href="{{ post_url }}">
-      <p>{{ article_excerpt }} <span class="read_more">Read More</span></p>
-    </a>
-    <div class="post-meta">
-      <span class="post-date"><i class="fa fa-calendar"></i> {{ post.date | date: date_format }}</span>
-      {%- if post.author -%}
-      <span class="post-author left-vsplit"><i class="fa fa-pencil"></i> {{ post.author | escape }}</span>
-      {%- endif -%}
-      <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> {{ reading_time }}</span>
-    </div>
-    <div class="post-tags">
-      {%- for tag in post.tags -%}
-      <a class="post-tag" href="{{ '/tags/' | relative_url }}#{{tag}}">#{{tag}}</a>
-      {%- endfor -%}
-    </div>
+    {{ compact_body }}
     {%- endif -%}
   </div>
   {%- if post_item_class contains 'featured' -%}
@@ -95,9 +93,7 @@
     <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> {{ reading_time }}</span>
     {%- if post.tags.size > 0 -%}
     <span class="post-foot-tags left-vsplit">
-      {%- for tag in post.tags -%}
-      <a class="post-tag" href="{{ '/tags/' | relative_url }}#{{tag}}">#{{tag}}</a>
-      {%- endfor -%}
+      {%- include views/tag-chips.html tags=post.tags -%}
     </span>
     {%- endif -%}
   </div>

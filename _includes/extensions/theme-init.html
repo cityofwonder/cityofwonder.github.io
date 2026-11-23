@@ -1,20 +1,13 @@
 {%- comment -%}
   Runs in <head>, before the stylesheet and before anything paints: puts the
-  right theme, the initial scroll state and the fixed-header flag on <html>
-  straight away, so no page ever paints in the wrong theme / header state
-  and then switches. (The header flag takes the header out of the flow; set
-  any later, a page's first frame had everything 64px lower, then jumped.)
+  right theme and the initial scroll state on <html> straight away, so no
+  page ever paints in the wrong theme and then switches.
   Reads the same storage and rules as extensions/theme-toggle.html (which
   owns the switch and saves changes); keep the two in step.
 {%- endcomment -%}
 {%- assign name = 'night_mode' -%}
 {%- include functions.html func='get_value' default='auto' -%}
 {%- assign night_mode = return -%}
-{%- include functions.html func='get_banner' -%}
-{%- assign name = 'header_transparent' -%}
-{%- include functions.html func='get_value' default=true -%}
-{%- assign header_fixed = false -%}
-{%- if banner and return -%}{%- assign header_fixed = true -%}{%- endif -%}
 <script>
   (function () {
     var html = document.documentElement;
@@ -41,8 +34,5 @@
     }
     html.dataset.theme = night ? 'dark' : 'light';
     if (!html.dataset.scrollStatus) html.dataset.scrollStatus = 'top';
-    {%- if header_fixed %}
-    html.setAttribute('data-header-transparent', '');
-    {%- endif %}
   })();
 </script>

@@ -388,6 +388,12 @@ pre {
   padding-right: $spacing-unit;
   padding-left: $spacing-unit;
   @extend %clearfix;
+
+  // a phone: a narrower margin each side (the header's matches: _layout.scss)
+  @include media-query($on-palm) {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
 }
 
 
@@ -480,16 +486,6 @@ table {
   top: $top;
 }
 
-/**
- * Center background image
- */
-@mixin center-image {
-  height: 100%;
-  max-width: 1000%;
-  background-size: cover;
-  background-position: center center;
-  overflow: hidden;
-}
 
 /**
  * Text Selection

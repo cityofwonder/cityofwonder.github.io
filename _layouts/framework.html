@@ -24,7 +24,8 @@ layout: default
   {%- endcomment -%}
   {%- assign sidebar_list = sidebar | join: '-' -%}
   {%- assign sidebar_vt = '' -%}
-  {%- unless sidebar_list contains 'article-menu' -%}
+  {%- comment -%} a directory's report is its own too {%- endcomment -%}
+  {%- unless sidebar_list contains 'article-menu' or sidebar_list contains 'directory-report' -%}
     {%- assign sidebar_vt = ' view-transition-name: sidebar-' | append: sidebar_list | append: ';' -%}
   {%- endunless %}
   <section class="sidebar" style="margin-left: 15px;{{ sidebar_vt }}">

@@ -1,0 +1,77 @@
+<script>
+// dirfetch's folder (views/directory-card.html): a folder drawn in dots that
+// is also a chart of the board. Its body is a band per section (in order,
+// top to bottom), each as many rows as its share of the posts (every
+// section with posts gets one at least); in a band the published posts'
+// share of the dots is bright, the rest faint. The colours follow the
+// legend beside it (blue, green, orange, red, yellow, gray, then again).
+// Styles: misc/directory.scss.
+(function () {
+  if (window.drawDirFetch) return;
+  var NS = 'http://www.w3.org/2000/svg';
+  var KEYS = ['blue', 'green', 'orange', 'red', 'yellow', 'gray'];
+  var COLS = 14, BODY = 10, P = 9, R = 3.1;     // dots across, body rows, pitch, radius
+
+  function dot(svg, x, y, cls, colour) {
+    var c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', x * P + P / 2);
+    c.setAttribute('cy', y * P + P / 2);
+    c.setAttribute('r', R);
+    c.setAttribute('class', cls);
+    if (colour) c.style.setProperty('--c', colour);
+    svg.appendChild(c);
+  }
+
+  function draw(svg) {
+    svg.setAttribute('data-drawn', '');
+    var secs = (svg.getAttribute('data-counts') || '').split(';').filter(Boolean).map(function (s) {
+      var p = s.split(',');
+      return { n: +p[0] || 0, live: +p[1] || 0 };
+    });
+    var total = secs.reduce(function (a, s) { return a + s.n; }, 0);
+    var w = COLS * P, h = (BODY + 2) * P;
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    svg.style.aspectRatio = w + ' / ' + h;
+
+    // the tab
+    for (var c = 0; c < 6; c++) dot(svg, c, 0, 'is-tab');
+    for (c = 0; c < 7; c++) dot(svg, c, 1, 'is-tab');
+
+    // rows per section: their share, the largest remainders first
+    var rows = secs.map(function (s) { return total ? Math.floor(s.n / total * BODY) : 0; });
+    secs.forEach(function (s, i) { if (s.n && !rows[i]) rows[i] = 1; });
+    var used = rows.reduce(function (a, b) { return a + b; }, 0);
+    var order = secs.map(function (s, i) { return i; }).sort(function (a, b) {
+      return (secs[b].n / (total || 1) * BODY - rows[b]) - (secs[a].n / (total || 1) * BODY - rows[a]);
+    });
+    for (var k = 0; used < BODY && total && k < order.length * BODY; k++) {
+      var i = order[k % order.length];
+      if (secs[i].n) { rows[i]++; used++; }
+    }
+    while (used > BODY) {                        // too many minimums: trim the biggest
+      var big = rows.indexOf(Math.max.apply(null, rows));
+      rows[big]--; used--;
+    }
+
+    var y = 2;
+    secs.forEach(function (s, si) {
+      var colour = 'var(--k-' + KEYS[si % KEYS.length] + '-glow)';
+      var cells = rows[si] * COLS;
+      var lit = s.n ? Math.round(s.live / s.n * cells) : 0;
+      for (var j = 0; j < cells; j++) {
+        dot(svg, j % COLS, y + Math.floor(j / COLS), j < lit ? 'is-live' : 'is-pending', colour);
+      }
+      y += rows[si];
+    });
+    for (; y < BODY + 2; y++) {                   // a board with no posts yet: an empty folder
+      for (c = 0; c < COLS; c++) dot(svg, c, y, 'is-empty');
+    }
+  }
+
+  window.drawDirFetch = function () {
+    document.querySelectorAll('svg.dir-fetch-art:not([data-drawn])').forEach(draw);
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.drawDirFetch);
+  else window.drawDirFetch();
+})();
+</script>

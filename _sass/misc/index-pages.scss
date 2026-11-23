@@ -7,7 +7,7 @@
  *   .ix-head      title + count (+ tabs on the right)
  *   .ix-tabs      text tabs, the current one underlined
  *   .ix-empty     "nothing matches"
- *   .t-kind       the "[paper #85]" part of a post title (bold, --c-kind)
+ *   .t-kind       the "[paper #85]" part of a post title (bold, --c-kind; also the feed's)
  *
  * And two placeholders the page partials @extend:
  *   %ix-row       a clickable row (its hover is the spotlight, misc/spotlight.scss)
@@ -83,10 +83,17 @@
 }
 
 /* "[paper #85] Title": the bracketed kind, bold, in --c-kind -- the title
-   colour nudged toward a key colour (ivory on dark, navy on light) */
+   colour nudged toward a key colour (ivory on dark, navy on light). Marked up
+   by extensions/kind-title.html (lists built in the browser) and
+   views/kind-title.html (the feed). A kind with a sub-kind after ";" --
+   "[Devlog; rAsterink #1]" -- tints the repo green and its number orange,
+   as faintly as the kind itself (--c-kind-sub, --c-kind-no: tokens.scss). */
 .t-kind {
   font-weight: 700;
   color: var(--c-kind);
+
+  .t-kind-sub { color: var(--c-kind-sub); }
+  &.has-sub .t-kind-no { color: var(--c-kind-no); }
 }
 
 %ix-row {                       // hover glow + bold: misc/spotlight.scss

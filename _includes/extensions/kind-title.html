@@ -1,0 +1,35 @@
+<script>
+// A post title's leading "[kind]" in its own ink (.t-kind, misc/index-pages.scss),
+// for the lists built in the browser -- tags, archives, categories. The feed is
+// built by Jekyll with the same markup: views/kind-title.html.
+//
+//   "[paper #12] Title"            -> <b class="t-kind">[paper #12]</b> Title
+//   "[Devlog; rAsterink #1] Title" -> the repo after ";" and the number each
+//                                     in a key colour of their own (has-sub)
+//
+// (The numbers come from _plugins/kind_numbering.rb.)
+window.putKindTitle = function (parent, title) {
+  var m = /^\[([^\]]*)\]([\s\S]*)$/.exec(title);
+  if (!m) { parent.textContent = title; return parent; }
+  var kind = m[1], no = '', sub = '';
+  var n = /^([\s\S]*?)\s+(#\d+)$/.exec(kind);
+  if (n) { kind = n[1]; no = n[2]; }
+  var s = /^([^;]*);\s*([\s\S]+)$/.exec(kind);
+  if (s) { kind = s[1]; sub = s[2]; }
+
+  var span = function (cls, text) {
+    var e = document.createElement('span');
+    e.className = cls;
+    e.textContent = text;
+    return e;
+  };
+  var b = document.createElement('b');
+  b.className = sub ? 't-kind has-sub' : 't-kind';
+  b.append('[' + kind);
+  if (sub) b.append('; ', span('t-kind-sub', sub));
+  if (no) b.append(' ', span('t-kind-no', no));
+  b.append(']');
+  parent.append(b, m[2]);
+  return parent;
+};
+</script>

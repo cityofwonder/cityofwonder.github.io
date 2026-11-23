@@ -1,47 +1,59 @@
 {%- comment -%}
-  One card on a directory board.
+  One post on a directory board: a row of its column, not a box.
 
     item    the directory entry (id, title, optional note)
     linked  the post whose notion_id matches item.id, or nil when that page
-            is not published (yet) -- then the card is a muted placeholder
+            is not published (yet) -- then the row is a muted placeholder
             under the title the directory last saw.
 
-  The post's own text sits behind the card like a banner image and fades out
-  under the left-aligned title / subtitle / tags. `markdownify` first: a post
-  rendered after the directory still holds raw markdown in `content`, and
-  links/images would otherwise leak into the text as `[..](..)` syntax.
-  `tex2jax_ignore` keeps MathJax from typesetting the $..$ in that backdrop.
+  Short on purpose -- no preview of the post: its title with the leading
+  "[kind]" reduced to the number the site gives it ("[paper #3] GPUHammer"
+  -> "#3 GPUHammer", the number in the feed's kind colours -- index-pages.scss
+  .t-kind; an unpublished post has no number yet), on one line however wide
+  the column is (cut with "..." where it runs out -- misc/directory.scss),
+  and under it the post's tags as the feed and the tags view show them. No
+  badges (작성중 / 작성완료 / TOP / 준비 중): an unpublished post shows as muted,
+  numberless text. The whole title (with the subtitle and the directory's
+  note) is the row's tooltip. The title link covers the row; the tags are
+  links of their own on top of it.
 {%- endcomment -%}
+{%- assign bc_full = linked.title | default: item.title | default: '' -%}
+{%- assign bc_short = bc_full -%}
+{%- assign bc_no = '' -%}
+{%- assign bc_sub = false -%}
+{%- assign bc_first = bc_full | slice: 0 -%}
+{%- if bc_first == '[' and bc_full contains ']' -%}
+  {%- assign bc_kind = bc_full | split: ']' | first | append: ']' -%}
+  {%- assign bc_short = bc_full | remove_first: bc_kind | strip -%}
+  {%- if bc_kind contains ' #' -%}
+    {%- assign bc_no = bc_kind | remove: ']' | split: ' #' | last | strip -%}
+  {%- endif -%}
+  {%- if bc_kind contains ';' -%}{%- assign bc_sub = true -%}{%- endif -%}
+{%- endif -%}
+{%- capture bc_title -%}
+  {%- if bc_no != '' -%}<b class="t-kind{% if bc_sub %} has-sub{% endif %}"><span class="t-kind-no">#{{ bc_no | escape }}</span></b> {% endif -%}
+  {{- bc_short | escape -}}
+{%- endcapture -%}
+{%- capture bc_tip -%}
+  {{- bc_full -}}
+  {%- if linked.subtitle and linked.subtitle != "" %} -- {{ linked.subtitle }}{%- endif -%}
+  {%- if item.note and item.note != "" %} ({{ item.note }}){%- endif -%}
+{%- endcapture -%}
 {%- if linked -%}
-{%- assign backdrop = linked.content | markdownify | strip_html | normalize_whitespace | truncate: 700 -%}
-<a class="board-card" href="{{ linked.url | relative_url }}">
-  <div class="board-card-bg tex2jax_ignore" aria-hidden="true">{{ backdrop | escape_once }}</div>
-  <div class="board-card-fg">
-    <h3 class="board-card-title">{{ linked.title | escape }}
-      {%- if linked.draft or linked.status == '작성중' or linked.status == '진행 중' -%}
-      <span class="board-card-badge">작성중</span>
-      {%- endif -%}
-    </h3>
-    {%- if linked.subtitle and linked.subtitle != "" -%}
-    <p class="board-card-subtitle">{{ linked.subtitle | escape }}</p>
-    {%- endif -%}
-    {%- if item.note -%}
-    <p class="board-card-note">{{ item.note | escape }}</p>
-    {%- endif -%}
-    {%- if linked.tags.size > 0 -%}
-    <div class="board-card-tags">
-      {%- for tag in linked.tags -%}
-      <span class="post-tag">#{{ tag }}</span>
-      {%- endfor -%}
-    </div>
-    {%- endif -%}
+<div class="board-card">
+  <h3 class="board-card-title">
+    <a class="board-card-link" href="{{ linked.url | relative_url }}" title="{{ bc_tip | escape }}">{{ bc_title }}</a>
+  </h3>
+  {%- if linked.tags.size > 0 -%}
+  <div class="board-card-tags">
+    {%- include views/tag-chips.html tags=linked.tags -%}
   </div>
-</a>
+  {%- endif -%}
+</div>
 {%- else -%}
-<div class="board-card is-pending">
-  <div class="board-card-fg">
-    <h3 class="board-card-title">{{ item.title | escape }}</h3>
-    <p class="board-card-subtitle">준비 중</p>
-  </div>
+<div class="board-card is-pending" title="{{ bc_tip | escape }}">
+  <h3 class="board-card-title">
+    <span class="board-card-text">{{ bc_title }}</span>
+  </h3>
 </div>
 {%- endif -%}

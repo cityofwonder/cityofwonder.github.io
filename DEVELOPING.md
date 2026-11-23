@@ -132,9 +132,7 @@ draft: true            # status 없이 작성중 뱃지만 달 때
 notion: true           # 변환기가 만든 글 (수동 편집은 다음 싱크에 덮어쓰임)
 notion_id: "..."       # 싱크 식별자. 지우면 중복 생성된다
 banner:
-  image: "/assets/images/<date>/<file>"
-  opacity: 0.5
-  background: "rgba(0, 0, 0, 0.7)"
+  image: "/assets/images/<date>/<file>"   # 글 머리 카드 배경 + 링크 미리보기 그림 (opacity/background 는 안 쓰임)
 ---
 ```
 

@@ -1,3 +1,9 @@
+{%- comment -%}
+  Calls a function: functions/<func>.html, which hands its result back in
+  `return` -- `default` stands in when that comes back nil.
+    {% assign name = 'night_mode' %}
+    {% include functions.html func='get_value' default='auto' %}
+{%- endcomment -%}
 {%- assign params = include -%}
 {%- if params.func -%}
   {%- assign func = params.func -%}
@@ -9,22 +15,9 @@
   {%- assign include_path = include_path | append: '.html' -%}
 {%- endif -%}
 
-{%- if func == 'log' -%}
-  {%- include functions/log.html level=include.level msg=include.msg -%}
-{%- else -%}
-  {%- assign include_path = 'functions/' | append: include_path -%}
-  {%- include {{ include_path }} params=params-%}
-{%- endif -%}
+{%- assign include_path = 'functions/' | append: include_path -%}
+{%- include {{ include_path }} params=params -%}
 
 {%- if return == nil -%}
   {%- assign return = include.default -%}
-{%- endif -%}
-
-{%- if func != 'log' -%}
-  {%- assign msg = '[function]['
-    | append: {{func}}
-    | append: '] '
-    | append: {{return}}
-    -%}
-  {%- include functions.html func='log' level='info' -%}
 {%- endif -%}

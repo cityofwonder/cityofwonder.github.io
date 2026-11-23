@@ -32,6 +32,7 @@ github_username: cityofwonder
 # Copyright setting
 # You can use any html code, currently below placeholders are available:
 # * current year: {currentYear}
+# * the first post's year: {firstYear} (_includes/views/footer.html)
 # * author: {author} (Value is the same as site.author)
 # * copyright: (c) - ©
 # * copyleft: (cleft)
@@ -41,7 +42,7 @@ github_username: cityofwonder
 #   "Copyright (c) 2017-{currentYear} <a href="https://example.com">{author}</a>"
 #   "Copyright © 2017-2021 Foobar"
 #
-copyright: "(cleft) 2022-{currentYear} {author}"
+copyright: "(cleft) {firstYear}-{currentYear} {author}"
 
 description: >-
   2023.03~ Korea Univ. in Seoul, South Korea
@@ -56,22 +57,11 @@ url: "https://cityofwonder.github.io"
 yat:
   date_format: "%b %d, %Y"
 
-# If you want more debug log, you can set true
-# debug: false
-
-# If you don't want transparent header, you can set false
-# header_transparent: true
-
 # If you want to change the content width, you can set to another value
 # Default is 920px. 1200px keeps enough left margin for the margin comments.
 content_width: "1200px"
 
-# Google analytics - GA4
-# google_analytics: [Measurement ID]
-# enableDNT: "false"
-
-# If you want to generate website sitemap, you can set true
-# sitemap: false
+# Pageviews: GoatCounter (_data/goatcounter.yml)
 
 # If you want to change site language, you can set lang option
 lang: "ko"  # default lang is en
@@ -104,8 +94,7 @@ lang: "ko"  # default lang is en
 #   background_color: "#ff4e00"
 #   text_transform: "uppercase"  # ("uppercase", "lowercase", "capitalize")
 
-# If you want to link only specific pages in your header, uncomment
-# this and add the path to the pages in order as they should show up
+# The pages linked in the header, in this order
 header_pages:
   - index.html
   - categories.html
@@ -113,31 +102,11 @@ header_pages:
   - archives.html
   - about.html
 
-# Page default value
-# defaults:
-#   home:
-#     heading: "Your awesome heading"
-#     subheading: "Your awesome subheading"
-#     banner: "Your image url"
-
-# Banner default settings
-# These banner settings are for global banner default, but you can also
-# config it by the front matter for one specific post
-banner:
-  video: null             # Video banner source
-  loop: true              # Video loop
-  volume: 0               # Video volume (100% is 1.0)
-  start_at: 0             # Video start time
-  image: null             # Image banner source
-  opacity: 1.0            # Banner opacity (100% is 1.0)
-  background: "rgba(0, 0, 0, 0.8)"  # Banner background (Could be a image)
-  # (no height: a banner is as tall as its title, subtitle and tags plus a margin)
-  heading_style: 'font-family: "Pretendard", sans-serif; font-weight: 800'     # Pretendard ExtraBold for heading
-  subheading_style: 'font-family: "Pretendard", sans-serif; font-weight: 800'  # Pretendard ExtraBold for subheading
+# A post's banner picture is its own front matter (`banner: { image: ... }`,
+# shown in its page hero: _layouts/post.html) -- there is no site-wide banner.
 
 # Excerpt settings (feed cards)
 # excerpt:
-#   default_image: /assets/images/default-image.jpeg  # image for posts without a banner
 #   text_size: 350          # Words default size
 
 # Permalink setting (shorter URLs without categories)
@@ -169,7 +138,6 @@ livereload: true
 force_polling: true
 
 # Build settings
-# highlighter: none
 markdown: kramdown
 kramdown:
   input: GFM

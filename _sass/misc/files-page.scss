@@ -305,26 +305,7 @@ html:not([data-scroll-status="down"]) .files-bar { top: $header-height; }
   overflow: visible;
 }
 
-.fd-page {
-  fill: color-mix(in srgb, var(--fk) 14%, var(--c-card));
-  stroke: color-mix(in srgb, var(--fk) 60%, transparent);
-  stroke-width: 1.6;
-  stroke-linejoin: round;
-}
-
-.fd-fold {
-  fill: color-mix(in srgb, var(--fk) 45%, var(--c-card));
-  stroke: color-mix(in srgb, var(--fk) 60%, transparent);
-  stroke-width: 1.6;
-  stroke-linejoin: round;
-}
-
-.fd-lines {
-  fill: none;
-  stroke: color-mix(in srgb, var(--fk) 55%, transparent);
-  stroke-width: 2.2;
-  stroke-linecap: round;
-}
+// (a post's page: drawn by extensions/page-art.html, coloured by misc/page-art.scss)
 
 /* folder: back layer, a character hidden behind the front layer, front
    layer + gloss. Hover and the character springs up over the front edge

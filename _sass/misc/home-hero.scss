@@ -14,7 +14,9 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: calc(#{$header-height} + 72px) 0 56px;
+  // a short tail under the meta line: the Light / Dark toggle's 16px strip
+  // follows right after it, as it follows the header on other pages
+  padding: calc(#{$header-height} + 72px) 0 20px;
   background: linear-gradient(to bottom, var(--c-surface) 0%, var(--c-surface) 35%, var(--c-page) 100%);
 }
 
@@ -100,7 +102,7 @@ html:has(.home-hero)[data-scroll-status="top"] .site-header {
 
 @media (max-width: 768px) {
   .home-hero {
-    padding: calc(#{$header-height} + 40px) 0 36px;
+    padding: calc(#{$header-height} + 40px) 0 16px;
   }
 
   .home-hero-inner { padding-left: 0; }   // .articles has no side padding here

@@ -1,15 +1,11 @@
 <header class="post-header">
-  {%- assign status_class = '' -%}
-  {%- if page.draft or page.status == '작성중' or page.status == '진행 중' -%}
-    {%- assign status_class = 'draft-post' -%}
-  {%- elsif page.status == '작성완료' -%}
-    {%- assign status_class = 'done-post' -%}
-  {%- endif -%}
+  {%- include functions.html func='get_status_class' post=page -%}
+  {%- assign status_class = return -%}
   {%- if page.top -%}{%- assign status_class = status_class | append: ' top-post' -%}{%- endif -%}
-  <h1 class="post-title p-name {{ status_class }}" itemprop="name headline">{{ heading | default: page.title | escape }}
+  <h1 class="post-title p-name {{ status_class }}" itemprop="name headline">{{ page.title | escape }}
     {%- include views/post-badges.html -%}
   </h1>
-  <h2 class="post-subtitle">{{ subheading | default: page.subtitle | escape }}</h2>
+  <h2 class="post-subtitle">{{ page.subtitle | escape }}</h2>
 
   <div class="post-meta">
     <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
@@ -41,9 +37,7 @@
 
   {%- if page.tags.size > 0 -%}
   <div class="post-tags">
-    {%- for tag in page.tags -%}
-    <a class="post-tag" href="{{ '/tags/' | relative_url }}#{{tag}}">#{{tag}}</a>
-    {%- endfor -%}
+    {%- include views/tag-chips.html tags=page.tags -%}
   </div>
   {%- endif -%}
 

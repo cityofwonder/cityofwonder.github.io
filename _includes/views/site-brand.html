@@ -1,4 +1,40 @@
-<a class="site-brand-inner" rel="author" href="{{ "/" | relative_url }}">
-  <img class="site-favicon" title="{{ site.title | escape }}" src="{{ site.favicon }}" onerror="this.style.display='none'">
-  {{ site.title | escape }}
+{%- comment -%}
+  The site's name in the header, drawn in small, close dots (the font:
+  _data/dot_font.yml) -- built here, at build time, as one SVG path, so it
+  is there from the first paint (nothing swaps in). Its capitals stand
+  7 dots x 2.4px tall (16.8px): as big as an index page's title ("Tag
+  relations", 20px) or a little bigger. In the text colour (currentColor),
+  so it follows the theme and the header's states. The link's name is the
+  title itself (aria-label).
+{%- endcomment -%}
+{%- assign bp = 2.4 -%}{%- comment -%} pitch: one dot cell {%- endcomment -%}
+{%- assign br = 0.95 -%}{%- comment -%} a dot's radius {%- endcomment -%}
+{%- assign bd = br | times: 2 -%}
+{%- assign bx = 0 -%}
+{%- capture brand_path -%}
+  {%- assign brand_chars = site.title | split: '' -%}
+  {%- for ch in brand_chars -%}
+    {%- assign glyph = site.data.dot_font[ch] -%}
+    {%- if glyph -%}
+      {%- for row in glyph -%}
+        {%- assign y = forloop.index0 -%}
+        {%- assign cells = row | split: '' -%}
+        {%- for cell in cells -%}
+          {%- if cell == '#' -%}
+            {%- assign cx = bx | plus: forloop.index0 | plus: 0.5 | times: bp | minus: br | round: 2 -%}
+            {%- assign cy = y | plus: 0.5 | times: bp | round: 2 -%}
+            M{{ cx }},{{ cy }}a{{ br }},{{ br }} 0 1,0 {{ bd }},0a{{ br }},{{ br }} 0 1,0 -{{ bd }},0
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {%- assign bx = bx | plus: glyph[0].size | plus: 1 -%}
+    {%- else -%}
+      {%- assign bx = bx | plus: 3 -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
+{%- assign bw = bx | minus: 1 | times: bp | round: 1 -%}
+{%- assign bh = 9 | times: bp | round: 1 -%}
+<a class="site-brand-inner" rel="author" href="{{ "/" | relative_url }}" aria-label="{{ site.title | escape }}">
+  <svg class="site-brand-dots" width="{{ bw }}" height="{{ bh }}" viewBox="0 0 {{ bw }} {{ bh }}" aria-hidden="true" focusable="false"><path d="{{ brand_path | strip_newlines | strip }}"/></svg>
 </a>

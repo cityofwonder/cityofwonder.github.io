@@ -166,17 +166,15 @@ sidebar: common-list
     if (text !== undefined) e.textContent = text;
     return e;
   }
-  function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
+  function hash(s) { return Math.abs(strHash(s)); }      // assets/js/main.js
   function byDate(a, b) {
     const d = a.date < b.date ? -1 : a.date > b.date ? 1 : a.title.localeCompare(b.title);
     return state.sort === 'new' ? -d : d;
   }
   function matches(p) { return !state.q || p.search.indexOf(state.q) !== -1; }
+  // "[paper #85] Title": the bracketed kind in its own ink (extensions/kind-title.html)
   function putTitle(parent, title) {
-    const m = /^(\[[^\]]*\])([\s\S]*)$/.exec(title);
-    if (m) { parent.appendChild(el('b', 't-kind', m[1])); parent.appendChild(document.createTextNode(m[2])); }
-    else parent.textContent = title;
-    return parent;
+    return window.putKindTitle(parent, title);
   }
 
   // ---- icons
@@ -210,13 +208,13 @@ sidebar: common-list
     svgEl('path', { 'class': 'fi-shine', d: 'M6 11.2h20' }, svg);
     return svg;
   }
-  // a page with a folded corner, tinted with the post's kind colour
-  function fileIcon(color) {
-    const svg = svgEl('svg', { 'class': 'fdoc', viewBox: '0 0 40 48', 'aria-hidden': 'true' });
-    svg.style.setProperty('--fk', `var(--k-${color}-glow)`);
-    svgEl('path', { 'class': 'fd-page', d: 'M7 2h19l11 11v31a2.5 2.5 0 0 1-2.5 2.5H7A2.5 2.5 0 0 1 4.5 44V4.5A2.5 2.5 0 0 1 7 2z' }, svg);
-    svgEl('path', { 'class': 'fd-fold', d: 'M26 2v8.5a2.5 2.5 0 0 0 2.5 2.5H37z' }, svg);
-    svgEl('path', { 'class': 'fd-lines', d: 'M11 22h18M11 28h18M11 34h12' }, svg);
+  // a post: the page the tags page's slide cards draw for a post without a
+  // picture (extensions/page-art.html) -- in dots where it is big (the icon
+  // grid), the same shapes solid where it is small (the list) -- in the
+  // post's kind colour
+  function fileIcon(p, mode) {
+    const svg = window.pageArt(p.title, p.color, mode);
+    svg.classList.add('fdoc');
     return svg;
   }
 
@@ -302,7 +300,7 @@ sidebar: common-list
     const t = el('a', 'fg-tile is-file');
     t.href = p.url;
     const icon = el('span', 'fg-icon');
-    icon.appendChild(fileIcon(p.color));
+    icon.appendChild(fileIcon(p, 'dots'));
     t.appendChild(icon);
     t.appendChild(putTitle(el('span', 'fg-name'), p.title));
     t.appendChild(el('span', 'fg-meta', p.date.replace(/-/g, '.')));
@@ -364,7 +362,7 @@ sidebar: common-list
   function fileRow(p, withPath) {
     const a = el('a', 'fx-file');
     a.href = p.url;
-    a.appendChild(fileIcon(p.color));
+    a.appendChild(fileIcon(p, 'solid'));
     a.appendChild(putTitle(el('span', 'fx-title'), p.title));
     if (withPath) a.appendChild(el('span', 'fx-path', p.paths[0].join(' › ')));
     a.appendChild(el('span', 'fx-date', p.date.replace(/-/g, '.')));

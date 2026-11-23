@@ -1,0 +1,424 @@
+{%- comment -%}
+  A directory's report, in the sidebar where a post has its ToC
+  (_layouts/directory.html). Built in the browser from the board's data:
+
+    Overview      published / pending / sections
+    Maintenance   a calendar heatmap of the last 18 weeks: the days its posts
+                  were published (filename date) or edited (notion_synced),
+                  and the board itself updated (its date)
+    Growth        published posts over time, a step line climbing toward the
+                  number of posts the board links (dashed)
+    Tags          a small map of the topics, drawn like the tags page's map:
+                  the tags of the board's posts, each as big as the number of
+                  posts carrying it, joined when posts carry both; hovered,
+                  a tag lights up in its colour with its neighbours and its
+                  name on its chip colour; it opens on the tags page
+
+  Styles: _sass/misc/directory.scss (Report).
+{%- endcomment -%}
+<div class="dir-report">
+  <div class="dir-report-block">
+    <div class="sticky-title">Overview</div>
+    <div class="dir-report-stats"></div>
+  </div>
+  <div class="dir-report-block">
+    <div class="sticky-title">Maintenance <span class="activity-unit">last 18 weeks</span></div>
+    <svg class="dir-heat" role="img" aria-label="Days the directory's posts were published or edited"></svg>
+    <div class="dir-heat-legend" aria-hidden="true">
+      less <i class="lv0"></i><i class="lv1"></i><i class="lv2"></i><i class="lv3"></i><i class="lv4"></i> more
+    </div>
+  </div>
+  <div class="dir-report-block">
+    <div class="sticky-title">Growth <span class="activity-unit">published posts</span></div>
+    <svg class="dir-growth" role="img" aria-label="Published posts over time"></svg>
+  </div>
+  <div class="dir-report-block">
+    <div class="sticky-title">Tags <span class="activity-unit">used together</span></div>
+    <svg class="dir-tagmap" role="img" aria-label="The tags of the directory's posts and which go together"></svg>
+  </div>
+</div>
+
+<script type="application/json" id="dir-report-data">
+{
+  "title": {{ page.title | jsonify }},
+  "updated": {{ page.date | date_to_xmlschema | jsonify }},
+  "sections": [
+  {%- for section in page.directory -%}
+    {"name": {{ section.title | default: page.title | jsonify }}, "items": [
+    {%- for item in section.entries -%}
+      {%- assign linked = site.posts | where: "notion_id", item.id | first -%}
+      {%- if linked -%}
+        {%- assign fname = linked.path | split: "/" | last -%}
+        {%- assign p = fname | split: "-" -%}
+      {"title": {{ linked.title | jsonify }}, "url": {{ linked.url | relative_url | jsonify }}, "date": "{{ p[0] }}-{{ p[1] }}-{{ p[2] }}", "edited": {{ linked.notion_synced | jsonify }}, "tags": {% if linked.tags %}{{ linked.tags | jsonify }}{% else %}[]{% endif %}}
+      {%- else -%}
+      {"title": {{ item.title | jsonify }}, "pending": true}
+      {%- endif -%}
+      {%- unless forloop.last -%},{%- endunless -%}
+    {%- endfor -%}
+    ]}{%- unless forloop.last -%},{%- endunless -%}
+  {%- endfor -%}
+  ]
+}
+</script>
+
+<script>
+(function () {
+  var root = document.querySelector('.dir-report');
+  var src = document.getElementById('dir-report-data');
+  if (!root || !src) return;
+  var data;
+  try { data = JSON.parse(src.textContent); } catch (e) { return; }
+
+  var NS = 'http://www.w3.org/2000/svg';
+  var DAY = 864e5;
+  function el(name, attrs, parent, text) {
+    var e = document.createElementNS(NS, name);
+    for (var a in attrs) e.setAttribute(a, attrs[a]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function tip(node, text) { el('title', {}, node, text); return node; }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function day(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+  function ymd(s) { var p = s.split('-'); return new Date(+p[0], p[1] - 1, +p[2]); }
+  function key(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function fmt(d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+  function size(svg, w, h) { svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h); svg.style.aspectRatio = w + ' / ' + h; }
+
+  // ---- the posts ----------------------------------------------------------
+  var posts = [], pending = 0, total = 0;
+  data.sections.forEach(function (s, si) {
+    s.items.forEach(function (it) {
+      it.section = si;
+      total++;
+      if (it.pending) { pending++; return; }
+      it.added = ymd(it.date);
+      posts.push(it);
+    });
+  });
+  var today = day(new Date());
+
+  // ---- Overview ------------------------------------------------------------
+  var stats = root.querySelector('.dir-report-stats');
+  [[posts.length, 'published'], [pending, 'pending'], [data.sections.length, 'sections']].forEach(function (s) {
+    var d = document.createElement('div');
+    var b = document.createElement('b'); b.textContent = s[0];
+    var l = document.createElement('span'); l.textContent = s[1];
+    d.append(b, l);
+    stats.appendChild(d);
+  });
+
+  // ---- Maintenance: what happened on which day ------------------------------
+  // day -> the posts published, the posts edited, and whether the board
+  // itself changed
+  var events = {};
+  function on(k) { return events[k] = events[k] || { added: [], edited: [], board: false }; }
+  posts.forEach(function (p) {
+    on(key(p.added)).added.push(p);
+    if (p.edited) {
+      var e = day(new Date(p.edited));
+      if (!isNaN(e) && key(e) !== key(p.added)) on(key(e)).edited.push(p);
+    }
+  });
+  if (data.updated) {
+    var u = day(new Date(data.updated));
+    if (!isNaN(u)) on(key(u)).board = true;
+  }
+
+  (function heatmap() {
+    var svg = root.querySelector('.dir-heat');
+    var WEEKS = 18, CELL = 12, GAP = 3, TOP = 13;
+    var monday = new Date(today); monday.setDate(today.getDate() - (today.getDay() + 6) % 7);
+    var start = new Date(monday); start.setDate(monday.getDate() - (WEEKS - 1) * 7);
+    var w = WEEKS * (CELL + GAP) - GAP, h = TOP + 7 * (CELL + GAP) - GAP;
+    size(svg, w, h);
+    var lastMonth = -1, lastLabel = -9;
+    for (var wk = 0; wk < WEEKS; wk++) {
+      var first = new Date(start); first.setDate(start.getDate() + wk * 7);
+      if (first.getMonth() !== lastMonth) {
+        // a month's name over its first week -- unless the last one is too
+        // close (a month that only starts the calendar) or it would run off
+        if (wk - lastLabel >= 3 && wk < WEEKS - 2) {
+          el('text', { 'class': 'dir-axis', x: wk * (CELL + GAP), y: 9 }, svg,
+            first.toLocaleDateString('en-US', { month: 'short' }));
+          lastLabel = wk;
+        }
+        lastMonth = first.getMonth();
+      }
+      for (var d = 0; d < 7; d++) {
+        var date = new Date(first); date.setDate(first.getDate() + d);
+        if (date > today) break;
+        var ev = events[key(date)];
+        var n = ev ? ev.added.length + ev.edited.length + (ev.board ? 1 : 0) : 0;
+        el('rect', {
+          'class': 'lv' + Math.min(n, 4) + (+date === +today ? ' is-today' : ''),
+          'data-day': key(date),
+          x: wk * (CELL + GAP), y: TOP + d * (CELL + GAP), width: CELL, height: CELL, rx: 2
+        }, svg);
+      }
+    }
+
+    // Hovered, a day shows what happened in a card over it: the date and a
+    // count, then the posts -- a green dot for published, blue for edited
+    // (titles with their kind marked as in the feed: extensions/kind-title.html)
+    var block = svg.parentElement;
+    var card = document.createElement('div');
+    card.className = 'dir-heat-tip';
+    card.setAttribute('aria-hidden', 'true');
+    block.appendChild(card);
+    var lit = null;
+
+    function line(list, cls, text) {
+      var li = document.createElement('li');
+      li.className = cls;
+      var dot = document.createElement('i');
+      var label = document.createElement('span');
+      if (window.putKindTitle) window.putKindTitle(label, text); else label.textContent = text;
+      li.append(dot, label);
+      list.appendChild(li);
+    }
+    function show(rect) {
+      if (lit) lit.classList.remove('is-hover');
+      lit = rect;
+      rect.classList.add('is-hover');
+      var k = rect.getAttribute('data-day'), ev = events[k];
+      card.textContent = '';
+      var head = document.createElement('div');
+      head.className = 'dir-heat-tip-head';
+      var when = document.createElement('b');
+      when.textContent = ymd(k).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      var sum = document.createElement('span');
+      var parts = [];
+      if (ev && ev.added.length) parts.push(ev.added.length + ' published');
+      if (ev && ev.edited.length) parts.push(ev.edited.length + ' edited');
+      if (ev && ev.board && !parts.length) parts.push('board updated');
+      sum.textContent = parts.length ? parts.join(' · ') : 'no activity';
+      head.append(when, sum);
+      card.appendChild(head);
+      if (ev) {
+        var list = document.createElement('ul');
+        ev.added.forEach(function (p) { line(list, 'is-added', p.title); });
+        ev.edited.forEach(function (p) { line(list, 'is-edited', p.title); });
+        if (ev.board) line(list, 'is-board', 'the board itself');
+        card.appendChild(list);
+      }
+      // over the day, centred, kept inside the sidebar (under it near the top)
+      card.classList.add('is-on');
+      var b = block.getBoundingClientRect(), r = rect.getBoundingClientRect();
+      var left = r.left - b.left + r.width / 2 - card.offsetWidth / 2;
+      left = Math.max(0, Math.min(left, b.width - card.offsetWidth));
+      var top = r.top - b.top - card.offsetHeight - 8;
+      if (top < 0) top = r.bottom - b.top + 8;
+      card.style.left = left + 'px';
+      card.style.top = top + 'px';
+    }
+    function hide() {
+      if (lit) lit.classList.remove('is-hover');
+      lit = null;
+      card.classList.remove('is-on');
+    }
+    svg.addEventListener('mouseover', function (e) {
+      if (e.target.matches && e.target.matches('rect[data-day]')) show(e.target);
+    });
+    svg.addEventListener('mouseleave', hide);
+  })();
+
+  // ---- Growth: published posts, step by step --------------------------------
+  (function growth() {
+    var svg = root.querySelector('.dir-growth');
+    var W = 300, H = 120, TOP = 12, BOTTOM = 16, LEFT = 20, RIGHT = 56;
+    size(svg, W, H);
+    var max = Math.max(total, 1);
+    var sorted = posts.slice().sort(function (a, b) { return a.added - b.added; });
+    var from = sorted.length ? new Date(sorted[0].added) : new Date(today);
+    if (today - from < 14 * DAY) from = new Date(+today - 14 * DAY);
+    var span = today - from;
+    function x(t) { return LEFT + (t - from) / span * (W - LEFT - RIGHT); }
+    function y(v) { return TOP + (H - TOP - BOTTOM) * (1 - v / max); }
+
+    // the axis: 0 and the total at the left, months along the bottom
+    el('line', { 'class': 'dir-grid', x1: LEFT, x2: W - RIGHT, y1: y(0), y2: y(0) }, svg);
+    el('text', { 'class': 'dir-axis', x: LEFT - 5, y: y(0) + 3, 'text-anchor': 'end' }, svg, '0');
+    el('text', { 'class': 'dir-axis', x: LEFT - 5, y: y(max) + 3, 'text-anchor': 'end' }, svg, String(max));
+    var m = new Date(from.getFullYear(), from.getMonth() + 1, 1), months = [];
+    for (; m <= today; m = new Date(m.getFullYear(), m.getMonth() + 1, 1)) months.push(new Date(m));
+    var every = Math.ceil(months.length / 4) || 1;
+    months.forEach(function (d, i) {
+      if (i % every) return;
+      el('line', { 'class': 'dir-tick', x1: x(d), x2: x(d), y1: y(0), y2: y(0) + 3 }, svg);
+      el('text', { 'class': 'dir-axis', x: x(d), y: H - 3, 'text-anchor': 'middle' }, svg,
+        d.toLocaleDateString('en-US', { month: 'short' }) + (d.getMonth() === 0 || i === 0 ? " '" + String(d.getFullYear()).slice(2) : ''));
+    });
+
+    // where it is heading: every post the board links
+    el('line', { 'class': 'dir-target', x1: LEFT, x2: W - RIGHT, y1: y(max), y2: y(max) }, svg);
+    el('text', { 'class': 'dir-label', x: W - RIGHT + 6, y: y(max) + 3 }, svg, total + ' linked');
+
+    // the step line, and the dots where it rose
+    var d = 'M' + x(from) + ',' + y(0), n = 0;
+    sorted.forEach(function (p) { n++; d += 'H' + x(p.added) + 'V' + y(n); });
+    d += 'H' + x(today);
+    el('path', { 'class': 'dir-area', d: d + 'V' + y(0) + 'Z' }, svg);
+    el('path', { 'class': 'dir-line', d: d }, svg);
+    n = 0;
+    sorted.forEach(function (p) {
+      n++;
+      tip(el('circle', { 'class': 'dir-step', cx: x(p.added), cy: y(n), r: 2.5 }, svg),
+        fmt(p.added) + ': ' + p.title);
+    });
+    el('circle', { 'class': 'dir-end', cx: x(today), cy: y(posts.length), r: 3.5 }, svg);
+    el('text', { 'class': 'dir-label is-strong', x: W - RIGHT + 6, y: y(posts.length) + 3 }, svg,
+      posts.length + ' published');
+  })();
+
+  // ---- Tags: which topics, and which go together ----------------------------
+  // Each tag of the published posts is a node, as big as the number of posts
+  // carrying it; two tags are joined when posts carry both. Laid out by a few
+  // hundred steps of a small force model -- tags push apart, joined ones pull
+  // together (harder the more posts join them), all drift to the middle --
+  // from a fixed spiral, so the same board always draws the same map; then
+  // fitted to the box. A tag's colour: extensions/tag-colors.html.
+  (function tagMap() {
+    var svg = root.querySelector('.dir-tagmap');
+    var W = 300, H = 210;
+    size(svg, W, H);
+    var count = {}, pairs = {};
+    posts.forEach(function (p) {
+      var tags = (p.tags || []).filter(function (t, i, a) { return t && a.indexOf(t) === i; });
+      tags.forEach(function (t, i) {
+        count[t] = (count[t] || 0) + 1;
+        tags.slice(i + 1).forEach(function (u) {
+          var k = t < u ? t + '\u0000' + u : u + '\u0000' + t;
+          pairs[k] = (pairs[k] || 0) + 1;
+        });
+      });
+    });
+    var names = Object.keys(count).sort(function (a, b) { return count[b] - count[a] || (a < b ? -1 : 1); });
+    if (!names.length) {
+      el('text', { 'class': 'dir-axis', x: W / 2, y: H / 2, 'text-anchor': 'middle' }, svg, 'no tags yet');
+      return;
+    }
+    var index = {};
+    var nodes = names.map(function (t, i) {
+      index[t] = i;
+      var a = i * 2.399963, d = 18 + 14 * Math.sqrt(i);   // a golden-angle spiral, biggest first
+      // the tags page's node size (_layouts/tags.html)
+      return { name: t, n: count[t], r: Math.max(8, Math.min(22, 5 + count[t] * 3)), x: d * Math.cos(a), y: d * Math.sin(a), vx: 0, vy: 0 };
+    });
+    var links = Object.keys(pairs).map(function (k) {
+      var ab = k.split('\u0000');
+      return { a: nodes[index[ab[0]]], b: nodes[index[ab[1]]], w: pairs[k] };
+    });
+
+    for (var step = 0; step < 300; step++) {
+      var heat = 1 - step / 300;
+      for (var i = 0; i < nodes.length; i++) {
+        for (var j = i + 1; j < nodes.length; j++) {
+          var p = nodes[i], q = nodes[j];
+          var dx = q.x - p.x, dy = q.y - p.y, d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+          var f = 700 / (d * d);                            // push apart
+          var room = p.r + q.r + 16;                        // and never overlap
+          if (d < room) f += (room - d) * 0.25;
+          dx /= d; dy /= d;
+          p.vx -= dx * f; p.vy -= dy * f; q.vx += dx * f; q.vy += dy * f;
+        }
+      }
+      links.forEach(function (l) {
+        var dx = l.b.x - l.a.x, dy = l.b.y - l.a.y, d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+        var f = (d - 55) * 0.03 * Math.sqrt(l.w);           // joined tags pull together
+        dx /= d; dy /= d;
+        l.a.vx += dx * f; l.a.vy += dy * f; l.b.vx -= dx * f; l.b.vy -= dy * f;
+      });
+      nodes.forEach(function (n) {
+        n.vx -= n.x * 0.02; n.vy -= n.y * 0.03;             // to the middle (flatter: the box is wide)
+        n.x += Math.max(-8, Math.min(8, n.vx)) * heat;
+        n.y += Math.max(-8, Math.min(8, n.vy)) * heat;
+        n.vx *= 0.5; n.vy *= 0.5;
+      });
+    }
+
+    // fit to the box (room above for a lit label)
+    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    nodes.forEach(function (n) {
+      minX = Math.min(minX, n.x - n.r); maxX = Math.max(maxX, n.x + n.r);
+      minY = Math.min(minY, n.y - n.r); maxY = Math.max(maxY, n.y + n.r);
+    });
+    var PAD = 10, TOP = 22;
+    var s = Math.min(1.4, (W - 2 * PAD) / (maxX - minX || 1), (H - TOP - PAD) / (maxY - minY || 1));
+    var ox = (W - (maxX - minX) * s) / 2 - minX * s;
+    var oy = TOP + (H - TOP - PAD - (maxY - minY) * s) / 2 - minY * s;
+    var k = Math.min(1, s);
+    nodes.forEach(function (n) { n.X = ox + n.x * s; n.Y = oy + n.y * s; n.R = n.r * k; });
+
+    // ---- drawn as the tags page draws its map (misc/tags-page.scss:
+    // .graph-link, .graph-node): muted dots, faint links running edge to
+    // edge, labels only when lit
+    var linkLayer = el('g', {}, svg), nodeLayer = el('g', {}, svg);
+    links.forEach(function (l) {
+      var dx = l.b.X - l.a.X, dy = l.b.Y - l.a.Y, len = Math.sqrt(dx * dx + dy * dy) || 1;
+      var ra = l.a.R + 1, rb = l.b.R + 1, ux = dx / len, uy = dy / len, gap = len > ra + rb;
+      l.el = el('line', {
+        'class': 'graph-link',
+        x1: l.a.X + ux * ra, y1: l.a.Y + uy * ra,
+        x2: gap ? l.b.X - ux * rb : l.a.X + ux * ra, y2: gap ? l.b.Y - uy * rb : l.a.Y + uy * ra
+      }, linkLayer);
+    });
+    var keyOf = window.tagColorKey || function () { return 'gray'; };
+    var tagsUrl = {{ '/tags/' | relative_url | jsonify }};
+    nodes.forEach(function (n) {
+      n.el = el('a', {
+        // "?top": the tags page picks the tag but stays at its top (tags.html)
+        'class': 'graph-node', href: tagsUrl + '?top#' + encodeURIComponent(n.name),
+        transform: 'translate(' + n.X + ',' + n.Y + ')', 'aria-label': '#' + n.name + ', ' + n.n + (n.n === 1 ? ' post' : ' posts')
+      }, nodeLayer);
+      el('circle', { 'class': 'node-dot', r: n.R }, n.el);
+      n.band = el('rect', { 'class': 'node-label-bg', rx: 4, style: '--tag-bg: var(--k-' + keyOf(n.name) + '-bg)' }, n.el);
+      n.label = el('text', { 'class': 'node-label', dy: -n.R - 5 }, n.el, n.name);
+    });
+
+    // Hover (or focus): the tag's colour lights it, its neighbours and the
+    // links between them; the rest dims; its label grows on its chip colour
+    function lightUp(n) {
+      svg.style.setProperty('--hl', 'var(--k-' + keyOf(n.name) + '-glow)');
+      var near = {};
+      near[n.name] = true;
+      links.forEach(function (l) {
+        var on = l.a === n || l.b === n;
+        if (on) { near[l.a.name] = true; near[l.b.name] = true; }
+        l.el.classList.toggle('highlighted', on);
+        l.el.classList.toggle('dimmed', !on);
+      });
+      nodes.forEach(function (m) {
+        m.el.classList.toggle('highlighted', !!near[m.name]);
+        m.el.classList.toggle('dimmed', !near[m.name]);
+      });
+    }
+    function restore() {
+      links.forEach(function (l) { l.el.classList.remove('highlighted', 'dimmed'); });
+      nodes.forEach(function (m) { m.el.classList.remove('highlighted', 'dimmed', 'is-hovered'); });
+    }
+    // Only one tag is ever the lit one: lighting a tag first puts every other
+    // one back. (Bringing it to the front moves its element, and a moved
+    // element doesn't always get its mouseleave -- the old one would stay big
+    // and bold. Leaving the whole map puts everything back too.)
+    nodes.forEach(function (n) {
+      function on() {
+        nodes.forEach(function (m) { if (m !== n) m.el.classList.remove('is-hovered'); });
+        n.el.classList.add('is-hovered');
+        if (nodeLayer.lastChild !== n.el) nodeLayer.appendChild(n.el);   // in front of the rest
+        var bb = n.label.getBBox();                       // (the label, at its lit size)
+        n.band.setAttribute('x', bb.x - 5); n.band.setAttribute('y', bb.y - 1);
+        n.band.setAttribute('width', bb.width + 10); n.band.setAttribute('height', bb.height + 2);
+        lightUp(n);
+      }
+      n.el.addEventListener('mouseenter', on);
+      n.el.addEventListener('focus', on);
+      n.el.addEventListener('mouseleave', restore);
+      n.el.addEventListener('blur', restore);
+    });
+    svg.addEventListener('mouseleave', restore);
+  })();
+})();
+</script>

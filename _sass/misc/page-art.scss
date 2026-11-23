@@ -1,0 +1,18 @@
+/**
+ * A post drawn as a page (extensions/page-art.html): the tags page's slide
+ * cards and the categories page's icons, for posts without a picture.
+ * The paper faint, the crease a little stronger, the heading and the lines
+ * of text in the post's key colour (--c, set by the script). Dots where it
+ * is big, the same shapes solid where it is small.
+ */
+.page-art {
+  overflow: visible;
+
+  .is-paper { fill: var(--c-muted); opacity: 0.16; }
+  .is-fold { fill: var(--c-muted); opacity: 0.4; }
+  .is-ink { fill: var(--c); opacity: 0.85; }
+  .is-heading { opacity: 1; }
+
+  // solid, the paper a touch stronger so the small page still reads
+  &.is-solid .is-paper { opacity: 0.22; }
+}

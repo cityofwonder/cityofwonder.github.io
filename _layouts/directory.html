@@ -1,5 +1,7 @@
 ---
-layout: default
+layout: framework
+sidebar:
+  - directory-report
 ---
 {%- comment -%}
   A directory: an index page synced from Notion (`layout: directory` in the
@@ -15,33 +17,27 @@ layout: default
 
   `date` is the directory's last edit, which is what floats it to the top of
   the feed; `permalink` is fixed so that moving date never moves the URL.
-  No theme banner: the hero below is the header, built from the board's own
-  text the way a post banner is built from its image.
+  No theme banner: the header is the page hero card (misc/page-hero.scss,
+  shared with posts) -- the panel tone, the title, meta and tags on it, and
+  the title's own bits behind it (extensions/hero-bits.html).
+  Each column's head: the section name (views/dir-section-title.html) and
+  its post count; a tall column scrolls inside itself.
+  The page is laid out like the feed (the framework layout: the main column
+  and a sidebar, the Light / Dark toggle over it), its sidebar the board's
+  report where a post has its ToC (sidebar/directory-report.html).
 {%- endcomment -%}
+{%- comment -%} section.entries, page.dir_total: _plugins/directory_entries.rb {%- endcomment -%}
 {%- assign date_format = site.yat.date_format | default: "%b %-d, %Y" -%}
-{%- assign total = 0 -%}
-{%- for section in page.directory -%}
-  {%- assign entries = section.items | where_exp: "i", "i.id" -%}
-  {%- assign total = total | plus: entries.size -%}
-{%- endfor -%}
 
 <div class="directory-page">
-  <header class="dir-hero">
-    {%- if page.cover and page.cover != "" -%}
-    <div class="dir-hero-cover" style="background-image: url({{ page.cover | relative_url }})"></div>
-    {%- endif -%}
-    <div class="dir-hero-text tex2jax_ignore" aria-hidden="true">
-      {%- for section in page.directory -%}
-      <p>
-        {%- if section.title != "" -%}<b>{{ section.title | escape }}</b>{%- endif -%}
-        {%- for item in section.items -%}
-        <span>{{ item.title | default: item.label | escape }}</span>
-        {%- endfor -%}
-      </p>
-      {%- endfor -%}
-    </div>
-    <div class="dir-hero-inner">
-      <span class="dir-kicker"><i class="fa fa-folder-open"></i> Directory</span>
+  {%- assign has_cover = false -%}
+  {%- if page.cover and page.cover != "" -%}{%- assign has_cover = true -%}{%- endif -%}
+  <header class="page-hero dir-hero{% if has_cover %} has-image{% endif %}"
+    {%- if has_cover %} style="background-image: url({{ page.cover | relative_url }})"{% endif %}>
+    {%- unless has_cover -%}
+    <div class="hero-bits" aria-hidden="true" data-bits="{{ page.title | escape }}"></div>
+    {%- endunless -%}
+    <div class="page-hero-inner">
       <h1 class="dir-title">{{ page.title | escape }}</h1>
       {%- if page.subtitle and page.subtitle != "" -%}
       <p class="dir-subtitle">{{ page.subtitle | escape }}</p>
@@ -51,14 +47,12 @@ layout: default
       {%- endif -%}
       <div class="post-meta">
         <span><i class="fa fa-refresh"></i> Updated {{ page.date | date: date_format }}</span>
-        <span class="left-vsplit"><i class="fa fa-file-text-o"></i> {{ total }} posts</span>
+        <span class="left-vsplit"><i class="fa fa-file-text-o"></i> {{ page.dir_total }} posts</span>
         <span class="left-vsplit"><i class="fa fa-th-large"></i> {{ page.directory.size }} sections</span>
       </div>
       {%- if page.tags.size > 0 -%}
       <div class="post-tags">
-        {%- for tag in page.tags -%}
-        <a class="post-tag" href="{{ '/tags/' | relative_url }}#{{ tag }}">#{{ tag }}</a>
-        {%- endfor -%}
+        {%- include views/tag-chips.html tags=page.tags -%}
       </div>
       {%- endif -%}
     </div>
@@ -66,11 +60,23 @@ layout: default
 
   <div class="dir-board">
     {%- for section in page.directory -%}
-    {%- assign entries = section.items | where_exp: "i", "i.id" -%}
     <section class="dir-col" id="dir-section-{{ forloop.index }}">
+      {%- assign section_name = section.title | default: page.title -%}
       <header class="dir-col-head">
-        <h2>{{ section.title | default: page.title | escape }}</h2>
-        <span class="dir-count">{{ entries.size }}</span>
+        <h2>
+          {%- include views/dir-section-title.html title=section_name -%}
+          <span class="dir-count">{{ section.entries.size }}</span>
+        </h2>
+        {%- if section.repo -%}
+        {%- comment -%} the section's repository (a GitHub link under its Notion
+            heading), as the About page shows one: its stars are filled in below {%- endcomment -%}
+        {%- assign repo_parts = section.repo | split: '/' -%}
+        <a class="dir-col-repo" href="https://github.com/{{ section.repo }}" target="_blank" rel="noopener" data-repo="{{ section.repo }}">
+          <i class="fa fa-github" aria-hidden="true"></i>
+          <span>{{ repo_parts[0] }}/<b>{{ repo_parts[1] }}</b></span>
+          <span class="dir-repo-stars" hidden><i class="fa fa-star" aria-hidden="true"></i> <span></span></span>
+        </a>
+        {%- endif -%}
       </header>
       {%- if section.note -%}
       <p class="dir-col-note">{{ section.note | escape }}</p>
@@ -90,21 +96,33 @@ layout: default
   </div>
 </div>
 
+{%- include extensions/hero-bits.html -%}
+
 <script>
-  // Mark which edges of the board have columns scrolled out of view, so the
-  // CSS can fade them (directory.scss, .dir-board.is-clipped-*). Stacked on
-  // small screens there is no overflow and neither class is set.
+  // Which edges of the board, and of each column (a column taller than its
+  // max height scrolls inside itself), have content scrolled out of view:
+  // .is-clipped-* fade them (directory.scss; markClipped: assets/js/main.js).
+  // Stacked on small screens the board doesn't overflow, so it never fades.
   (function () {
     var board = document.querySelector('.dir-board');
-    if (!board) return;
-    function update() {
-      var max = board.scrollWidth - board.clientWidth;
-      board.classList.toggle('is-clipped-left', board.scrollLeft > 2);
-      board.classList.toggle('is-clipped-right', board.scrollLeft < max - 2);
-    }
-    board.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    window.addEventListener('load', update);
-    update();
+    if (board) markClipped(board, 'x');
+    document.querySelectorAll('.dir-col-body').forEach(function (body) { markClipped(body, 'y'); });
+  })();
+
+  // A section's repository: its star count from GitHub's public API, as the
+  // About page fills its repo cards (shown once it arrives; nothing if not)
+  (function () {
+    if (!window.fetch) return;
+    document.querySelectorAll('.dir-col-repo[data-repo]').forEach(function (a) {
+      fetch('https://api.github.com/repos/' + a.getAttribute('data-repo'))
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (!d || typeof d.stargazers_count !== 'number') return;
+          var stars = a.querySelector('.dir-repo-stars');
+          stars.querySelector('span').textContent = d.stargazers_count;
+          stars.hidden = false;
+        })
+        .catch(function () {});
+    });
   })();
 </script>

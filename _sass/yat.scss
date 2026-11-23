@@ -1,7 +1,6 @@
 @charset "utf-8";
 
 @use 'sass:math';
-@use 'sass:meta';
 @use 'sass:string';
 
 // Define defaults for each variable.
@@ -10,6 +9,10 @@ $base-font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, R
 // Code (inline and blocks): D2Coding -- Naver's coding font, made for Korean
 // and English together (Hangul exactly two columns wide). Loaded in head.html.
 $code-font-family: "D2Coding", Consolas, "SFMono-Regular", Menlo, monospace !default;
+// Box-drawing in terminal views (the comments' reply tree, the feed's
+// `tree` preview of a directory, the snow): fonts whose box-drawing
+// characters are one cell wide (D2Coding draws them two).
+$art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans Mono", monospace !default;
 $base-font-size: 14px !default;
 $base-font-weight: 400 !default;
 $small-font-size:  $base-font-size * 0.875 !default;
@@ -18,14 +21,9 @@ $base-transition-duration: 0.3s !default;
 
 $spacing-unit:     30px !default;
 
-$white-color: #fdfdfd !default;
-
 $table-text-align: left !default;
 
 $header-height: $base-line-height * $base-font-size * 2.85 !default;
-
-$banner-text-color: $white-color !default;
-$banner-background: rgba(0,0,0,0.8) !default;
 
 // (the content width comes from _config.yml: assets/css/main.scss)
 
@@ -64,14 +62,10 @@ $fs-floor: 10px !default;
     drop-shadow(0 0 0.6px rgba(0, 0, 0, 0.2)) $extra;
 }
 
-// Division that works on old and new Sass alike (`/` outside calc() is
-// deprecated in Dart Sass)
+// Division (`/` outside calc() is deprecated in Dart Sass; the partials
+// can't reach the math module themselves -- they are @imported)
 @function divide($dividend, $divisor: 1) {
-  @if meta.function-exists('div', 'math') {
-    @return math.div($dividend, $divisor);
-  } @else {
-    @return ($dividend / $divisor);
-  }
+  @return math.div($dividend, $divisor);
 }
 
 // Import partials.
@@ -79,11 +73,12 @@ $fs-floor: 10px !default;
   "misc/tokens",
   "yat/base",
   "yat/layout",
-  "yat/dark",
   "misc/theme-toggle",
   "misc/article-menu",
   "misc/click-to-top",
   "misc/directory",
+  "misc/page-hero",
+  "misc/page-art",
   "misc/feed",
   "misc/home-hero",
   "misc/about",

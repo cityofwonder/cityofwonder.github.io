@@ -216,16 +216,10 @@
   scroller.addEventListener('focus', function () { show(active < 0 ? n - 1 : active); });
   scroller.addEventListener('blur', hide);
 
-  // ---- edge fades + open on the most recent weeks
-  function edges() {
-    var maxLeft = scroller.scrollWidth - scroller.clientWidth;
-    scroller.classList.toggle('is-clipped-left', scroller.scrollLeft > 2);
-    scroller.classList.toggle('is-clipped-right', scroller.scrollLeft < maxLeft - 2);
-  }
-  scroller.addEventListener('scroll', function () { edges(); if (tip.classList.contains('is-on') && !drag && active >= 0) show(active); }, { passive: true });
-  window.addEventListener('resize', edges);
+  // ---- open on the most recent weeks; edge fades (assets/js/main.js)
+  scroller.addEventListener('scroll', function () { if (tip.classList.contains('is-on') && !drag && active >= 0) show(active); }, { passive: true });
   scroller.scrollLeft = scroller.scrollWidth;
-  edges();
+  markClipped(scroller, 'x');
 
   // ---- table view
   var tbody = root.parentElement.querySelector('.activity-table tbody');

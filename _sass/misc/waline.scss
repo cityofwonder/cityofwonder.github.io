@@ -24,9 +24,7 @@ $t-rule: var(--c-line-strong);        // the two rules round it
 // keeps a highlighted one's box clear of its neighbours, evenly
 $row-pad: 4px;
 
-// the reply tree's branches and the snow: fonts whose box-drawing characters
-// are one cell wide (D2Coding draws them two)
-$art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans Mono", monospace;
+// (the reply tree's branches and the snow: $art-font-family, yat.scss)
 
 #waline {
   --waline-font-size: #{fs(16px)};
@@ -1113,7 +1111,11 @@ html[data-theme="dark"] #waline {
   &[hidden] { display: none; }
 }
 
-.post-stat-icon {
+.post-stat > .post-stat-icon {
+  // none of the content area's picture margin (.page-content img, _base.scss
+  // -- hence the two classes, to outrank it): in the header card it would
+  // lift the icon off the line
+  margin: 0;
   width: 1.35em;
   height: 1.35em;
   object-fit: contain;

@@ -7,10 +7,9 @@
 
     {%- include views/header.html -%}
 
+    {%- comment -%} the home page's hero; a post or a directory draws its own header card in its column {%- endcomment -%}
     {%- if page.hero -%}
       {%- include views/home-hero.html -%}
-    {%- else -%}
-      {%- include views/banner.html -%}
     {%- endif -%}
 
     {%- include extensions/hashlocate.html -%}

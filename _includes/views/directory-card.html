@@ -4,41 +4,46 @@
   It keeps an ordinary card's footprint -- same image slot, same grid cell,
   same featured treatment -- so the 2-column grid keeps its rhythm. What
   marks it as a directory is the image slot: instead of a photo it holds a
-  miniature of the board the card opens, one column per section with the
-  first few post titles as tiles (dashed while a linked post is unpublished).
-  The body lists the sections with their counts; a featured card also lists
-  a few posts under each.
+  folder drawn in dots, on the page's own colour, that is also a chart of the
+  board -- a band per section, as tall as its share of the posts; bright dots
+  published, faint ones not yet (extensions/dir-fetch.html) -- and under it
+  which colour is which section.
+  The body lists the sections, each with its count as a quiet number (no
+  pills, like the board's column heads); a featured card also lists a few
+  posts under each.
 
   Expects `post` and `post_item_class`, like views/pagination-item.html.
+  (section.entries, post.dir_total: _plugins/directory_entries.rb)
 {%- endcomment -%}
 {%- assign date_format = site.yat.date_format | default: "%b %-d, %Y" -%}
 {%- assign post_url = post.url | relative_url -%}
-{%- assign total = 0 -%}
-{%- for section in post.directory -%}
-  {%- assign entries = section.items | where_exp: "i", "i.id" -%}
-  {%- assign total = total | plus: entries.size -%}
-{%- endfor -%}
-{%- assign cols = post.directory.size | at_most: 4 | at_least: 1 -%}
 {%- assign has_cover = false -%}
 {%- if post.cover and post.cover != "" -%}{%- assign has_cover = true -%}{%- endif -%}
 <li class="post-item directory-item {{ post_item_class }}">
   <a class="post-image dir-cover{% if has_cover %} has-image{% endif %}" href="{{ post_url }}" aria-label="{{ post.title | escape }}">
-    <div style="--dir-cols: {{ cols }};{% if has_cover %} background-image: url({{ post.cover | relative_url }});{% endif %}">
-      <span class="dir-chip"><i class="fa fa-folder-open"></i> Directory · {{ total }}</span>
-      <span class="dir-mini-board" aria-hidden="true">
-        {%- for section in post.directory limit: 4 -%}
-        {%- assign entries = section.items | where_exp: "i", "i.id" -%}
-        <span class="dir-mini-col">
-          <span class="dir-mini-head">{{ section.title | default: post.title | escape }}</span>
-          {%- for item in entries limit: 5 -%}
-          {%- assign linked = site.posts | where: "notion_id", item.id | first -%}
-          <span class="dir-mini-tile{% unless linked %} is-pending{% endunless %}">{{ linked.title | default: item.title | escape }}</span>
-          {%- endfor -%}
-          {%- if entries.size > 5 -%}
-          <span class="dir-mini-more">+{{ entries.size | minus: 5 }}</span>
-          {%- endif -%}
-        </span>
-        {%- endfor -%}
+    {%- comment -%} per section: its posts and how many are published (the folder),
+        its colour and name -- without a leading "[tag]" -- (the legend) {%- endcomment -%}
+    {%- assign keys = "blue,green,orange,red,yellow,gray" | split: "," -%}
+    {%- assign fetch_counts = "" -%}
+    {%- capture fetch_legend -%}{%- endcapture -%}
+    {%- for section in post.directory -%}
+      {%- assign entries = section.entries -%}
+      {%- assign live = 0 -%}
+      {%- for item in entries -%}
+        {%- assign linked = site.posts | where: "notion_id", item.id | first -%}
+        {%- if linked -%}{%- assign live = live | plus: 1 -%}{%- endif -%}
+      {%- endfor -%}
+      {%- assign sec_name = section.title | default: post.title -%}
+      {%- assign sec_first = sec_name | slice: 0 -%}
+      {%- if sec_first == '[' and sec_name contains ']' -%}{%- assign sec_name = sec_name | split: ']' | last | strip -%}{%- endif -%}
+      {%- assign k = forloop.index0 | modulo: 6 -%}
+      {%- capture fetch_counts -%}{{ fetch_counts }}{% unless forloop.first %};{% endunless %}{{ entries.size }},{{ live }}{%- endcapture -%}
+      {%- capture fetch_legend -%}{{ fetch_legend }}<span style="--c: var(--k-{{ keys[k] }}-glow)"><i></i><b>{{ sec_name | escape }}</b></span>{%- endcapture -%}
+    {%- endfor -%}
+    <div{% if has_cover %} style="background-image: url({{ post.cover | relative_url }});"{% endif %}>
+      <span class="dir-fetch" aria-hidden="true">
+        <svg class="dir-fetch-art" data-counts="{{ fetch_counts }}"></svg>
+        <span class="dir-fetch-legend">{{ fetch_legend }}</span>
       </span>
     </div>
   </a>
@@ -51,19 +56,20 @@
     {%- endif -%}
     <ul class="dir-sections">
       {%- for section in post.directory -%}
-      {%- assign entries = section.items | where_exp: "i", "i.id" -%}
+      {%- assign entries = section.entries -%}
       <li>
         <a class="dir-sec" href="{{ post_url }}#dir-section-{{ forloop.index }}">
           <span class="dir-sec-name">{{ section.title | default: post.title | escape }}</span>
           <span class="dir-sec-count">{{ entries.size }}</span>
         </a>
         {%- if post_item_class contains 'featured' -%}
-        <ul class="dir-sec-items">
+        <ul class="dir-sec-items featured-only">
           {%- for item in entries limit: 2 -%}
           {%- assign linked = site.posts | where: "notion_id", item.id | first -%}
+          {%- comment -%} plain text, not links: in the feed a card only leads to its own page {%- endcomment -%}
           <li>
             {%- if linked -%}
-            <a href="{{ linked.url | relative_url }}">{{ linked.title | escape }}</a>
+            <span>{{ linked.title | escape }}</span>
             {%- else -%}
             <span class="is-pending">{{ item.title | escape }}</span>
             {%- endif -%}
@@ -74,31 +80,34 @@
       </li>
       {%- endfor -%}
     </ul>
-    {%- unless post_item_class contains 'featured' -%}
+    {%- comment -%} an ordinary card's meta and tags; a featured card carries them
+        for a narrow feed, where it looks like every other card (misc/feed.scss) {%- endcomment -%}
+    {%- if post_item_class contains 'featured' -%}<div class="featured-compact">{%- endif -%}
     <div class="post-meta">
       <span class="post-date"><i class="fa fa-refresh"></i> {{ post.date | date: date_format }}</span>
       <span class="left-vsplit"><i class="fa fa-th-large"></i> {{ post.directory.size }} sections</span>
     </div>
     {%- if post.tags.size > 0 -%}
     <div class="post-tags">
-      {%- for tag in post.tags -%}
-      <a class="post-tag" href="{{ '/tags/' | relative_url }}#{{ tag }}">#{{ tag }}</a>
-      {%- endfor -%}
+      {%- include views/tag-chips.html tags=post.tags -%}
     </div>
     {%- endif -%}
-    {%- endunless -%}
+    {%- if post_item_class contains 'featured' -%}</div>{%- endif -%}
   </div>
   {%- if post_item_class contains 'featured' -%}
   <div class="post-foot">
     <span class="post-date"><i class="fa fa-refresh"></i> {{ post.date | date: date_format }}</span>
-    <span class="left-vsplit"><i class="fa fa-file-text-o"></i> {{ total }} posts</span>
+    <span class="left-vsplit"><i class="fa fa-file-text-o"></i> {{ post.dir_total }} posts</span>
     {%- if post.tags.size > 0 -%}
     <span class="post-foot-tags left-vsplit">
-      {%- for tag in post.tags -%}
-      <a class="post-tag" href="{{ '/tags/' | relative_url }}#{{ tag }}">#{{ tag }}</a>
-      {%- endfor -%}
+      {%- include views/tag-chips.html tags=post.tags -%}
     </span>
     {%- endif -%}
   </div>
   {%- endif -%}
+  {%- comment -%} the folder's drawing, once per page {%- endcomment -%}
+  {%- unless dir_fetch_included -%}
+    {%- include extensions/dir-fetch.html -%}
+    {%- assign dir_fetch_included = true -%}
+  {%- endunless -%}
 </li>

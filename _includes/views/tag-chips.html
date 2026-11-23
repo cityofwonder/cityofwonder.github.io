@@ -1,0 +1,9 @@
+{%- comment -%}
+  Tags as the site's chips (.post-tag, _base.scss; coloured by
+  extensions/tag-colors.html), each a link to its tag on the tags page. Only
+  the chips: the caller wraps them.
+    {% include views/tag-chips.html tags=post.tags %}
+{%- endcomment -%}
+{%- for tag in include.tags -%}
+<a class="post-tag" href="{{ '/tags/' | relative_url }}#{{ tag }}">#{{ tag }}</a>
+{%- endfor -%}

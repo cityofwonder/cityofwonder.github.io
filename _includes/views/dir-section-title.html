@@ -1,0 +1,42 @@
+{%- comment -%}
+  A directory section's name (a Notion `#` heading), marked up for its column:
+    "[개발중] C. 방어 (prompt 유출)"
+      -> a big tag "개발중" first (wherever the [..] stood in the heading),
+         then "C." in the feed's kind colour (.t-kind, like "[paper #3]"),
+         then the rest.
+  The prefix is a run of letters or digits ending in "." ("A.", "1.", "IV.").
+  Usage: {% include views/dir-section-title.html title=section.title %}
+{%- endcomment -%}
+{%- assign st = include.title | default: '' -%}
+{%- assign st_tag = '' -%}
+{%- assign st_name = st -%}
+{%- if st contains '[' and st contains ']' -%}
+  {%- assign st_parts = st | split: '[' -%}
+  {%- assign st_tag = st_parts[1] | split: ']' | first | strip -%}
+  {%- capture st_bracket -%}[{{ st_parts[1] | split: ']' | first }}]{%- endcapture -%}
+  {%- assign st_name = st | remove_first: st_bracket | normalize_whitespace | strip -%}
+{%- endif -%}
+{%- assign st_pre = '' -%}
+{%- assign st_rest = st_name -%}
+{%- assign st_tok = st_name | split: ' ' | first -%}
+{%- assign st_tok_size = st_tok | size -%}
+{%- if st_tok_size > 1 -%}
+  {%- assign st_last = st_tok | slice: -1 -%}
+  {%- if st_last == '.' -%}
+    {%- assign st_core_len = st_tok_size | minus: 1 -%}
+    {%- assign st_core = st_tok | slice: 0, st_core_len -%}
+    {%- assign st_alnum = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' -%}
+    {%- assign st_ok = true -%}
+    {%- assign st_chars = st_core | split: '' -%}
+    {%- for c in st_chars -%}
+      {%- unless st_alnum contains c -%}{%- assign st_ok = false -%}{%- endunless -%}
+    {%- endfor -%}
+    {%- if st_ok -%}
+      {%- assign st_pre = st_tok -%}
+      {%- assign st_rest = st_name | remove_first: st_tok -%}
+    {%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+{%- if st_tag != '' -%}<span class="post-tag dir-col-tag">{{ st_tag | escape }}</span> {% endif -%}
+{%- if st_pre != '' -%}<b class="t-kind">{{ st_pre | escape }}</b>{%- endif -%}
+{{- st_rest | escape -}}

@@ -57,11 +57,9 @@ sidebar: common-list
     if (text !== undefined) e.textContent = text;
     return e;
   }
+  // "[paper #85] Title": the bracketed kind in its own ink (extensions/kind-title.html)
   function putTitle(parent, title) {
-    const m = /^(\[[^\]]*\])([\s\S]*)$/.exec(title);
-    if (m) { parent.appendChild(el('b', 't-kind', m[1])); parent.appendChild(document.createTextNode(m[2])); }
-    else parent.textContent = title;
-    return parent;
+    return window.putKindTitle(parent, title);
   }
   function topCounts(values, n) {
     const c = new Map();

@@ -5,11 +5,7 @@
 (function () {
   var COLORS = ['gray', 'red', 'orange', 'yellow', 'green', 'blue'];
 
-  function hash(s) {
-    var h = 0;
-    for (var i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) | 0; }
-    return Math.abs(h);
-  }
+  function hash(s) { return Math.abs(strHash(s)); }      // assets/js/main.js
 
   function apply() {
     var tags = document.querySelectorAll('.post-tag');

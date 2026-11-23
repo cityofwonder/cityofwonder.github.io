@@ -1,50 +1,7 @@
 /**
- * Animation for transparent header
+ * Scrolling down: the header slides away (views/header.html sets the status)
  */
 html {
-  &[data-header-transparent] {
-    header.site-header {
-      position: fixed;
-    }
-  }
-
-  &[data-scroll-status='top'] {
-    header.site-header-transparent {
-      height: 0;
-      margin-top: 12px;
-      background-color: transparent;
-      transition: 0.1s height,background-color,box-shadow;
-
-      &.site-header {
-        .site-brand-inner, .page-link {
-          color: #fff;
-          transition: 0.1s color;
-        }
-
-        @include media-query($on-laptop) {
-          .page-link {
-            color: var(--c-ink);
-          }
-
-          .menu-icon {
-            > svg {
-              fill: $white-color;
-            }
-          }
-        }
-      }
-    }
-
-    footer.site-footer {
-      color: unset;
-      background-color: transparent;
-
-      .site-footer-inner {
-        border-top: solid 1px var(--c-line);
-      }
-    }
-  }
-
   &[data-scroll-status='down'] {
     header.site-header {
       top: -$header-height;
@@ -66,8 +23,12 @@ html {
   transition: height 0.2s, text-shadow 0.2s, top 0.2s;
   box-shadow: 0 1px 0 0 rgba(0, 0, 0, .06);
 
-  // Positioning context for the mobile navigation icon
-  @include flex-sticky(0);
+  // Fixed on every page (.page-content leaves room for it). The transform
+  // makes it the frame of what is fixed inside it: the phone menu's panel
+  // (.trigger) hangs from its bottom edge.
+  position: fixed;
+  top: 0;
+  transform: scale(0.9999);
   z-index: 1000;
 
   & > .wrapper {
@@ -79,6 +40,11 @@ html {
     @include media-query(1024px) {
       margin: 0 20px;
       max-width: unset;
+    }
+
+    // a phone: the content's margin (.wrapper, _base.scss)
+    @include media-query($on-palm) {
+      margin: 0 18px;
     }
   }
 
@@ -110,6 +76,14 @@ html {
       height: divide($header-height, 1.5);
       margin-right: 5px;
     }
+
+    // the name in dots (views/site-brand.html), in the link's colour,
+    // centred on the header's line
+    .site-brand-dots {
+      display: inline-block;
+      vertical-align: middle;
+      fill: currentColor;
+    }
   }
 }
 
@@ -128,27 +102,49 @@ html {
     display: none;
   }
 
+  /* A page link: no box. Hovered, it goes bold -- a hairline stroke round
+     the letters, so it takes no more room and its neighbours stay put -- and
+     the yellow key colour's highlighter band (the body's .highlight-yellow,
+     _base.scss) fades in behind it, and out again. */
   .page-link {
+    position: relative;
+    isolation: isolate;                  // the band sits behind the letters
+    padding: 0 2px;
     line-height: $base-line-height;
-    color: var(--c-ink);
-    transition: all 0.2s ease-in-out;
     font-weight: normal;
-    padding: 4px 8px;
-    border-radius: var(--r-xs);
+    color: var(--c-ink);
+    -webkit-text-stroke: 0 currentColor;
+    transition: -webkit-text-stroke-width 0.15s ease;
 
-    // Gaps between nav items, but not on the last one
-    &:not(:last-child) {
-      margin-right: 16px;
+    &::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: 14% -2px 10%;
+      border-radius: 0.15em;
+      background: var(--k-yellow-bg);
+      opacity: 0;
+      transition: opacity 0.25s ease;
     }
 
-    &:hover {
-      font-weight: bold;
+    &:not(:last-child) { margin-right: 28px; }
+
+    &:hover,
+    &:focus-visible {
       color: var(--c-ink);
-      background-color: var(--c-hover);
+      text-decoration: none;
+      -webkit-text-stroke-width: 0.45px;
+
+      &::before { opacity: 1; }
     }
   }
 
+  /* A phone or a narrow window: the menu button opens a panel under the
+     header, as wide as the header (it is fixed inside it, and the header's
+     transform makes the header its frame), its links lined up with the
+     header's own margin -- 20px, 18px on a phone -- one under another. */
   @include media-query($on-laptop) {
+    --nav-edge: 20px;
     position: absolute;
     top: 0;
     text-align: left;
@@ -170,62 +166,108 @@ html {
       }
     }
 
-    input ~ .trigger {
-      clear: both;
-      display: none;
-      border-radius: var(--r-xs);
-      box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, .06);
+    .trigger {
+      position: fixed;
+      top: 100%;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      padding: 8px var(--nav-edge) 16px;
+      line-height: $base-line-height;
+      background: var(--c-page);
+      border-bottom: 1px solid var(--c-line);
+      box-shadow: 0 14px 24px -18px rgba(0, 0, 0, 0.45);
+      // closed: faded out a few px up; opening slides it down into place
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
     }
 
     input:checked ~ .trigger {
-      display: block;
-      background: var(--c-page);
+      visibility: visible;
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
     }
 
     .page-link {
-      display: block;
-      padding: 8px 10px;
+      margin: 0;
+      padding: 8px 2px;
       color: var(--c-text);
-      margin: 0 25px;
-      transition: all 0.2s ease-in-out;
 
-      &:first-child {
-        padding-top: 12px;
-      }
+      &:not(:last-child) { margin-right: 0; }
 
-      &:last-child {
-        padding-bottom: 12px;
-      }
-
-      &:hover {
-        font-weight: bold;
-        color: var(--c-ink);
-      }
+      &::before { inset: 28% -2px 22%; }   // the band on the text, not the row's padding
     }
+  }
+
+  @include media-query($on-palm) {
+    --nav-edge: 18px;
   }
 }
 
 /**
- * Site footer
+ * Site footer (views/footer.html): flat on the page under a hairline, like
+ * the sidebar's widgets -- one quiet line, the copyright at one end and
+ * RSS, GitHub and what it's built with at the other; stacked on a phone.
  */
 .site-footer {
   @include relative-font-size(1.0);
-  color: var(--c-text);
-  background-color: var(--c-surface);
+  color: var(--c-muted);
+  background-color: transparent;
   text-align: left;
-  transition: background-color 0.2s;
 
   .site-footer-inner {
-    transition: border-top 0.2s;
-    padding: $spacing-unit * 1.8 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 28px 0 40px;
+    border-top: 1px solid var(--c-line);
+    // clear of the back-to-top cat in the bottom right corner (88px wide,
+    // 60px from the edge -- misc/click-to-top.scss): only as much room as
+    // the margin beside the content doesn't already give
+    padding-right: max(0px, calc(160px - (100vw - 100%) / 2));
+
+    @include media-query($on-laptop) {
+      padding-right: max(0px, calc(106px - (100vw - 100%) / 2));   // 66px, 28px in
+    }
   }
 
-  a {
-    color: var(--accent);
+  .footer-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 24px;
+  }
 
-    &:hover {
-      color: color-mix(in srgb, var(--accent) 80%, #fff);
-    }
+  .footer-fine {
+    font-size: fs(12.5px);
+    color: var(--c-muted);
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 16px;
+
+    > a { color: var(--c-muted); }
+    > a:hover { color: var(--c-ink); text-decoration: none; }
+    .fa { margin-right: 2px; }
+
+    // "Built with Jekyll & Yat": the names a touch stronger
+    span a { color: var(--c-text); }
+    span a:hover { color: var(--c-ink); }
+  }
+
+  @include media-query($on-palm) {
+    .footer-row { flex-direction: column; }
+    .site-footer-inner { padding: 22px 0 32px; gap: 14px; }
   }
 }
 
@@ -269,11 +311,6 @@ html {
   // the fixed site header, then a 56px strip holding the Light / Dark toggle
   // with 16px above and below it (misc/theme-toggle.scss)
   padding-top: calc(#{$header-height} + 56px);
-}
-
-// under a banner (the header floats over it) only the toggle's strip
-.page-banner ~ .page-content {
-  padding-top: 56px;
 }
 
 /**
@@ -528,111 +565,6 @@ html {
 
 
 /**
- * Page banner
- */
-/* As tall as what it holds -- title, subtitle, meta, tags -- plus a margin:
-   room for the transparent site header above it, a little below. The photo
-   fills whatever height that comes to. */
-.page-banner {
-  display: block;
-  position: relative;
-  background-color: $banner-background;
-
-  .page-banner-img {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-
-    & > *:first-child {
-      @include center-image;
-      transition: 0.1s all ease-in-out;
-    }
-
-    & > video {
-      width: 100vw;
-      object-fit: cover;
-    }
-
-    & > img.img-placeholder {
-      display: none;
-    }
-  }
-
-  .page-banner-inner {
-    position: relative;
-    color: $banner-text-color;
-    padding: calc(#{$header-height} + 24px) 5px 32px;
-    // no text shadow: the photo is dimmed under it (background, opacity)
-
-    & > *:first-child {
-      margin: 0;
-
-      > :nth-child(1) {
-        @include relative-font-size(3.9);
-        letter-spacing: -1px;
-        margin-bottom: 0.1em;
-        font-weight: normal;
-        transition: 0.2s all;
-
-        @include media-query($on-palm) {
-          @include relative-font-size(1.975);
-        }
-      }
-
-      > :nth-child(2) {
-        font-weight: lighter;
-        margin-bottom: 0.8em;
-        transition: 0.2s all;
-
-        @include media-query($on-palm) {
-          @include relative-font-size(1.175);
-        }
-      }
-
-      > :last-child {
-        margin-bottom: 0;
-      }
-    }
-
-    .post-subtitle {
-      @include relative-font-size(1.525);
-      color: #ffffffcc;
-      padding-right: 280px;
-
-      @include media-query($on-palm) {
-        padding-right: 0;
-      }
-    }
-
-    .post-meta {
-      color: #ffffffcc;
-      padding-bottom: 1em;
-    }
-
-    .left-vsplit:before {
-      background: #e3e3e388;
-    }
-
-    .post-tags {
-      color: #999;
-      padding-right: 280px;
-
-      @include media-query($on-palm) {
-        padding-right: 0;
-      }
-
-      /* exactly the tags view's chip (_base.scss, hover: spotlight.scss) --
-         its own colour and ink -- spaced like the tags view's filter row */
-      .post-tag {
-        margin: 6px 6px 0 0;
-      }
-    }
-  }
-}
-
-
-/**
  * Layout and sidebar
  */
 .framework {
@@ -684,20 +616,15 @@ html {
 /**
  * Post badge
  */
+/* Beside a title, centred on its line: the badge's middle on the middle of
+   the title's letters (no nudging up or down per place -- feed, post
+   header, related posts alike) */
 .post-badges {
   display: inline-block;
-  position: relative;
   margin-left: 8px;
-  margin-top: 3px;
+  vertical-align: middle;
+  line-height: 1;
   user-select: none;
-}
-
-.pagination .post-badges {
-  bottom: 0.5em;
-}
-
-.post-related .post-badges {
-  bottom: 0.1em;
 }
 
 /* The tag chip (.post-tag, _base.scss) -- its size, weight and ink on a key

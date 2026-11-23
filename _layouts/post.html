@@ -1,7 +1,5 @@
 ---
 layout: framework
-banner:
-banner_html: post-header.html
 hidden: []
 sidebar:
   - article-menu
@@ -11,9 +9,11 @@ sidebar:
   <section>
 
     {%- comment -%}
-      No banner image -> no banner section at all, so the title block moves
-      into the body instead. (`banner` itself is never nil: it falls back to
-      the site-wide banner settings in _config.yml.)
+      The post's header: a card at the top of its column, the size and shape
+      of a directory's (misc/page-hero.scss) -- its banner picture behind it
+      under a scrim when it has one, its title's bits when not. In the
+      column at its own size, it doesn't shift the page while the picture
+      loads. (get_banner: whether this post has a picture of its own.)
     {%- endcomment -%}
     {%- include functions.html func='get_banner' -%}
 
@@ -22,8 +22,17 @@ sidebar:
     {%- assign hidden = return -%}
 
     {%- assign result = hidden | where_exp: "item", "item == 'header'" -%}
-    {%- if has_banner != true and result.size == 0 -%}
-    {%- include views/post-header.html -%}
+    {%- if result.size == 0 -%}
+    <div class="page-hero post-hero{% if has_banner %} has-image{% endif %}"
+      {%- if has_banner %} style="background-image: url({{ banner_image }})"{% endif %}>
+      {%- unless has_banner -%}
+      <div class="hero-bits" aria-hidden="true" data-bits="{{ page.title | escape }}"></div>
+      {%- endunless -%}
+      <div class="page-hero-inner">
+        {%- include views/post-header.html -%}
+      </div>
+    </div>
+    {%- unless has_banner -%}{%- include extensions/hero-bits.html -%}{%- endunless -%}
     {%- endif -%}
 
     {%- include views/article.html -%}

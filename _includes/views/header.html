@@ -1,16 +1,9 @@
-
-{%- include functions.html func='get_banner' -%}
-
-{%- include functions.html func='log' level='debug' msg='Get header_transparent value' -%}
-{%- assign name = 'header_transparent' -%}
-{%- include functions.html func='get_value' default=true -%}
-{%- assign header_transparent = return -%}
-
-{%- if has_banner and header_transparent -%}
-  {%- assign header_transparent_class = "site-header-transparent" -%}
-{%- endif -%}
-
-<header class="site-header {{ header_transparent_class }}" role="banner">
+{%- comment -%}
+  The site header: fixed at the top of every page (the content leaves room
+  for it), hidden while scrolling down (data-scroll-status, set below).
+  Styles: _sass/yat/_layout.scss (Site header).
+{%- endcomment -%}
+<header class="site-header" role="banner">
 
   <div class="wrapper">
     <div class="site-header-inner">
@@ -51,8 +44,6 @@
     var lastScrollY = getScrollPos().y;
     var documentElement = document.documentElement;
 
-    // (the fixed-header flag, data-header-transparent, is set in <head>:
-    // extensions/theme-init.html)
     function storeScrollData() {
       var y = getScrollPos().y;
       var scrollStatus = "";

@@ -1,0 +1,74 @@
+<script>
+// A post drawn as a page, for places that show posts without a picture of
+// their own: a folded corner, a heading and lines of text in a key colour,
+// the lines as long as the post's title decides (so no two look alike, and
+// the same post always looks the same). One layout, two renderings:
+//
+//   window.pageArt(title, key)           dots, 11 x 13 -- where it is big: the
+//                                        tags page's slide cards, the
+//                                        categories page's icon grid
+//   window.pageArt(title, key, 'solid')  the same shapes, solid -- where it is
+//                                        small (the categories list), where
+//                                        dots would only be noise
+//
+// `key` is a key colour's name (blue, green, ...). Styles: misc/page-art.scss.
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var COLS = 11, ROWS = 13, FOLD = 3;
+
+  // each row: the heading (row 1), a line of text (every other row from the
+  // fifth), or nothing -- and how long it is
+  function layout(title) {
+    var h = strHash(title), rows = [];                 // assets/js/main.js
+    for (var r = 0; r < ROWS; r++) {
+      h = (h * 1103515245 + 12345) | 0;
+      var heading = r === 1;
+      var text = r >= 4 && r <= ROWS - 3 && r % 2 === 0;
+      rows.push({ heading: heading, len: heading ? 5 : text ? 4 + (Math.abs(h >> 8) % (COLS - 5)) : 0 });
+    }
+    return rows;
+  }
+
+  function node(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  function dots(svg, rows) {
+    var P = 9, R = 3;
+    svg.setAttribute('viewBox', '0 0 ' + COLS * P + ' ' + ROWS * P);
+    rows.forEach(function (row, r) {
+      for (var c = 0; c < COLS; c++) {
+        if (r < FOLD && c > COLS - FOLD + r - 1) continue;          // the folded-off corner
+        var cls = 'is-paper';
+        if ((r < FOLD && c === COLS - FOLD + r - 1) || (r === FOLD - 1 && c >= COLS - FOLD)) cls = 'is-fold';
+        if (row.len && c >= 1 && c < 1 + row.len) cls = row.heading ? 'is-ink is-heading' : 'is-ink';
+        node('circle', { cx: c * P + P / 2, cy: r * P + P / 2, r: R, 'class': cls }, svg);
+      }
+    });
+  }
+
+  function solid(svg, rows) {
+    svg.setAttribute('viewBox', '0 0 ' + COLS + ' ' + ROWS);
+    var f = COLS - FOLD;
+    node('path', { 'class': 'is-paper', d: 'M0.7 0H' + f + 'L' + COLS + ' ' + FOLD + 'V12.3A0.7 0.7 0 0 1 10.3 13H0.7A0.7 0.7 0 0 1 0 12.3V0.7A0.7 0.7 0 0 1 0.7 0Z' }, svg);
+    node('path', { 'class': 'is-fold', d: 'M' + f + ' 0V' + FOLD + 'H' + COLS + 'Z' }, svg);
+    rows.forEach(function (row, r) {
+      if (!row.len) return;
+      node('rect', {
+        'class': row.heading ? 'is-ink is-heading' : 'is-ink',
+        x: 1, y: r + 0.05, width: row.len, height: 0.9, rx: 0.45
+      }, svg);
+    });
+  }
+
+  window.pageArt = function (title, key, mode) {
+    var svg = node('svg', { 'class': 'page-art ' + (mode === 'solid' ? 'is-solid' : 'is-dots'), 'aria-hidden': 'true', focusable: 'false' });
+    svg.style.setProperty('--c', 'var(--k-' + (key || 'gray') + '-glow)');
+    (mode === 'solid' ? solid : dots)(svg, layout(title || ''));
+    return svg;
+  };
+})();
+</script>

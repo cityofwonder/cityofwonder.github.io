@@ -1,13 +1,17 @@
 <script>
-// Hide the sidebar (ToC / widgets) when the window isn't wide enough. On a
-// post page, when the ToC disappears its links are folded into a "바로가기"
-// card at the top of the body (styles: misc/article-menu.scss).
+// Hide the sidebar (ToC / widgets) only when the page's main column would be
+// left too narrow beside it -- every page alike. It stays while the main
+// column keeps MIN_MAIN px or more. On a post page, when the ToC disappears
+// its links are folded into a "바로가기" card at the top of the body (styles:
+// misc/article-menu.scss). (A feed squeezed beside it turns into one column
+// on its own: misc/feed.scss.)
 (function () {
-  var THRESHOLD = 1320; // below this width the sidebar is hidden
+  var MIN_MAIN = 529; // the main column's narrowest width with the sidebar beside it
 
   function init() {
     var sidebar = document.querySelector('.framework .sidebar');
-    if (!sidebar) return;
+    var main = document.querySelector('.framework .main');
+    if (!sidebar || !main) return;
     var content = document.querySelector('.post .post-content');
     var menu = document.querySelector('.post-menu'); // TOC (post pages only)
     var inlineToc = null;
@@ -34,12 +38,14 @@
       inlineToc = null;
     }
 
+    // measured with the sidebar in place (shown, then hidden again in the
+    // same frame if the main column came out too narrow: nothing flickers)
     function apply() {
-      if (document.documentElement.clientWidth < THRESHOLD) {
+      sidebar.classList.remove('is-hidden');
+      if (main.getBoundingClientRect().width < MIN_MAIN) {
         sidebar.classList.add('is-hidden');
         buildInlineToc();
       } else {
-        sidebar.classList.remove('is-hidden');
         removeInlineToc();
       }
     }

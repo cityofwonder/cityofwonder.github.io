@@ -1,0 +1,13 @@
+{%- comment -%}
+  A post's writing state as a class, in `return`: draft-post (`draft: true`,
+  or the Notion 상태 진행 중 / 작성중), done-post (작성완료), or "" -- what the
+  WIP / Done badges go by (views/post-badges.html, _sass/yat/_layout.scss).
+    {% include functions.html func='get_status_class' post=post %}
+{%- endcomment -%}
+{%- assign sc_post = include.params.post -%}
+{%- assign return = '' -%}
+{%- if sc_post.draft or sc_post.status == '작성중' or sc_post.status == '진행 중' -%}
+  {%- assign return = 'draft-post' -%}
+{%- elsif sc_post.status == '작성완료' -%}
+  {%- assign return = 'done-post' -%}
+{%- endif -%}

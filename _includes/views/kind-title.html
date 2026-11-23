@@ -1,0 +1,31 @@
+{%- comment -%}
+  A post title with its leading "[kind]" in its own ink (.t-kind,
+  misc/index-pages.scss) -- the same markup the browser-built lists get from
+  extensions/kind-title.html:
+    "[paper #12] Title"            -> <b class="t-kind">[paper #12]</b> Title
+    "[Devlog; rAsterink #1] Title" -> the repo after ";" and the number each
+                                      in a key colour of their own (has-sub)
+  Usage: {% include views/kind-title.html title=post.title %}
+{%- endcomment -%}
+{%- assign kt_title = include.title | default: '' -%}
+{%- assign kt_first = kt_title | slice: 0 -%}
+{%- if kt_first == '[' and kt_title contains ']' -%}
+  {%- assign kt_kind = kt_title | remove_first: '[' | split: ']' | first -%}
+  {%- assign kt_rest = kt_title | remove_first: '[' | remove_first: kt_kind | remove_first: ']' -%}
+  {%- assign kt_no = '' -%}
+  {%- assign kt_sub = '' -%}
+  {%- if kt_kind contains ' #' -%}
+    {%- assign kt_no = kt_kind | split: ' #' | last | strip -%}
+    {%- assign kt_kind = kt_kind | split: ' #' | first -%}
+  {%- endif -%}
+  {%- if kt_kind contains ';' -%}
+    {%- assign kt_sub = kt_kind | split: ';' | last | strip -%}
+    {%- assign kt_kind = kt_kind | split: ';' | first -%}
+  {%- endif -%}
+  <b class="t-kind{% if kt_sub != '' %} has-sub{% endif %}">[{{ kt_kind | escape }}
+  {%- if kt_sub != '' -%}; <span class="t-kind-sub">{{ kt_sub | escape }}</span>{%- endif -%}
+  {%- if kt_no != '' %} <span class="t-kind-no">#{{ kt_no | escape }}</span>{%- endif -%}
+  ]</b>{{ kt_rest | escape }}
+{%- else -%}
+  {{ kt_title | escape }}
+{%- endif -%}
