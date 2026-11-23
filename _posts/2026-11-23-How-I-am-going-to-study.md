@@ -11,7 +11,7 @@ notion_synced: "2026-11-22T19:41:00.000Z"
 banner:
   image: "/assets/images/2026-11-23/How-I-am-going-to-study-banner.png"
   opacity: 0.5
-  background: "rgba(0, 0, 0, 0.7)"
+  background: "rgba(7, 3, 3, 0.7)"
 ---
 
 <details>
