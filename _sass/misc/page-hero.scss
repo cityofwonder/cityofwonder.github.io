@@ -1,0 +1,196 @@
+/**
+ * Page hero: the header card at the top of a page's main column -- a post's
+ * (_layouts/post.html) and a directory's (_layouts/directory.html) alike.
+ *
+ * The panel tone, rounded as the feed's pictures are, as tall as what it
+ * holds (at least 160px). With a banner picture (a post's cover) the picture
+ * fills it under a scrim and the text turns white; without one, its title
+ * sits behind it in binary (.hero-bits, extensions/hero-bits.html).
+ *
+ * In the column, at its own size, with the picture only a background: the
+ * page doesn't shift as the picture loads or the header changes (posts used
+ * a full-width banner under a header that turned solid on scroll).
+ */
+.page-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  min-height: 160px;
+  margin-bottom: 28px;
+  padding: 36px 40px 30px;
+  border-radius: var(--r-md);          // the feed card's image slot
+  background-color: var(--c-surface);
+  color: var(--c-text);
+
+  // a banner picture under a scrim, as on the feed's cards with a cover
+  &.has-image {
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: rgba(10, 10, 12, 0.6);
+    }
+  }
+}
+
+.page-hero-inner {
+  position: relative;
+  max-width: 760px;
+  min-width: 0;
+  text-align: left;
+}
+
+/* the title, its subtitle, the meta line and the tags -- a directory's own
+   (.dir-*) and a post's (.post-header, below) set the same way */
+.page-hero {
+  .dir-title,
+  .post-title {
+    margin: 0 0 10px;
+    font-size: fs(34px);
+    font-weight: 800;
+    line-height: 1.22;
+    letter-spacing: -0.01em;
+    color: var(--c-ink);
+  }
+
+  .dir-subtitle,
+  .post-subtitle {
+    margin: 0 0 12px;
+    font-size: fs(17px);
+    font-weight: 500;
+    color: var(--c-muted);
+  }
+
+  .dir-intro {
+    max-width: 62ch;
+    margin: 0 0 12px;
+    color: var(--c-muted);
+  }
+
+  .post-meta {
+    font-size: fs(13px);
+    color: var(--c-muted);
+  }
+
+  .post-tags {
+    margin-top: 12px;
+    padding-right: 0;
+  }
+  .post-tag { margin: 0 6px 6px 0; }   // the feed's spacing (chip: _base.scss)
+}
+
+.page-hero.has-image {
+  .dir-title,
+  .post-title { color: #fff; }
+
+  .dir-subtitle,
+  .post-subtitle,
+  .dir-intro,
+  .post-meta { color: rgba(255, 255, 255, 0.78); }
+
+  .left-vsplit:before { background: #e3e3e388; }
+}
+
+/* a post's header inside it: none of the stand-alone header's spacing */
+.post .page-hero {
+  .post-header {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .post-title { letter-spacing: -0.01em; }
+  .post-subtitle:empty { display: none; }
+  .post-meta { padding-bottom: 0; }
+}
+
+/* ---------------------------------------------------------------------------
+ * The binary behind a hero without a picture: its title as UTF-8 bits,
+ * packed in tight rows from top to bottom -- each row its own size, line,
+ * faintness, touch of the terminal's green and start (set by the script:
+ * --fs, --lh, --o, --tint, --x), the bits in uneven groups -- fading out
+ * toward the title on the left. Here and there one digit twinkles: from
+ * about its row's faintness (--lo) slowly up to its own brightness (--o) and
+ * back, each on its own clock (--dur, --delay), some twice in a row
+ * (.is-twice). Nothing moves; with reduced motion nothing twinkles.
+ * ------------------------------------------------------------------------- */
+.hero-bits {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  font-family: $code-font-family;
+  letter-spacing: 0.02em;
+  white-space: pre;                    // the gaps between groups are spaces
+  pointer-events: none;
+  user-select: none;
+  -webkit-mask-image: linear-gradient(to left, #000 12%, rgba(0, 0, 0, 0.55) 42%, transparent 80%);
+          mask-image: linear-gradient(to left, #000 12%, rgba(0, 0, 0, 0.55) 42%, transparent 80%);
+}
+
+// a row's colour, and a twinkling digit's (its own --o, the row's tint):
+// the faintness is the colour's alpha, not opacity, so a digit can light up
+// brighter than its row
+.hero-bits-row,
+.hero-bits-row .hb-tw {
+  color: color-mix(in srgb,
+    color-mix(in srgb, var(--t-green) var(--tint, 20%), var(--c-muted)) calc(var(--o, 0.3) * 100%),
+    transparent);
+}
+
+.hero-bits-row {
+  width: max-content;
+  margin-left: var(--x, 0px);
+  font-size: var(--fs, 12px);
+  line-height: var(--lh, 14px);
+}
+
+.hero-bits-row .hb-tw {
+  display: inline-block;
+  opacity: var(--lo, 0.3);
+  animation: hero-bits-twinkle var(--dur, 10s) ease-in-out var(--delay, 0s) infinite;
+
+  &.is-twice { animation-name: hero-bits-twinkle-twice; }
+}
+
+// mostly at rest; now and then a slow rise and fall
+@keyframes hero-bits-twinkle {
+  0%, 40%, 78%, 100% { opacity: var(--lo, 0.3); }
+  58% { opacity: 1; }
+}
+
+@keyframes hero-bits-twinkle-twice {
+  0%, 30%, 82%, 100% { opacity: var(--lo, 0.3); }
+  44% { opacity: 1; }
+  54% { opacity: calc(var(--lo, 0.3) + 0.2); }
+  66% { opacity: 0.85; }
+}
+
+@media (max-width: 768px) {
+  .page-hero {
+    min-height: 140px;
+    padding: 28px 20px 22px;
+  }
+
+  .page-hero .dir-title,
+  .page-hero .post-title { font-size: fs(26px); }
+  .page-hero .dir-subtitle,
+  .page-hero .post-subtitle { font-size: fs(15px); }
+
+  // a phone: the binary fades sooner, so it stays clear of the title
+  .hero-bits {
+    -webkit-mask-image: linear-gradient(to left, #000 10%, transparent 60%);
+            mask-image: linear-gradient(to left, #000 10%, transparent 60%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bits-row .hb-tw { animation: none; }
+}

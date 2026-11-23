@@ -1,0 +1,102 @@
+<script>
+// The binary behind a page hero without a picture (misc/page-hero.scss): the
+// page's title (data-bits) as UTF-8 bits, packed in tight rows from top to
+// bottom -- each row its own size, line, faintness, tint and start -- the
+// bits in groups of uneven length with now and then a wider gap. Here and
+// there a single digit twinkles: it slowly brightens and fades back, each on
+// its own clock (6-18s) and to its own brightness, some twice in a row.
+// Nothing moves. The same page always draws the same picture; with reduced
+// motion nothing twinkles either (CSS).
+(function () {
+  if (window.heroBits) return;
+  window.heroBits = true;
+  var TWINKLE = 0.035;                                    // the share of digits that twinkle...
+  var MAX_TWINKLE = 150;                                  // ...but never more than this per card
+
+  function bitsOf(text) {
+    return Array.prototype.map.call(new TextEncoder().encode(text || '01'), function (b) {
+      return b.toString(2).padStart(8, '0');
+    }).join('');
+  }
+
+  function fill(box) {
+    var bits = bitsOf(box.getAttribute('data-bits'));
+    var width = box.clientWidth || 600;
+    var height = box.clientHeight || 200;
+    box.textContent = '';
+    box._w = width;
+    box._h = height;
+    var h = strHash(bits);                                // assets/js/main.js
+    function rnd() { h = (h * 1103515245 + 12345) | 0; return (Math.abs(h >> 4) % 1000) / 1000; }
+    // about how many digits the card holds (~12px lines, ~6px a digit)
+    var odds = Math.min(TWINKLE, MAX_TWINKLE / Math.max(1, (height / 12) * (width / 6)));
+    var pos = Math.floor(rnd() * bits.length);
+    var frag = document.createDocumentFragment();
+    for (var y = 0; y < height; ) {
+      var size = 9 + Math.round(rnd() * 4);               // 9-13px
+      var line = Math.round(size * (1.05 + rnd() * 0.25));
+      var alpha = 0.12 + rnd() * 0.24;                    // faint: there are many of them
+      var row = document.createElement('div');
+      row.className = 'hero-bits-row';
+      row.style.cssText = '--fs:' + size + 'px;--lh:' + line + 'px;--o:' + alpha.toFixed(2) +
+        ';--tint:' + Math.round(rnd() * 60) + '%;--x:' + -Math.round(rnd() * 48) + 'px';
+      var chars = Math.ceil((width + 48) / (size * 0.5)); // enough to cross the card
+      var text = '', n = 0, run = 2 + Math.floor(rnd() * 10);
+      while (n < chars) {
+        if (run === 0) {                                  // between groups: a space, sometimes a few
+          var gap = rnd() < 0.82 ? 1 : 2 + Math.floor(rnd() * 4);
+          text += '     '.slice(0, gap);
+          n += gap;
+          run = 2 + Math.floor(rnd() * 10);               // groups of 2-11 digits
+          continue;
+        }
+        var c = bits.charAt(pos++ % bits.length);
+        run--;
+        n++;
+        if (rnd() < odds) {
+          if (text) row.appendChild(document.createTextNode(text));
+          text = '';
+          var peak = 0.45 + rnd() * 0.55;                 // how bright it gets
+          var s = document.createElement('span');
+          s.className = rnd() < 0.3 ? 'hb-tw is-twice' : 'hb-tw';
+          s.style.cssText = '--o:' + peak.toFixed(2) +
+            ';--lo:' + Math.min(1, alpha / peak * (0.5 + rnd() * 0.7)).toFixed(2) +   // at rest about as faint as its row
+            ';--dur:' + (6 + rnd() * 12).toFixed(1) + 's;--delay:' + (-rnd() * 18).toFixed(1) + 's';
+          s.textContent = c;
+          row.appendChild(s);
+        } else {
+          text += c;
+        }
+      }
+      if (text) row.appendChild(document.createTextNode(text));
+      frag.appendChild(row);
+      y += line;
+    }
+    box.appendChild(frag);
+  }
+
+  function refillChanged() {
+    document.querySelectorAll('.hero-bits[data-bits]').forEach(function (b) {
+      // only when it got much wider / narrower / taller / shorter
+      if (Math.abs((b._w || 0) - b.clientWidth) > 32 || Math.abs((b._h || 0) - b.clientHeight) > 24) fill(b);
+    });
+  }
+
+  function start() {
+    var boxes = document.querySelectorAll('.hero-bits[data-bits]');
+    boxes.forEach(fill);
+    var t;
+    function later() { clearTimeout(t); t = setTimeout(refillChanged, 200); }
+    // the card's height follows its title (fonts, wrapping): fill it again
+    // when its size changes, not only the window's
+    if (window.ResizeObserver) {
+      var ro = new ResizeObserver(later);
+      boxes.forEach(function (b) { ro.observe(b); });
+    } else {
+      window.addEventListener('resize', later);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+</script>
