@@ -14,7 +14,6 @@ sidebar: common-list
 
 {%- if list_posts.size > 0 -%}
 
-  {%- include functions.html func='log' level='debug' msg='Get tags value' -%}
   {%- include functions.html func='get_tags' -%}
   {% assign tags = return %}
 
@@ -45,12 +44,15 @@ sidebar: common-list
       </div>
     </header>
 
-    <!-- Tag filter: the same tag chips as the feed -->
-    <div class="tags-filter">
-      <button type="button" class="tag-filter tag-filter-all is-active" data-tag="all">All</button>
-      {%- for tag in tags -%}
-        <button type="button" class="tag-filter" data-tag="{{ tag | escape }}"><span class="post-tag">#{{ tag | escape }}</span></button>
-      {%- endfor -%}
+    <!-- Tag filter: the same tag chips as the feed (on a phone: three rows
+         that slide sideways -- packFilter below) -->
+    <div class="tags-filter-scroll">
+      <div class="tags-filter">
+        <button type="button" class="tag-filter tag-filter-all is-active" data-tag="all">All</button>
+        {%- for tag in tags -%}
+          <button type="button" class="tag-filter" data-tag="{{ tag | escape }}"><span class="post-tag">#{{ tag | escape }}</span></button>
+        {%- endfor -%}
+      </div>
     </div>
 
     <!-- Views are built from the post data below; the table is the default -->
@@ -116,24 +118,33 @@ sidebar: common-list
       return s;
     }
     function fmtDate(iso) { return iso.replace(/-/g, '.'); }
-    // "[paper #85] Title": the bracketed kind goes bold in the accent colour
+    // "[paper #85] Title": the bracketed kind in its own ink (extensions/kind-title.html)
     function putTitle(parent, title) {
-      const m = /^(\[[^\]]*\])([\s\S]*)$/.exec(title);
-      if (m) { parent.appendChild(el('b', 't-kind', m[1])); parent.appendChild(document.createTextNode(m[2])); }
-      else parent.textContent = title;
-      return parent;
+      return window.putKindTitle(parent, title);
     }
     function category(c) {
       return (c || '').replace(/^[^\w가-힣]*\//, '').replace(/\/$/, '').split('/').filter(Boolean).join(' › ');
     }
     function matches(tags) { return currentTag === 'all' || tags.indexOf(currentTag) !== -1; }
 
-    // ===== Slide view: a horizontal strip of cards (drag, swipe or arrows)
+    // A post without a picture: the page drawn in dots (extensions/page-art.html,
+    // shared with the categories page), in its first tag's colour
+    function pageArt(p) {
+      const key = p.tags.length && window.tagColorKey ? window.tagColorKey(p.tags[0]) : 'gray';
+      return window.pageArt(p.title, key);
+    }
+
+    // ===== Slide view: a horizontal strip of cards, moved with the slide bar
+    // under it (drag its thumb or click along it), or by dragging / swiping
+    // the cards, or the arrow keys. Its ends fade a little where more cards
+    // lie beyond them.
     function buildSlide() {
       const wrap = el('div', 'ts-wrap');
-      const prev = el('button', 'ts-nav ts-prev'); prev.type = 'button'; prev.setAttribute('aria-label', 'Previous'); prev.innerHTML = '<i class="fa fa-chevron-left"></i>';
-      const next = el('button', 'ts-nav ts-next'); next.type = 'button'; next.setAttribute('aria-label', 'Next'); next.innerHTML = '<i class="fa fa-chevron-right"></i>';
       const track = el('div', 'ts-track'); track.tabIndex = 0;
+      const bar = el('div', 'ts-bar');
+      const thumb = el('span', 'ts-thumb');
+      bar.appendChild(thumb);
+      bar.setAttribute('aria-hidden', 'true');           // the strip itself scrolls by keyboard
       posts.forEach(p => {
         const card = el('a', 'ts-card');
         card.href = p.url;
@@ -141,7 +152,7 @@ sidebar: common-list
         const img = el('div', 'ts-img');               // fixed frame; the picture inside zooms on hover
         const pic = el('div', 'ts-pic');
         if (p.image) pic.style.backgroundImage = 'url("' + p.image.replace(/"/g, '%22') + '")';
-        else { img.classList.add('is-empty'); pic.appendChild(el('i', 'fa fa-file-text-o')); }
+        else { img.classList.add('is-empty'); pic.appendChild(pageArt(p)); }
         img.appendChild(pic);
         card.appendChild(img);
         card.appendChild(putTitle(el('span', 'ts-title'), p.title));
@@ -153,18 +164,63 @@ sidebar: common-list
         }
         track.appendChild(card);
       });
-      wrap.appendChild(prev); wrap.appendChild(track); wrap.appendChild(next);
+      wrap.appendChild(track); wrap.appendChild(bar);
       views.slide.appendChild(wrap);
 
+      // the ends that have cards beyond them fade; the bar's thumb is the
+      // shown part of the strip, where it is along it
       function edges() {
         const max = track.scrollWidth - track.clientWidth;
         wrap.classList.toggle('at-start', track.scrollLeft <= 2);
         wrap.classList.toggle('at-end', track.scrollLeft >= max - 2);
+        wrap.classList.toggle('no-scroll', max <= 2);
+        const share = track.scrollWidth ? track.clientWidth / track.scrollWidth : 1;
+        const w = Math.max(32, bar.clientWidth * share);
+        thumb.style.width = w + 'px';
+        thumb.style.transform = 'translateX(' + (max > 0 ? (bar.clientWidth - w) * track.scrollLeft / max : 0) + 'px)';
       }
-      prev.addEventListener('click', () => track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' }));
-      next.addEventListener('click', () => track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' }));
+      // a page at a time from the keyboard (layoutSlide: a page is the strip's width)
+      const page = () => track._page || track.clientWidth;
       track.addEventListener('scroll', edges, { passive: true });
-      window.addEventListener('resize', edges);
+
+      // the bar: drag the thumb along it, or click the bar to bring that
+      // part of the strip into view
+      let barDrag = null;
+      function scrollToBar(x) {
+        const r = bar.getBoundingClientRect(), w = thumb.getBoundingClientRect().width;
+        const t = Math.max(0, Math.min(1, (x - r.left - w / 2) / Math.max(1, r.width - w)));
+        track.scrollLeft = t * (track.scrollWidth - track.clientWidth);
+      }
+      bar.addEventListener('pointerdown', e => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        bar.setPointerCapture(e.pointerId);
+        bar.classList.add('is-dragging');
+        track.classList.add('is-dragging');                // no snapping while it's dragged
+        if (e.target === thumb) {
+          barDrag = { x: e.clientX, left: track.scrollLeft };
+        } else {
+          track.style.scrollBehavior = 'smooth';
+          scrollToBar(e.clientX);
+          track.style.scrollBehavior = '';
+          barDrag = { x: e.clientX, left: null };
+        }
+      });
+      bar.addEventListener('pointermove', e => {
+        if (!barDrag) return;
+        if (barDrag.left === null) { scrollToBar(e.clientX); return; }
+        const r = bar.getBoundingClientRect(), w = thumb.getBoundingClientRect().width;
+        const max = track.scrollWidth - track.clientWidth;
+        track.scrollLeft = barDrag.left + (e.clientX - barDrag.x) * max / Math.max(1, r.width - w);
+      });
+      const endBar = () => { barDrag = null; bar.classList.remove('is-dragging'); track.classList.remove('is-dragging'); };
+      bar.addEventListener('pointerup', endBar);
+      bar.addEventListener('pointercancel', endBar);
+      let relayout;
+      window.addEventListener('resize', () => {
+        clearTimeout(relayout);
+        relayout = setTimeout(() => { if (currentView === 'slide') layoutSlide(); edges(); }, 120);
+      });
 
       // mouse drag; a drag that moved doesn't count as a click on the card
       let drag = null;
@@ -187,8 +243,8 @@ sidebar: common-list
       });
       track.addEventListener('dragstart', e => e.preventDefault());
       track.addEventListener('keydown', e => {
-        if (e.key === 'ArrowRight') { e.preventDefault(); next.click(); }
-        if (e.key === 'ArrowLeft') { e.preventDefault(); prev.click(); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); track.scrollBy({ left: page(), behavior: 'smooth' }); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); track.scrollBy({ left: -page(), behavior: 'smooth' }); }
       });
       views.slide._edges = edges;
     }
@@ -245,7 +301,9 @@ sidebar: common-list
         tdTitle.appendChild(a);
         tr.appendChild(tdTitle);
         const tdTags = el('td', 'tt-tags');
-        p.tags.forEach(tag => tdTags.appendChild(tagSpan(tag)));
+        const tagBox = el('div', 'tt-tagbox');           // a cell can't clip itself: its box does (fitRows)
+        p.tags.forEach(tag => tagBox.appendChild(tagSpan(tag)));
+        tdTags.appendChild(tagBox);
         tr.appendChild(tdTags);
         const tdCat = el('td', 'tt-cat');
         const cat = el('span', 'tt-clip'); cat.title = category(p.category);
@@ -275,15 +333,80 @@ sidebar: common-list
       });
       countEl.textContent = shown;
       emptyEl.hidden = shown > 0;
-      // the slide strip fills row by row in three rows: as many columns as
-      // a third of its shown cards, rounded up
-      const track = built.slide && views.slide.querySelector('.ts-track');
-      if (track) {
-        const cards = track.querySelectorAll('.ts-card:not([hidden])').length;
-        track.style.setProperty('--cols', Math.max(1, Math.ceil(cards / 3)));
-      }
+      if (currentView === 'slide') layoutSlide();
       if (views.slide._edges && currentView === 'slide') views.slide._edges();
+      fitRows();
+    }
+
+    // The table's rows: two lines at most, and one column leads -- the
+    // title, or the tags while a tag is picked (the rows are then about
+    // their tags). A row is as many lines as its lead needs (1 or 2), and its
+    // other cells are cut to that: 2 >= lead >= the rest. So a row whose
+    // lead fits on one line is a one-line row, shorter than the others.
+    // On a phone the table shows four rows and scrolls through the rest
+    // under its header.
+    const PHONE = window.matchMedia('(max-width: 768px)');
+    function textLines(el) {
+      const lh = parseFloat(getComputedStyle(el).lineHeight) || 20;
+      return Math.round(el.scrollHeight / lh);
+    }
+    function tagLines(box) {
+      const tops = new Set();
+      box.querySelectorAll('.post-tag').forEach(t => tops.add(t.offsetTop));
+      return tops.size;
+    }
+    function fitRows() {
+      if (!built.table || currentView !== 'table') return;
+      const lead = currentTag === 'all' ? 'title' : 'tags';
+      const rows = views.table.querySelectorAll('tbody tr:not([hidden])');
+      rows.forEach(tr => {
+        tr.style.setProperty('--lines', 2);               // measured at the most a row may have
+        const n = lead === 'title'
+          ? textLines(tr.querySelector('.tt-title .tt-clamp'))
+          : tagLines(tr.querySelector('.tt-tagbox'));
+        tr.style.setProperty('--lines', Math.max(1, Math.min(2, n || 1)));
+      });
+      rows.forEach(tr => {
+        const box = tr.querySelector('.tt-tagbox');
+        box.classList.toggle('is-clamped', box.scrollHeight > box.clientHeight + 1);
+      });
+      const scroll = views.table.querySelector('.tt-scroll');
+      if (PHONE.matches && rows.length > 4) {
+        let h = views.table.querySelector('thead').getBoundingClientRect().height;
+        for (let i = 0; i < 4; i++) h += rows[i].getBoundingClientRect().height;
+        scroll.style.maxHeight = Math.ceil(h) + 'px';
+      } else {
+        scroll.style.maxHeight = '';
+      }
       markClamped();
+    }
+
+    // The slide strip fills a page at a time, across first: as many columns
+    // as fit the strip (stretched to fill it exactly), two rows -- the
+    // newest posts left to right along the first row, then the second; the
+    // rest go on to the next page, to the right. Each shown card is placed
+    // on the grid by hand (grid-row / grid-column).
+    const SLIDE_ROWS = 2;
+    function layoutSlide() {
+      const track = built.slide && views.slide.querySelector('.ts-track');
+      if (!track || !track.clientWidth) return;
+      const cs = getComputedStyle(track);
+      const min = parseFloat(cs.getPropertyValue('--col')) || 240;
+      const gap = parseFloat(cs.columnGap) || 20;
+      const room = track.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const across = Math.max(1, Math.floor((room + gap) / (min + gap)));
+      const width = (room - (across - 1) * gap) / across;
+      const cards = Array.prototype.filter.call(track.querySelectorAll('.ts-card'), c => !c.hidden);
+      const perPage = across * SLIDE_ROWS;
+      cards.forEach((card, i) => {
+        const pg = Math.floor(i / perPage), k = i % perPage;
+        card.style.gridRow = String(Math.floor(k / across) + 1);
+        card.style.gridColumn = String(pg * across + (k % across) + 1);
+      });
+      const pages = Math.max(1, Math.ceil(cards.length / perPage));
+      track.style.setProperty('--cols', pages * across);
+      track.style.setProperty('--col-fit', width + 'px');
+      track._page = across * (width + gap);
     }
 
     // a title / category cut at two lines gets .is-clamped: its second line
@@ -310,9 +433,30 @@ sidebar: common-list
         clip.style.setProperty('--ex', Math.round(ex) + 'px');
       });
     }
+    // On a phone the tag filter is three rows at most, the chips packed as
+    // they come (no columns) on a strip that slides sideways: the strip is
+    // made as narrow as lets the chips fit in three rows -- a third of their
+    // total width to start, a little wider until they do.
+    function packFilter() {
+      if (!PHONE.matches) { filterBox.style.width = ''; return; }
+      const chips = Array.prototype.slice.call(filterBox.children);
+      if (!chips.length) return;
+      const gap = parseFloat(getComputedStyle(filterBox).columnGap) || 6;
+      const total = chips.reduce((s, c) => s + c.getBoundingClientRect().width + gap, 0);
+      const room = filterBox.parentElement.clientWidth;
+      let w = Math.max(room, Math.ceil(total / 3) + 24);
+      const rows = () => new Set(chips.map(c => c.offsetTop)).size;
+      filterBox.style.width = w + 'px';
+      for (let i = 0; i < 60 && rows() > 3; i++) {
+        w += 16;
+        filterBox.style.width = w + 'px';
+      }
+    }
+    packFilter();
+
     let clampTimer;
-    window.addEventListener('resize', () => { clearTimeout(clampTimer); clampTimer = setTimeout(markClamped, 120); });
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(markClamped);
+    window.addEventListener('resize', () => { clearTimeout(clampTimer); clampTimer = setTimeout(() => { packFilter(); fitRows(); }, 120); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { packFilter(); fitRows(); });
 
     let onTagChange = null;   // the graph holds the picked tag's node (set below)
 
@@ -364,12 +508,20 @@ sidebar: common-list
     try { saved = localStorage.getItem('tags-view'); } catch (e) {}
     setView(saved && views[saved] ? saved : 'table');
 
-    function handleHashChange() {
+    // "#tag": that tag picked, and the page scrolled down to its posts --
+    // unless the link asked to land at the top ("?top#tag", the directory
+    // report's tag map): then the page stays at the graph, and the marker
+    // leaves the address
+    const landAtTop = new URLSearchParams(window.location.search).has('top');
+    if (landAtTop) history.replaceState(null, '', window.location.pathname + window.location.hash);
+
+    function handleHashChange(event) {
       const hash = decodeURIComponent(window.location.hash.slice(1));
       if (!hash) return;
       const known = Array.prototype.some.call(filters, f => f.dataset.tag === hash);
       if (!known) return;
       filterByTag(hash);
+      if (landAtTop && !event) { window.scrollTo(0, 0); return; }
       setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     }
     handleHashChange();
