@@ -38,10 +38,39 @@
       return data;
     }
 
-    function handleThemeToggle(nightShift) {
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+    var switches = 0;
+
+    // The new theme on <html> with every transition held off, so the whole
+    // page turns in the same frame: each part used to fade on its own clock
+    // (0.1-0.3s), the header already dark while the feed was still light.
+    // (misc/page-transitions.scss: html.theme-switching.)
+    function applyTheme(theme) {
+      html.classList.add('theme-switching');
+      html.dataset.theme = theme;
+      void html.offsetWidth;                 // restyle now, while they're off
+      html.classList.remove('theme-switching');
+    }
+
+    // smooth: the old page cross-fades into the new one as one picture (a
+    // view transition), where the browser can; otherwise it just switches
+    function setTheme(theme, smooth) {
+      if (html.dataset.theme === theme) return;
+      if (!smooth || !document.startViewTransition || (reduceMotion && reduceMotion.matches)) {
+        applyTheme(theme);
+        return;
+      }
+      var mine = ++switches;
+      html.classList.add('theme-vt');
+      var vt = document.startViewTransition(function () { applyTheme(theme); });
+      var done = function () { if (mine === switches) html.classList.remove('theme-vt'); };
+      vt.finished.then(done, done);
+    }
+
+    function handleThemeToggle(nightShift, smooth) {
       themeData.nightShift = nightShift;
       saveThemeData(themeData);
-      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTheme(nightShift ? 'dark' : 'light', smooth);
       // set the switch right away: setting it later made it slide across
       // on every page load (the theme itself is already set in <head>)
       sw.checked = nightShift ? true : false;
@@ -74,7 +103,7 @@
 
       // auto toggle theme mode
       setTimeout(function() {
-        handleThemeToggle(!nightShift);
+        handleThemeToggle(!nightShift, true);
       }, delay);
 
       return {
@@ -85,7 +114,7 @@
 
     // Listen the theme toggle event
     sw.addEventListener('change', function(event) {
-      handleThemeToggle(event.target.checked);
+      handleThemeToggle(event.target.checked, true);
     });
 
     if (nightModeOption == 'auto') {

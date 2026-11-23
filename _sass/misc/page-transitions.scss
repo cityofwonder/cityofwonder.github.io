@@ -62,3 +62,32 @@
   ::view-transition-old(root),
   ::view-transition-new(root) { animation: none; }
 }
+
+/* ---------------------------------------------------------------------------
+ * Switching Light / Dark (extensions/theme-toggle.html): the whole page at
+ * once. While the new theme goes on, no transition runs (each part used to
+ * fade on its own clock -- 0.1s here, 0.3s there -- so the page turned in
+ * patches); only the switch's knob still slides across. Then the old page
+ * cross-fades into the new one as a single picture: the new one fades in
+ * over the old (no dip in between, no rise as between pages).
+ * ------------------------------------------------------------------------- */
+html.theme-switching,
+html.theme-switching *:not(.theme-toggle *),
+html.theme-switching *:not(.theme-toggle *)::before,
+html.theme-switching *:not(.theme-toggle *)::after {
+  transition: none !important;
+}
+
+html.theme-vt::view-transition-old(*) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html.theme-vt::view-transition-new(*) {
+  animation: 0.3s ease-out both theme-fade-in;
+  mix-blend-mode: normal;
+}
+
+@keyframes theme-fade-in {
+  from { opacity: 0; }
+}
