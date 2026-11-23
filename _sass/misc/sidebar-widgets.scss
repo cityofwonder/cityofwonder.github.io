@@ -260,9 +260,11 @@
 .recent-item a { justify-content: space-between; }
 .hot-item a { gap: 8px; }
 
+// the whole title, cut by the line (what's left of it beside the date)
 .recent-title,
 .hot-title {
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

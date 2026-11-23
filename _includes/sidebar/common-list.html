@@ -18,8 +18,8 @@
       <ul class="recent-list">
         {% for post in list_posts limit:5 %}
         <li class="recent-item">
-          <a href="{{ post.url | relative_url }}">
-            <span class="recent-title">{{ post.title | truncate: 30 }}</span>
+          <a href="{{ post.url | relative_url }}" title="{{ post.title | escape }}">
+            <span class="recent-title">{{ post.title }}</span>
             <span class="recent-date">{{ post.date | date: "%m/%d" }}</span>
           </a>
         </li>
@@ -36,9 +36,9 @@
         {% assign hot_posts = list_posts | sort: 'date' | reverse | slice: 0, 3 %}
         {% for post in hot_posts %}
         <li class="hot-item">
-          <a href="{{ post.url | relative_url }}">
+          <a href="{{ post.url | relative_url }}" title="{{ post.title | escape }}">
             <span class="hot-rank">#{{ forloop.index }}</span>
-            <span class="hot-title">{{ post.title | truncate: 25 }}</span>
+            <span class="hot-title">{{ post.title }}</span>
           </a>
         </li>
         {% endfor %}
