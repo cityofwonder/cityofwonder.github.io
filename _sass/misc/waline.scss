@@ -24,8 +24,8 @@ $t-rule: var(--c-line-strong);        // the two rules round it
 // keeps a highlighted one's box clear of its neighbours, evenly
 $row-pad: 4px;
 
-// the banner logo's small letters ("ity", "f", "onder"); its big ones are
-// drawn as pixels, no font (.wl-big)
+// the reply tree's branches and the snow: fonts whose box-drawing characters
+// are one cell wide (D2Coding draws them two)
 $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans Mono", monospace;
 
 #waline {
@@ -56,13 +56,11 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
   --waline-border: 1px solid var(--c-line);
   --waline-box-shadow: none;
 
-  // the banner's colours: ice-blue letters with a glint, a warm pop for the
-  // small ones, white snow (with a halo, to show on the light page)
-  --logo-top: #5b8fd0;
-  --logo-bottom: #1e4f88;
-  --logo-shadow: rgba(30, 79, 136, 0.3);
-  --glint: rgba(255, 255, 255, 0.95);
-  --pop: #c2560c;
+  // the banner's colours: the logo in the terminal's two, softened -- green
+  // for "CoW", lemon for the small letters (deep here, muted neon on navy) --
+  // and white snow (with a halo, to show on the light page)
+  --logo-a: #356e4a;
+  --logo-b: #7f7525;
   --snow: #fff;
   --snow-halo: rgba(40, 64, 110, 0.55);
 
@@ -720,95 +718,29 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
     padding: 16px 0 6px;
   }
 
-  // The logo: "CoW" in half-block letters, two pixels per character row --
-  // ice blue, a hard shadow, a glint running across C, o, W in turn -- and
-  // the rest of "City of Wonder" popping in small: "ity" across the top of
-  // the short o, "f" over the W's foot, "onder" coming out from behind it.
+  // The logo: a dot-matrix sign, drawn by the script as one SVG (no font, so
+  // every device shows the same dots) -- "CoW" in big dots (--logo-a), the
+  // rest of "City of Wonder" in small ones (--logo-b): "ity" across the top
+  // of the short o, "f" in front of the W's foot, "onder" out from behind it.
+  // The dots stay put; a slow wave of light runs through them, column after
+  // column (--c: a dot column, left to right).
   .wl-banner-logo {
     display: flex;
     align-items: flex-end;
   }
 
-  // A big letter is its pixels, not characters: the script turns its half
-  // blocks into one SVG shape (--mask), which cuts the letter's colours out
-  // of a box --cols character cells wide and --rows tall -- the same on every
-  // device, whatever fonts it has (block characters from a fallback font
-  // break the letters apart). The box carries the shadow, its <i> the colours
-  // and the glint.
-  .wl-big {
-    position: relative;
-    z-index: 1;                       // "onder" goes behind the W
+  .wl-logo {
     display: block;
     flex: none;
-    width: calc(var(--cols) * 3.6875px);   // a cell: half an 8px row wide...
-    height: calc(var(--rows) * 8px);       // ...two pixels tall
-    filter: drop-shadow(2px 2px 0 var(--logo-shadow));
+    overflow: visible;
 
-    > i {
-      display: block;
-      height: 100%;
-      background:
-        linear-gradient(105deg, transparent 40%, var(--glint) 50%, transparent 60%)
-          150% 0 / 250% 100% no-repeat,
-        linear-gradient(180deg, var(--logo-top), var(--logo-bottom));
-      -webkit-mask: var(--mask) 0 0 / 100% 100% no-repeat;
-      mask: var(--mask) 0 0 / 100% 100% no-repeat;
-      animation: wl-glint 7s ease-in-out infinite;
-      animation-delay: calc(1s + var(--k) * 0.22s);
+    .a { fill: var(--logo-a); }
+    .b { fill: var(--logo-b); }
+
+    g {
+      animation: wl-wave 4.5s ease-in-out infinite;
+      animation-delay: calc(var(--c) * 0.075s - 9s);
     }
-  }
-
-  .wl-o {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-left: 6px;
-  }
-
-  .wl-small {
-    position: relative;
-    display: flex;
-    color: var(--pop);
-    font: 700 20px/1 $art-font-family;
-    text-shadow: 1.5px 1.5px 0 var(--logo-shadow);
-
-    // each letter pops in (scale), then now and then they ripple (translate)
-    i {
-      display: block;
-      font-style: normal;
-      line-height: 1;
-      animation:
-        wl-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both,
-        wl-ripple 7s ease-in-out infinite;
-      animation-delay:
-        calc(0.3s + var(--i) * 0.07s),
-        calc(3s + var(--i) * 0.07s);
-    }
-  }
-
-  .wl-ity {
-    z-index: 2;                       // across the o's top
-    margin: 0 0 -3px -4px;
-  }
-
-  // "f" and "onder" stand on the big letters' bottom line: their text ends
-  // at the baseline, a descent above their box, while the blocks reach the
-  // box's bottom -- so they drop by that much
-  .wl-f,
-  .wl-onder { margin-bottom: -0.175em; }
-
-  // "f" over the W, as "ity" is over the o: into the notch at its lower left,
-  // in front of its stem
-  .wl-f {
-    z-index: 2;
-    margin-inline: 2px -14px;
-  }
-
-  .wl-big-W { margin-left: 2px; }
-
-  .wl-onder {
-    z-index: 0;
-    margin-left: -5px;                // tucked behind the W's right stem
   }
 
   .wl-banner-info {
@@ -1130,10 +1062,8 @@ $art-font-family: "Cascadia Mono", Consolas, ui-monospace, Menlo, "DejaVu Sans M
 }
 
 html[data-theme="dark"] #waline {
-  --logo-top: #d4ebff;
-  --logo-bottom: #4f9fe0;
-  --logo-shadow: #26384f;
-  --pop: #e5c07b;
+  --logo-a: #6ecf86;                  // the neon green, desaturated
+  --logo-b: #dde3a0;                  // the neon lemon, desaturated
   --snow: #eef5ff;
   --snow-halo: rgba(214, 235, 255, 0.6);
 }
@@ -1147,26 +1077,14 @@ html[data-theme="dark"] #waline {
   75% { transform: translateX(4px); }
 }
 
-// the glint crosses the logo, then rests off its left edge for a while
-@keyframes wl-glint {
-  0%, 55% { background-position: 150% 0, 0 0; }
-  100% { background-position: -50% 0, 0 0; }
+// the logo's wave of light: each dot column dims and brightens in turn
+@keyframes wl-wave {
+  0%, 100% { opacity: 0.68; }
+  50% { opacity: 1; }
 }
 
 @keyframes wl-open {
   from { opacity: 0; transform: translateY(-4px); }
-}
-
-@keyframes wl-pop {
-  from { scale: 0; }
-  60% { scale: 1.25; }
-  to { scale: 1; }
-}
-
-// a short hop, letter after letter, then a long rest
-@keyframes wl-ripple {
-  0%, 6%, 100% { translate: 0 0; }
-  3% { translate: 0 -4px; }
 }
 
 @keyframes wl-twinkle {
@@ -1182,8 +1100,7 @@ html[data-theme="dark"] #waline {
 @media (prefers-reduced-motion: reduce) {
   #waline {
     .wl-panel::after,
-    .wl-big > i,
-    .wl-small i,
+    .wl-logo g,
     .wl-banner-lights i { animation: none; }
 
     .wl-snow { display: none; }
@@ -1191,16 +1108,8 @@ html[data-theme="dark"] #waline {
   }
 }
 
-/* ---- post-header badges ----------------------------------------------- */
+/* ---- post-header badges: plain counts in the meta line, not links ------ */
 .post-stat {
-  color: inherit;                 // muted on plain headers, white on banners
-  text-decoration: none;
-
-  &:hover {
-    color: inherit;
-    text-decoration: underline;
-  }
-
   &[hidden] { display: none; }
 }
 

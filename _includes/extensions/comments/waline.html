@@ -149,10 +149,11 @@
 
   // ---- the banner (not logged in) --------------------------------------------
   // neofetch-style: the logo beside the how-to, a row of lights under it, and
-  // from November to February snow falling over it all. The logo is "CoW" in
-  // half-block letters (Arial Black, two pixels per character row) with the
-  // rest of "City of Wonder" popping in small: "ity" across the top of the
-  // short o, "f" after it, "onder" out from behind the W.
+  // from November to February snow falling over it all. The logo is a
+  // dot-matrix sign (buildLogo): "CoW" in big dots from half-block letters
+  // (BIG: Arial Black, two dot rows per character row), the rest of "City of
+  // Wonder" in small ones (SMALL) -- "ity" across the top of the short o, "f"
+  // in front of the W's foot, "onder" out from behind the W.
   const WINTER = [11, 12, 1, 2].includes(new Date().getMonth() + 1);
   const BIG = {
     C: ['   ▄████████▄   ', '  ████████████  ', ' █████▀▀▀▀█████ ', '█████▀     █▀▀▀ ', '█████           ', '█████           ', '█████      ▄▄   ', '▀████▄    ▄████ ', ' █████▄▄▄▄█████ ', '  ████████████  ', '   ▀▀██████▀▀   '],
@@ -162,47 +163,85 @@
   const LIGHTS = ['#e06c75', '#d19a66', '#e5c07b', '#98c379', '#56b6c2', '#61afef', '#c678dd', '#abb2bf'];
   const FLAKES = ['·', '•', '*', '❄︎', '·', '•', '*'];
 
-  // A big letter drawn as pixels: each character row is two pixel rows (top
-  // half: ▀ or █, bottom half: ▄ or █), each run of pixels one rectangle of a
-  // single SVG path (one shape: no seams between the pieces). CSS masks the
-  // letter's colours with it -- no font involved, so every device draws the
-  // same letters.
-  function bigMask(rows) {
-    const cols = Math.max(...rows.map((r) => r.length));
-    let d = '';
-    rows.forEach((row, r) => [0, 1].forEach((half) => {
-      const on = (c) => row[c] === '█' || row[c] === (half ? '▄' : '▀');
-      for (let c = 0; c < cols; c++) {
-        if (!on(c)) continue;
-        let w = 1;
-        while (on(c + w)) w++;
-        d += `M${c} ${r * 2 + half}h${w}v1h-${w}z`;
-        c += w - 1;
-      }
+  // the small letters: 5 x 7 dots above the baseline (x-height 5), "y" with
+  // two rows of descender
+  const SMALL = {
+    i: ['.#.', '...', '##.', '.#.', '.#.', '.#.', '###'],
+    t: ['.#..', '.#..', '####', '.#..', '.#..', '.#.#', '..#.'],
+    y: ['.....', '.....', '#...#', '#...#', '#...#', '#..##', '.##.#', '....#', '.###.'],
+    f: ['..##', '.#..', '####', '.#..', '.#..', '.#..', '.#..'],
+    o: ['.....', '.....', '.###.', '#...#', '#...#', '#...#', '.###.'],
+    n: ['.....', '.....', '#.##.', '##..#', '#...#', '#...#', '#...#'],
+    d: ['....#', '....#', '.##.#', '#..##', '#...#', '#..##', '.##.#'],
+    e: ['.....', '.....', '.###.', '#...#', '#####', '#....', '.###.'],
+    r: ['.....', '.....', '#.##.', '##..#', '#....', '#....', '#....'],
+  };
+  const BX = 3.7, BY = 4, BR = 1.45;  // big dots: pitch across and down, radius
+  const SP = 3, SR = 1.25;            // small dots: pitch, radius
+  const TALL = BIG.C.length * 2 * BY; // the tall letters' height: the baseline
+
+  // a big letter's dots, its top left at x, y
+  function bigDots(rows, x, y) {
+    const out = [];
+    rows.forEach((row, r) => [...row].forEach((ch, c) => {
+      const cx = x + (c + 0.5) * BX;
+      if (ch === '█' || ch === '▀') out.push({ x: cx, y: y + (r * 2 + 0.5) * BY, r: BR });
+      if (ch === '█' || ch === '▄') out.push({ x: cx, y: y + (r * 2 + 1.5) * BY, r: BR });
     }));
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${cols} ${rows.length * 2}" ` +
-      `preserveAspectRatio="none"><path d="${d}"/></svg>`;
-    return { cols, url: `url('data:image/svg+xml,${encodeURIComponent(svg)}')` };
+    return out;
+  }
+
+  // a word's small dots, from x, standing on the baseline `base`
+  function smallDots(word, x, base) {
+    const dots = [];
+    for (const ch of word) {
+      const g = SMALL[ch];
+      g.forEach((row, r) => [...row].forEach((v, c) => {
+        if (v === '#') dots.push({ x: x + (c + 0.5) * SP, y: base + (r - 6.5) * SP, r: SR });
+      }));
+      x += (g[0].length + 1) * SP;
+    }
+    return { dots, right: x - SP };
+  }
+
+  // where a letter passes in front of another, the dots behind give way --
+  // a dot's width round each one in front -- so both stay readable
+  const behind = (back, front) => back.filter((b) =>
+    !front.some((f) => Math.hypot(b.x - f.x, b.y - f.y) < b.r + f.r + 1.2));
+
+  // the whole sign as one SVG: dots in columns (<g style="--c">, for the wave
+  // of light, misc/waline.scss), "a" = the big letters' colour, "b" = the small
+  function buildLogo() {
+    const C = bigDots(BIG.C, 0, 0);
+    const oX = BIG.C[0].length * BX + 6;
+    const oTop = TALL - BIG.o.length * 2 * BY;
+    const ity = smallDots('ity', oX - 4, oTop + 3);       // across the o's top
+    const o = behind(bigDots(BIG.o, oX, oTop), ity.dots);
+    const f = smallDots('f', oX + BIG.o[0].length * BX + 2, TALL);
+    const wX = f.right - 12;                                // the W's foot behind the f
+    const W = behind(bigDots(BIG.W, wX, 0), f.dots);
+    const onder = smallDots('onder', wX + BIG.W[0].length * BX - 5, TALL);
+    const dots = [
+      ...[...C, ...o, ...W].map((d) => ({ ...d, k: 'a' })),
+      ...[...ity.dots, ...f.dots, ...behind(onder.dots, W)].map((d) => ({ ...d, k: 'b' })),
+    ];
+    const cols = new Map();
+    dots.forEach((d) => {
+      const c = Math.floor(d.x / BX);
+      if (!cols.has(c)) cols.set(c, []);
+      cols.get(c).push(`<circle class="${d.k}" cx="${d.x.toFixed(2)}" cy="${d.y.toFixed(2)}" r="${d.r}"/>`);
+    });
+    const w = Math.ceil(Math.max(...dots.map((d) => d.x + d.r)));
+    const groups = [...cols].sort((p, q) => p[0] - q[0])
+      .map(([c, list]) => `<g style="--c:${c}">${list.join('')}</g>`).join('');
+    return `<svg class="wl-logo" width="${w}" height="${TALL}" viewBox="0 0 ${w} ${TALL}">${groups}</svg>`;
   }
 
   function buildBanner() {
     const el = document.createElement('div');
     el.className = 'wl-banner';
     el.setAttribute('aria-hidden', 'true');
-    let n = 0;                        // the small letters pop in one after another
-    const big = (ch, k) => {
-      const { cols, url } = bigMask(BIG[ch]);
-      return `<span class="wl-big wl-big-${ch}" style="--k:${k};--cols:${cols};--rows:${BIG[ch].length}">` +
-        `<i style="--mask:${url}"></i></span>`;
-    };
-    const small = (word, cls) => `<span class="wl-small ${cls}">` +
-      [...word].map((c) => `<i style="--i:${n++}">${c}</i>`).join('') + '</span>';
-    const logo =
-      big('C', 0) +
-      `<span class="wl-o">${small('ity', 'wl-ity')}${big('o', 1)}</span>` +
-      small('f', 'wl-f') +
-      big('W', 2) +
-      small('onder', 'wl-onder');
+    const logo = buildLogo();
     const lights = LIGHTS.map((c, i) => `<i style="--light:${c};--i:${i}"></i>`).join('');
     el.innerHTML =
       `<div class="wl-banner-logo">${logo}</div>` +

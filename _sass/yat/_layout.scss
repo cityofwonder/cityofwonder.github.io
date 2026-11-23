@@ -563,7 +563,7 @@ html {
     position: relative;
     color: $banner-text-color;
     padding: calc(#{$header-height} + 24px) 5px 32px;
-    text-shadow: 1px 1px 2px #33333355;
+    // no text shadow: the photo is dimmed under it (background, opacity)
 
     & > *:first-child {
       margin: 0;
@@ -626,7 +626,6 @@ html {
          its own colour and ink -- spaced like the tags view's filter row */
       .post-tag {
         margin: 6px 6px 0 0;
-        text-shadow: none;
       }
     }
   }
@@ -701,14 +700,19 @@ html {
   bottom: 0.1em;
 }
 
-/* Notion-style tags: key colour on its own background tone. TOP is gray. */
+/* The tag chip (.post-tag, _base.scss) -- its size, weight and ink on a key
+   colour's background tone -- so a badge by a title reads like the tags under
+   it. TOP is gray. (letter-spacing: the banner title's -1px stays out.) */
 .post-badge {
   display: none;
-  padding: 0px 3px;
+  padding: 0 5px;
   background-color: var(--k-gray-bg);
-  color: var(--k-gray);
-  font-size: fs(10px);
-  font-weight: 600;
+  color: var(--c-text);
+  font-size: fs(12px);
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: normal;
+  white-space: nowrap;
   border-radius: var(--r-xs);
   transition-duration: $base-transition-duration;
 }
@@ -730,10 +734,8 @@ html {
 
 .post-badge.badge-draft {
   background-color: var(--k-yellow-bg); /* yellow — in progress */
-  color: var(--k-yellow);
 }
 
 .post-badge.badge-done {
   background-color: var(--k-green-bg); /* green — finished, not yet committed */
-  color: var(--k-green);
 }

@@ -157,6 +157,12 @@ li {
   li > .highlighter-rouge pre,
   li > details { margin-block: 0.4em; }
 
+  // Text nested under an item (a paragraph of its own, not an item) or in a
+  // toggle: 0.4em above and below, as a nested list has -- not nothing above
+  // and the body's 24px paragraph gap below, which left it uneven
+  li > p:not(:first-child),
+  details > .toggle-content > p { margin-block: 0.4em; }
+
   // A top-level list in a callout or a quote sits one level in: its markers
   // and text line up with a body list's second level. (The box's own inset
   // brings its text to the caret's x; the list adds the marker-to-text step

@@ -27,14 +27,15 @@
     {% assign reading_time = return %}
     <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> {{ reading_time }}</span>
 
-    {%- comment -%} Waline badges, filled by extensions/comments/waline.html {%- endcomment -%}
+    {%- comment -%} Waline badges, filled by extensions/comments/waline.html --
+        plain counts, not links {%- endcomment -%}
     {%- if site.data.waline.server_url and page.comments != false -%}
-    <a class="post-stat post-stat-comments left-vsplit" href="#waline" title="Comments">
+    <span class="post-stat post-stat-comments left-vsplit" title="Comments">
       <i class="fa fa-comment-o"></i> <span class="waline-comment-count" data-path="{{ page.url }}">0</span>
-    </a>
-    <a class="post-stat post-stat-reaction left-vsplit" href="#waline" hidden>
+    </span>
+    <span class="post-stat post-stat-reaction left-vsplit" hidden>
       <img class="post-stat-icon" src="data:," alt=""> <span class="post-stat-num"></span>
-    </a>
+    </span>
     {%- endif -%}
   </div>
 
