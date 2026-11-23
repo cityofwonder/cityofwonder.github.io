@@ -146,29 +146,25 @@
   vertical-align: baseline;
 }
 
+/* On the grid's lines: the picture is the left column's card picture -- as
+   wide (a column: half of the row less the 28px gap), 16:9 as they are --
+   and the text starts where the right column does. The rows above and the
+   cards below line up. */
 .pagination .post-item.featured .post-image {
-  flex: 0 0 52%;
-  position: relative;  /* contain the absolutely-filled image */
-  align-self: stretch; /* match the card (body) height */
-}
-
-/* Image fills its column via absolute positioning, so it never drives the
-   card height — the card hugs the body content and there's no bottom gap. */
-.pagination .post-item.featured .post-image > div {
-  position: absolute;
-  inset: 0;
-  width: auto;
-  height: auto;
-  aspect-ratio: auto;
+  flex: 0 0 calc(50% - 14px);
+  align-self: flex-start;
 }
 
 .pagination .post-item.featured .post-body {
   flex: 1;
   min-width: 0;
   position: relative;
-  padding: 0 4px 0 28px; /* gap from the image on the left */
-  /* clip to roughly the image height so it stays a tidy preview */
-  max-height: 29.25cqw;
+  padding: 0 4px 0 30px; /* the grid's gap + a card body's own 2px inset */
+  /* as tall as the picture, whatever is in it: the text doesn't size the
+     body (contain), the row does -- the picture's height -- and the rest of
+     the preview is cut off under a fade */
+  contain: size;
+  align-self: stretch;
   /* `clip`, not `hidden`: hidden still makes this a scroll container, and an
      embedded iframe deep in the post (xmind, youtube) takes focus on load, so
      the browser scrolled the preview to the very bottom of the article. */
@@ -190,6 +186,30 @@
 .pagination .post-item.featured .featured-preview {
   font-size: fs(12.8px);
   line-height: 1.4;
+}
+
+/* In the feed a card leads only to its own post: the links inside the
+   rendered preview read as plain text and can't be clicked, and the title's
+   link covers the whole body -- a click anywhere on the preview opens it */
+.pagination .post-item.featured .featured-preview a {
+  color: inherit;
+  text-decoration: none;
+  pointer-events: none;
+}
+
+.pagination .post-item.featured .post-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+// above that cover: the tags (to the tags page) and a directory's sections
+// (to their columns on its own page)
+.pagination .post-item.featured .post-tags,
+.pagination .directory-item .dir-sec {
+  position: relative;
+  z-index: 2;
 }
 /* tighten the rendered preview's vertical rhythm so more fits, compactly */
 .pagination .post-item.featured .featured-preview p,
@@ -213,6 +233,18 @@
 }
 .pagination .post-item.featured.no-image .post-body {
   padding: 0 4px;
+  contain: none;          // no picture to take its height from: a fixed cut
+  max-height: 27cqw;
+}
+
+/* The pinned pair ends in a hairline across the feed, so the two read as one
+   block, apart from the grid of cards under it (the grid's gap on each side) */
+.pagination .post-item.featured:has(+ .post-item:not(.featured))::after {
+  content: "";
+  display: block;
+  flex: 0 0 100%;
+  margin-top: 28px;
+  border-top: 1px solid var(--c-line);
 }
 
 /* Compact grid cards: tighter title, preview trimmed to keep them short */
@@ -306,22 +338,20 @@
   color: var(--c-ink);
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  /* Full width on small screens (no extra side margin) */
-  .articles {
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  /* Single column on small screens */
+/* Narrow: one card shape, one column. On a small screen -- and wherever the
+   feed itself is narrow: the sidebar stays as long as the main column has
+   room (extensions/sidebar-responsive.html), so the feed can be narrow on a
+   wide-ish window too (.articles is the container). */
+@mixin feed-narrow {
+  /* Single column */
   .pagination .post-list {
     grid-template-columns: 1fr;
     gap: 16px;
   }
 
+  // the text as wide as the picture above it: no inset of its own
   .pagination .post-body {
-    padding: 16px;
+    padding: 12px 0 0;
   }
 
   /* On mobile there is only ONE card shape: image on top, text underneath.
@@ -349,13 +379,42 @@
     aspect-ratio: 1920 / 1080;
   }
 
+  /* ...and the same body as every other card: the excerpt, the date and
+     reading time, the tags (.featured-compact, which a featured card carries
+     for this) in place of the rendered post and its foot line */
   .pagination .post-item.featured .post-body {
-    padding: 12px 2px 0; /* no left gap: the image is above, not beside */
-    max-height: 260px;
-    overflow: clip;
+    padding: 12px 0 0;
+    contain: none;
+    max-height: none;
+    overflow: visible;
   }
 
-  .pagination .post-item.featured .post-foot {
-    margin-top: 12px;
+  // the line under the pinned pair: the narrow grid's gap
+  .pagination .post-item.featured:has(+ .post-item:not(.featured))::after {
+    margin-top: 16px;
   }
+  .pagination .post-item.featured .post-body::after { content: none; }
+
+  .pagination .post-item.featured .featured-only,
+  .pagination .post-item.featured .post-foot { display: none; }
+  .pagination .post-item.featured .featured-compact { display: block; }
+}
+
+/* a featured card's ordinary body: only for the narrow feed (above) */
+.pagination .featured-compact { display: none; }
+
+.articles { container: feed / inline-size; }
+
+@media (max-width: 768px) {
+  /* Full width on small screens (no extra side margin) */
+  .articles {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  @include feed-narrow;
+}
+
+@container feed (max-width: 600px) {
+  @include feed-narrow;
 }
