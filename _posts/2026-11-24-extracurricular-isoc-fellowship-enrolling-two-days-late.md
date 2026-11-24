@@ -7,9 +7,9 @@ tags: []
 status: "진행 중"
 notion: true
 notion_id: "422bb540-e5fe-818f-814f-e2d1e1658676"
-notion_synced: "2026-11-24T16:10:00.000Z"
+notion_synced: "2026-11-24T16:35:00.000Z"
 banner:
-  image: ""
+  image: "/assets/images/2026-11-24/extracurricular-isoc-fellowship-enrolling-two-days-late-banner.png"
   opacity: 0.5
   background: "rgba(0, 0, 0, 0.7)"
 ---
