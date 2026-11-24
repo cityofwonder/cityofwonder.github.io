@@ -4,10 +4,10 @@ title: "[magazine] 왜 AI가 만든 글은 읽기 어려울까?"
 subtitle: "1부 · slop의 정의와 LLM 이후 늘어난 단어"
 categories: ["📂/magazine/AI/"]
 tags: []
-status: "진행 중"
+status: "작성완료"
 notion: true
 notion_id: "422bb540-e5fe-8005-984d-d12a41d86b29"
-notion_synced: "2026-11-24T16:05:00.000Z"
+notion_synced: "2026-11-24T16:10:00.000Z"
 banner:
   image: "/assets/images/2026-11-24/magazine-ai-slop-1-banner.png"
   opacity: 0.5

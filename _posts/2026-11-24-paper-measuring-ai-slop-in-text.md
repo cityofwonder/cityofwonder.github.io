@@ -6,7 +6,7 @@ categories: ["📂/paper-review/AI-Slop/B. 측정 (slop 정의·benchmark)/"]
 tags: []
 notion: true
 notion_id: "422bb540-e5fe-814b-86e3-d2d68a193911"
-notion_synced: "2026-11-24T04:45:00.000Z"
+notion_synced: "2026-11-24T16:08:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -7,7 +7,7 @@ tags: ["figma", "design", "Claude MCP"]
 status: "진행 중"
 notion: true
 notion_id: "422bb540-e5fe-815e-bb1e-e893667e7121"
-notion_synced: "2026-11-24T15:54:00.000Z"
+notion_synced: "2026-11-24T16:10:00.000Z"
 banner:
   image: ""
   opacity: 0.5

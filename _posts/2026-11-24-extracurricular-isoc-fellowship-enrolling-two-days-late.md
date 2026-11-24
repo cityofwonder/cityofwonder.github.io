@@ -7,7 +7,7 @@ tags: []
 status: "진행 중"
 notion: true
 notion_id: "422bb540-e5fe-818f-814f-e2d1e1658676"
-notion_synced: "2026-11-24T14:41:00.000Z"
+notion_synced: "2026-11-24T16:10:00.000Z"
 banner:
   image: ""
   opacity: 0.5

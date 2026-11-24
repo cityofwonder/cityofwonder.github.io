@@ -6,7 +6,7 @@ categories: ["📂/paper-review/AI-Slop/C. Fingerprinting (slop·stylometry 기�
 tags: ["attribution"]
 notion: true
 notion_id: "422bb540-e5fe-8137-8496-c0838daa411f"
-notion_synced: "2026-11-24T04:45:00.000Z"
+notion_synced: "2026-11-24T16:09:00.000Z"
 banner:
   image: ""
   opacity: 0.5

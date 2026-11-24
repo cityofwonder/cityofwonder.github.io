@@ -6,7 +6,7 @@ categories: ["📂/paper-review/AI-Slop/A. 억제 (FTPO 직계)/"]
 tags: ["fine-tuning"]
 notion: true
 notion_id: "422bb540-e5fe-8122-b391-e15092c1a9b3"
-notion_synced: "2026-11-24T04:45:00.000Z"
+notion_synced: "2026-11-24T16:08:00.000Z"
 banner:
   image: ""
   opacity: 0.5

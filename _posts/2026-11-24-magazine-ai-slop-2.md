@@ -4,10 +4,10 @@ title: "[magazine] 왜 AI가 만든 글은 읽기 어려울까?"
 subtitle: "2부 · 명사 위주 문체부터 신뢰 하락까지"
 categories: ["📂/magazine/AI/"]
 tags: []
-status: "진행 중"
+status: "작성완료"
 notion: true
 notion_id: "422bb540-e5fe-8113-a2f5-c82e1468428f"
-notion_synced: "2026-11-24T16:06:00.000Z"
+notion_synced: "2026-11-24T16:10:00.000Z"
 banner:
   image: "/assets/images/2026-11-24/magazine-ai-slop-2-banner.png"
   opacity: 0.5

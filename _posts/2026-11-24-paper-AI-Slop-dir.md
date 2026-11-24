@@ -5,11 +5,11 @@ subtitle: ""
 categories: ["📂/"]
 tags: []
 status: "작성완료"
-date: 2026-11-24 04:45:00 +0000
+date: 2026-11-24 16:12:00 +0000
 permalink: /directory/paper-AI-Slop-dir/
 notion: true
 notion_id: "422bb540-e5fe-81b9-a49c-f481a2886610"
-notion_synced: "2026-11-24T04:45:00.000Z"
+notion_synced: "2026-11-24T16:12:00.000Z"
 directory:
   - title: ""
     items:

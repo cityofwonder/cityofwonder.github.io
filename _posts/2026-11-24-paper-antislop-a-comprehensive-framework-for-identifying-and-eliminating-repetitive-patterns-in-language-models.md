@@ -6,7 +6,7 @@ categories: ["📂/paper-review/AI-Slop/C. Fingerprinting (slop·stylometry 기�
 tags: ["fine-tuning"]
 notion: true
 notion_id: "422bb540-e5fe-815a-aebb-e14c7e79efb5"
-notion_synced: "2026-11-24T04:45:00.000Z"
+notion_synced: "2026-11-24T16:09:00.000Z"
 banner:
   image: ""
   opacity: 0.5
