@@ -7,9 +7,9 @@ tags: ["figma", "design", "Claude MCP"]
 status: "진행 중"
 notion: true
 notion_id: "422bb540-e5fe-8138-bee6-f4ffbe18900e"
-notion_synced: "2026-11-24T16:11:00.000Z"
+notion_synced: "2026-11-24T16:24:00.000Z"
 banner:
-  image: ""
+  image: "/assets/images/2026-11-24/prstdojo-cover-ecd54c92.png"
   opacity: 0.5
   background: "rgba(0, 0, 0, 0.7)"
 ---
