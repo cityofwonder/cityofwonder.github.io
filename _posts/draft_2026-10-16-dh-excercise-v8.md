@@ -3,10 +3,10 @@ layout: post
 title: "[pwn-wargame] dh-excercise-v8"
 subtitle: ""
 categories: ["📂/"]
-tags: ["pwn"]
+tags: ["V8"]
 notion: true
 notion_id: "3fbbb540-e5fe-805b-ad2b-c28b6eae55aa"
-notion_synced: "2026-11-18T14:15:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: ""
   opacity: 0.5

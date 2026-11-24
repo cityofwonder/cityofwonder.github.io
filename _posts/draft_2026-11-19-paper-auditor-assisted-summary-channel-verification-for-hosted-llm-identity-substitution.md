@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Auditor-Assisted Summary-Channel Verification for Hosted LLM Identity Substitution"
 subtitle: "Ziyi Zhang 등. NIPS2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/B. Served ≠ claimed 검증/"]
-tags: ["paper review", "AISEC", "NIPS2026"]
+tags: ["model substitution", "API auditing", "watermarking"]
 notion: true
 notion_id: "41ebb540-e5fe-810c-a69b-e749b5d8ac3c"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

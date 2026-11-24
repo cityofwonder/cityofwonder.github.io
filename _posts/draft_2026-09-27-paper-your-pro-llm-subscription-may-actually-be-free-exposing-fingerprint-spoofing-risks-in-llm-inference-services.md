@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Your \"Pro\" LLM Subscription May Actually Be \"Free\": Exposing Fingerprint Spoofing Risks in LLM Inference Services"
 subtitle: "Jiahao Zhang 등. Arxiv2026"
 categories: ["📂/paper-review/LLM-lineage/C. 한계 평가·공격/"]
-tags: ["paper review", "AISEC", "fingerprint"]
+tags: ["model substitution", "API auditing"]
 notion: true
 notion_id: "41cbb540-e5fe-8176-85e9-f17d2bcdd754"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:11:00.000Z"
 banner:
   image: ""
   opacity: 0.5

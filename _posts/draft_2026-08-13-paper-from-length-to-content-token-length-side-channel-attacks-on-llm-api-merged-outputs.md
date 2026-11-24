@@ -3,10 +3,10 @@ layout: post
 title: "[paper] From Length to Content: Token-Length Side-Channel Attacks on LLM API Merged Outputs"
 subtitle: "Sijia Li 등. USENIX2026"
 categories: ["📂/paper-review/HW-attacks-on-AI/B. LLM·생성모델 입력·출력 유출 (side-channel)/"]
-tags: ["paper review", "AISEC", "USENIX2026"]
+tags: ["data leakage", "token length"]
 notion: true
 notion_id: "41cbb540-e5fe-817a-a2bf-c5f239b44b09"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:11:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Stemma: Induced Decision Regions Reveal LLM Provenance"
 subtitle: "Keyu Zhang 등. Arxiv2026"
 categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
-tags: ["paper review", "AISEC", "fingerprint"]
+tags: ["decision boundaries"]
 notion: true
 notion_id: "41cbb540-e5fe-81d9-9601-f28780a515b3"
-notion_synced: "2026-11-22T04:34:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: "/assets/images/2026-10-06/paper-stemma-induced-decision-regions-reveal-llm-provenance-banner.png"
   opacity: 0.5

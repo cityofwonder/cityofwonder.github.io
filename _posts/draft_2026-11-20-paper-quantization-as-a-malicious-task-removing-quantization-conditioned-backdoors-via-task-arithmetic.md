@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Quantization as a Malicious Task: Removing Quantization-Conditioned Backdoors via Task Arithmetic"
 subtitle: "Kaihsun Yang 등. Arxiv2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC"]
+tags: ["quantization", "backdoor", "backdoor removal", "task arithmetic"]
 notion: true
 notion_id: "41ebb540-e5fe-8133-844c-eb9401528458"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

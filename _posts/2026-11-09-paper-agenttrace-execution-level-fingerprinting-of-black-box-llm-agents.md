@@ -3,10 +3,10 @@ layout: post
 title: "[paper] AgentTrace: Execution-Level Fingerprinting of Black-Box LLM Agents"
 subtitle: "Gejian Zhao 등. Arxiv2026"
 categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
-tags: ["paper review", "AISEC", "fingerprint"]
+tags: ["LLM agents", "attribution"]
 notion: true
 notion_id: "41cbb540-e5fe-81fd-810f-e8835e8acd7b"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: "/assets/images/2026-11-09/paper-agenttrace-execution-level-fingerprinting-of-black-box-llm-agents-banner.png"
   opacity: 0.5

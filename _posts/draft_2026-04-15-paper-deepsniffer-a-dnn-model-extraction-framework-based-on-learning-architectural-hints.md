@@ -3,10 +3,10 @@ layout: post
 title: "[paper] DeepSniffer: A DNN Model Extraction Framework Based on Learning Architectural Hints"
 subtitle: "Xing Hu 등. ASPLOS2020"
 categories: ["📂/paper-review/DLSCA/C. GPU microarchitectural/"]
-tags: ["paper review", "AISEC", "DLSCA", "ASPLOS2020"]
+tags: ["GPU", "architecture extraction"]
 notion: true
 notion_id: "41cbb540-e5fe-8188-a517-da2f4e1d22ee"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

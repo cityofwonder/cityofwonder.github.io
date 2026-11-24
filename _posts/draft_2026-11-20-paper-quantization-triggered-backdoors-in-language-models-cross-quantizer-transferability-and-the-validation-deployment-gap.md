@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Quantization-Triggered Backdoors in Language Models: Cross-Quantizer Transferability and the Validation-Deployment Gap"
 subtitle: "Jacopo Dardini 등. Arxiv2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC"]
+tags: ["quantization", "backdoor"]
 notion: true
 notion_id: "41ebb540-e5fe-81a8-9abf-f52d902498eb"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

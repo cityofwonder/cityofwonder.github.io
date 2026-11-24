@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Open DNN Box by Power Side-Channel Attack"
 subtitle: "Yun Xiang 등. Arxiv2019"
 categories: ["📂/paper-review/DLSCA/D. Power·EM·magnetic (physical)/"]
-tags: ["paper review", "AISEC", "DLSCA"]
+tags: ["power side-channel", "architecture extraction"]
 notion: true
 notion_id: "41cbb540-e5fe-811b-a034-fa97814cd292"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

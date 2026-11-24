@@ -3,10 +3,10 @@ layout: post
 title: "[paper] A Divide-and-Conquer Strategy for Hard-Label Extraction of Deep Neural Networks via Side-Channel Attacks"
 subtitle: "Benoit Coqueret 등. TCHES2026"
 categories: ["📂/paper-review/DLSCA/D. Power·EM·magnetic (physical)/"]
-tags: ["paper review", "AISEC", "DLSCA", "TCHES2026"]
+tags: ["weight extraction", "cryptanalytic extraction", "edge devices"]
 notion: true
 notion_id: "41cbb540-e5fe-8125-986c-c03249a4975b"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

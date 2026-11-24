@@ -3,10 +3,10 @@ layout: post
 title: "[paper] ImpNet: Imperceptible and blackbox-undetectable backdoors in compiled neural networks"
 subtitle: "Eleanor Clifford 등. Arxiv2022"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC"]
+tags: ["backdoor", "DL compiler"]
 notion: true
 notion_id: "41ebb540-e5fe-8112-a91b-ffd48a4b9342"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

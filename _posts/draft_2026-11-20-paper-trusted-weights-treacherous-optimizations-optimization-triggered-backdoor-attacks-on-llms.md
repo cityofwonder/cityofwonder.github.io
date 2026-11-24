@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Trusted Weights, Treacherous Optimizations? Optimization-Triggered Backdoor Attacks on LLMs"
 subtitle: "Yifei Wang 등. Arxiv2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC"]
+tags: ["backdoor", "DL compiler", "floating point"]
 notion: true
 notion_id: "41ebb540-e5fe-8139-a1da-e6be50c38c0d"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

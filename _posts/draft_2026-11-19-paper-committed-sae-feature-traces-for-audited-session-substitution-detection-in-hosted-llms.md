@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Committed SAE-Feature Traces for Audited-Session Substitution Detection in Hosted LLMs"
 subtitle: "Ziyang Liu. Arxiv2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/B. Served ≠ claimed 검증/"]
-tags: ["paper review", "AISEC"]
+tags: ["model substitution", "API auditing", "verifiable inference"]
 notion: true
 notion_id: "41ebb540-e5fe-8163-9f30-cb4e98fcc401"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

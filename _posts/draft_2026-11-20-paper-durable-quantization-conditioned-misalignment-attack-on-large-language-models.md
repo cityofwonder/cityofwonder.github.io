@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Durable Quantization Conditioned Misalignment Attack on Large Language Models"
 subtitle: "Peiran Dong 등. ICLR2025"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC", "ICLR2025"]
+tags: ["quantization", "alignment", "task arithmetic"]
 notion: true
 notion_id: "41ebb540-e5fe-81f5-b91b-f821b090821d"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

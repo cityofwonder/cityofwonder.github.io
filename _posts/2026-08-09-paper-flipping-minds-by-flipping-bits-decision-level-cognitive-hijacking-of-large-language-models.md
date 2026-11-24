@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Flipping Minds by Flipping Bits: Decision-Level Cognitive Hijacking of Large Language Models"
 subtitle: "Yu Yan 등. Arxiv2026"
 categories: ["📂/paper-review/HW-attacks-on-AI/A. GPU Rowhammer·bit-flip·HW Trojan (GPUHammer 계열)/"]
-tags: ["paper review", "AISEC"]
+tags: ["bit flip", "rowhammer"]
 notion: true
 notion_id: "41cbb540-e5fe-818b-8930-ec52160fa77d"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

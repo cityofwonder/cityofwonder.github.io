@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Fingerprinting LLMs via Prompt Injection"
 subtitle: "Yuepeng Hu 등. ACL2026"
 categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
-tags: ["paper review", "AISEC", "fingerprint", "ACL2026"]
+tags: ["prompt injection"]
 notion: true
 notion_id: "41cbb540-e5fe-81b3-a583-c75a69824635"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: "/assets/images/2026-09-02/paper-fingerprinting-llms-via-prompt-injection-banner.png"
   opacity: 0.5

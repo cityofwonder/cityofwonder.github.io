@@ -3,10 +3,10 @@ layout: post
 title: "[paper] CacheSolidarity: Preventing Prefix Caching Side Channels in Multi-tenant LLM Serving Systems"
 subtitle: "Panagiotis Georgios Pennas 등. Arxiv2026"
 categories: ["📂/paper-review/HW-attacks-on-AI/C. 방어 (prompt 유출)/"]
-tags: ["paper review", "AISEC"]
+tags: ["KV cache", "prompt caching", "multi-tenancy", "timing side-channel"]
 notion: true
 notion_id: "41cbb540-e5fe-8103-8357-cd07f43be40e"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

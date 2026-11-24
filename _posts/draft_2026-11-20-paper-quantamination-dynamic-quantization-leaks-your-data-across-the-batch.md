@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Quantamination: Dynamic Quantization Leaks Your Data Across the Batch"
 subtitle: "Hanna Foerster 등. Arxiv2026 (ICML2026 Workshop)"
 categories: ["📂/paper-review/Audit-Serving-Gap/C. Benign deploy 실패 (adversary 없음)/"]
-tags: ["paper review", "AISEC"]
+tags: ["quantization", "data leakage", "multi-tenancy"]
 notion: true
 notion_id: "41ebb540-e5fe-8136-8ca0-d9d4f04140ce"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

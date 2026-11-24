@@ -3,10 +3,10 @@ layout: post
 title: "[paper] READER: Dynamic LLM Provenance from Query-Varying Interactions"
 subtitle: "Jiaxu Liu 등. Arxiv2026"
 categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
-tags: ["paper review", "AISEC", "fingerprint"]
+tags: ["spectral analysis"]
 notion: true
 notion_id: "41cbb540-e5fe-8162-9085-fa1b35de6242"
-notion_synced: "2026-11-22T04:34:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: "/assets/images/2026-09-24/paper-reader-dynamic-llm-provenance-from-query-varying-interactions-banner.png"
   opacity: 0.5

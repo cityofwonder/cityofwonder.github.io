@@ -3,10 +3,10 @@ layout: post
 title: "[paper] ARMOR: First-Order Masking of Activation and ArgMax Gadgets for Side-Channel Resistant Neural Networks"
 subtitle: "Won Geun Shin 등. TCHES2026"
 categories: ["📂/paper-review/DLSCA/F. 방어/"]
-tags: ["paper review", "AISEC", "DLSCA", "TCHES2026"]
+tags: ["masking"]
 notion: true
 notion_id: "41cbb540-e5fe-8163-a52a-e96e966c17ee"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -3,10 +3,10 @@ layout: post
 title: "[paper] BarraCUDA: Edge GPUs do Leak DNN Weights"
 subtitle: "Peter Horvath 등. USENIX2025"
 categories: ["📂/paper-review/DLSCA/D. Power·EM·magnetic (physical)/"]
-tags: ["paper review", "AISEC", "DLSCA", "USENIX2025"]
+tags: ["EM side-channel", "GPU", "edge devices", "weight extraction"]
 notion: true
 notion_id: "41cbb540-e5fe-81ca-8819-cc3059c3566a"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

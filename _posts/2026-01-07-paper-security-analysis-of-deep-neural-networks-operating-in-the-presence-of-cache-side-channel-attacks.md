@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Security Analysis of Deep Neural Networks Operating in the Presence of Cache Side-Channel Attacks"
 subtitle: "Sanghyun Hong 등. Arxiv2018"
 categories: ["📂/paper-review/DLSCA/A. CPU cache·timing·TEE/"]
-tags: ["paper review", "AISEC", "DLSCA"]
+tags: ["cache side-channel", "architecture extraction"]
 notion: true
 notion_id: "41cbb540-e5fe-81c3-b6a6-ccc67e87e1c0"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: "/assets/images/2026-01-07/paper-security-analysis-of-deep-neural-networks-operating-in-the-presence-of-cache-side-channel-attacks-banner.png"
   opacity: 0.5

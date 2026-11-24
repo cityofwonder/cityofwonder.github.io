@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Kraken: Higher-order EM Side-Channel Attacks on DNNs in Near and Far Field"
 subtitle: "Peter Horvath 등. SaTML2026"
 categories: ["📂/paper-review/DLSCA/D. Power·EM·magnetic (physical)/"]
-tags: ["paper review", "AISEC", "DLSCA", "SaTML2026"]
+tags: ["EM side-channel", "GPU", "edge devices", "weight extraction"]
 notion: true
 notion_id: "41cbb540-e5fe-81e3-8d3c-ce81e287977f"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

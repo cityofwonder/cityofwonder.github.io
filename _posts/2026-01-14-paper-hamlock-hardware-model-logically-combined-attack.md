@@ -3,10 +3,10 @@ layout: post
 title: "[paper] HAMLOCK: HArdware-Model LOgically Combined attacK"
 subtitle: "Sanskar Amgain 등. USENIX2026"
 categories: ["📂/paper-review/HW-attacks-on-AI/A. GPU Rowhammer·bit-flip·HW Trojan (GPUHammer 계열)/"]
-tags: ["paper review", "AISEC", "USENIX2026"]
+tags: ["hardware trojan", "backdoor", "accelerator"]
 notion: true
 notion_id: "41cbb540-e5fe-81f7-8910-d631a0b78468"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

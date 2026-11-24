@@ -3,11 +3,11 @@ layout: post
 title: "[paper] NEURAL PHYLOGENY: FINE-TUNING RELATIONSHIP DETECTION AMONG NEURAL NETWORKS"
 subtitle: "Runpeng Yu 등. ICLR2025"
 categories: ["📂/paper-review/fingerprint/"]
-tags: ["paper review", "AISEC", "fingerprint", "ICLR2025"]
+tags: ["fine-tuning"]
 status: "커밋완료"
 notion: true
 notion_id: "3c8bb540-e5fe-8043-b472-d0c78a9a0425"
-notion_synced: "2026-11-22T04:06:00.000Z"
+notion_synced: "2026-11-23T17:06:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -2,16 +2,17 @@
 layout: post
 title: "[etc] How I'm going to study (and how I should)"
 subtitle: ""
+top: 1
 categories: ["📂/etc/"]
-tags: ["mindset", "work", "workflow"]
+tags: ["paper reading", "mindset"]
 status: "작성완료"
 notion: true
 notion_id: "420bb540-e5fe-80a6-9976-cd29425047a2"
-notion_synced: "2026-11-22T19:41:00.000Z"
+notion_synced: "2026-11-23T17:11:00.000Z"
 banner:
   image: "/assets/images/2026-11-23/How-I-am-going-to-study-banner.png"
   opacity: 0.5
-  background: "rgba(7, 3, 3, 0.7)"
+  background: "rgba(0, 0, 0, 0.7)"
 ---
 
 <details>

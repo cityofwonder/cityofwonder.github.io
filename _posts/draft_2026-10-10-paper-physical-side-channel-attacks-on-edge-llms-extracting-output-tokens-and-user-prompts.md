@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Physical Side-Channel Attacks on Edge LLMs: Extracting Output Tokens and User Prompts"
 subtitle: "Najeh Alhalawani 등. Arxiv2026"
 categories: ["📂/paper-review/HW-attacks-on-AI/B. LLM·생성모델 입력·출력 유출 (side-channel)/"]
-tags: ["paper review", "AISEC"]
+tags: ["EM side-channel", "edge devices", "data leakage"]
 notion: true
 notion_id: "41cbb540-e5fe-81d6-8dfb-c8814b45e898"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

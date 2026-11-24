@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Alignment Collapse Under KV Cache Quantization: Diagnosis and Mitigation"
 subtitle: "Bruce Changlong Xu 등. NIPS2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/C. Benign deploy 실패 (adversary 없음)/"]
-tags: ["paper review", "AISEC", "NIPS2026"]
+tags: ["quantization", "KV cache", "alignment"]
 notion: true
 notion_id: "41ebb540-e5fe-810c-b86f-e3432809eb96"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

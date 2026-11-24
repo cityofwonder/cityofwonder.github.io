@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Nearest is Not Dearest: Towards Practical Defense against Quantization-conditioned Backdoor Attacks"
 subtitle: "Boheng Li 등. CVPR2024"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC", "CVPR2024"]
+tags: ["quantization", "backdoor", "backdoor removal"]
 notion: true
 notion_id: "41ebb540-e5fe-81a2-aa41-db623bc62b0e"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

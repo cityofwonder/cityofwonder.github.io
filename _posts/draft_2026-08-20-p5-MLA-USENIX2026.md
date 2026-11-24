@@ -3,11 +3,11 @@ layout: post
 title: "[paper] Attesting Model Lineage by Consisted Knowledge Evolution with Fine-Tuning Trajectory"
 subtitle: "Zhuoyi Shang 등. USENIX2026"
 categories: ["📂/paper-review/LLM-lineage/B. 가중치·내부 표현으로 판별 (white-box)/"]
-tags: ["paper review", "AISEC", "fingerprint", "USENIX2026"]
+tags: ["fine-tuning"]
 status: "진행 중"
 notion: true
 notion_id: "3c8bb540-e5fe-80b1-8fc8-cb571d401011"
-notion_synced: "2026-11-22T04:14:00.000Z"
+notion_synced: "2026-11-23T17:06:00.000Z"
 banner:
   image: "/assets/images/2026-08-20/p5-MLA-USENIX2026-banner.png"
   opacity: 0.5

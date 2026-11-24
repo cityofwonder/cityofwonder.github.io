@@ -3,11 +3,11 @@ layout: post
 title: "[TIL] AI agents"
 subtitle: ""
 categories: ["📂/"]
-tags: ["magazine"]
+tags: ["LLM agents"]
 status: "커밋완료"
 notion: true
 notion_id: "3ccbb540-e5fe-80bb-9c70-fecfb8aff7bf"
-notion_synced: "2026-11-22T04:06:00.000Z"
+notion_synced: "2026-11-23T17:06:00.000Z"
 banner:
   image: ""
   opacity: 0.5

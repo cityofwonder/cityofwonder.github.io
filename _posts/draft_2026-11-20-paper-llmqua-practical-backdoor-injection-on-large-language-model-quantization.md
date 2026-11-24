@@ -3,10 +3,10 @@ layout: post
 title: "[paper] LLMQuA: Practical Backdoor Injection on Large Language Model Quantization"
 subtitle: "Xiangxiang Chen 등. WWW2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC", "WWW2026"]
+tags: ["quantization", "backdoor"]
 notion: true
 notion_id: "41ebb540-e5fe-8171-8b63-f8e99e4ae2e5"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

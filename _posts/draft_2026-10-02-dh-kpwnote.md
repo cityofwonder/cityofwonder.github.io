@@ -3,11 +3,11 @@ layout: post
 title: "[pwn-wargame] dh-kpwnote"
 subtitle: "커널문제입니다"
 categories: ["📂/wargame/pwn/"]
-tags: ["pwn", "kernel LPE", "OOB w/r"]
+tags: ["Linux", "privilege escalation", "OOB read/write"]
 status: "진행 중"
 notion: true
 notion_id: "3edbb540-e5fe-8079-b8ac-c0246135a866"
-notion_synced: "2026-11-22T04:14:00.000Z"
+notion_synced: "2026-11-23T17:06:00.000Z"
 banner:
   image: "/assets/images/2026-10-02/dh-kpwnote-banner.png"
   opacity: 0.5

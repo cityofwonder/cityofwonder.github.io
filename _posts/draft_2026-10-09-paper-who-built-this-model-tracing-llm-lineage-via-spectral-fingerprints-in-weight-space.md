@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Who Built This Model? Tracing LLM Lineage via Spectral Fingerprints in Weight Space"
 subtitle: "Yiwei Chen 등. COLM2026"
 categories: ["📂/paper-review/LLM-lineage/B. 가중치·내부 표현으로 판별 (white-box)/"]
-tags: ["paper review", "AISEC", "fingerprint", "COLM2026"]
+tags: ["spectral analysis"]
 notion: true
 notion_id: "41cbb540-e5fe-8133-a710-ffb0d670b3fd"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: ""
   opacity: 0.5

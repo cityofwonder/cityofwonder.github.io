@@ -3,10 +3,10 @@ layout: post
 title: "[paper] FloatDoor: Platform-Triggered Backdoors in LLMs"
 subtitle: "Nils Loose 등. NIPS2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC", "NIPS2026"]
+tags: ["floating point", "backdoor"]
 notion: true
 notion_id: "41ebb540-e5fe-814e-b34a-f0d24f9bae38"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

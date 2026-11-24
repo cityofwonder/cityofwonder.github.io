@@ -3,10 +3,10 @@ layout: post
 title: "[paper] AttnDiff: Attention-based Differential Fingerprinting for Large Language Models"
 subtitle: "Haobo Zhang 등. Arxiv2026"
 categories: ["📂/paper-review/LLM-lineage/B. 가중치·내부 표현으로 판별 (white-box)/"]
-tags: ["paper review", "AISEC", "fingerprint"]
+tags: ["internal representations", "spectral analysis", "CKA"]
 notion: true
 notion_id: "41cbb540-e5fe-8141-bcaf-ca3242ecefb9"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -3,10 +3,10 @@ layout: post
 title: "[paper] SoK: Neural Network Extraction Through Physical Side Channels"
 subtitle: "Péter Horváth 등. USENIX2024"
 categories: ["📂/paper-review/DLSCA/E. SoK/"]
-tags: ["paper review", "AISEC", "DLSCA", "USENIX2024", "SoK"]
+tags: ["EM side-channel", "power side-channel"]
 notion: true
 notion_id: "41cbb540-e5fe-81f0-ad2a-f2b69d4d8f72"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

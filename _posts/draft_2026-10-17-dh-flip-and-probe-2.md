@@ -3,10 +3,10 @@ layout: post
 title: "[pwn-wargame] dh-flip-and-probe-2"
 subtitle: "FSOP"
 categories: ["📂/"]
-tags: ["pwn"]
+tags: ["FSOP", "fastbin dup", "tcache poisoning"]
 notion: true
 notion_id: "3fcbb540-e5fe-803c-ba56-f3b0b6a3d785"
-notion_synced: "2026-11-18T14:15:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: ""
   opacity: 0.5

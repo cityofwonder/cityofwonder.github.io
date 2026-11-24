@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Hollow-LLM Attack: Computationally Trivial Weights in Zero-Knowledge Verification of LLM Inference"
 subtitle: "Chen Gong 등. S&P2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/B. Served ≠ claimed 검증/"]
-tags: ["paper review", "AISEC", "S&P2026"]
+tags: ["zkML", "verifiable inference", "model substitution"]
 notion: true
 notion_id: "41ebb540-e5fe-8114-a532-da096373c944"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

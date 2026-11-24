@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Reconstructing LLM Lineage Trees via Fine-Tuning Path Inference"
 subtitle: "Sota Ogawa 등. Arxiv2026"
 categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
-tags: ["paper review", "AISEC", "fingerprint"]
+tags: ["fine-tuning", "output probabilities"]
 notion: true
 notion_id: "41cbb540-e5fe-8164-abc8-d0e0f6a94671"
-notion_synced: "2026-11-22T04:34:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: "/assets/images/2026-11-14/paper-reconstructing-llm-lineage-trees-via-fine-tuning-path-inference-banner.png"
   opacity: 0.5

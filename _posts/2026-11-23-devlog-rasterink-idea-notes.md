@@ -2,6 +2,7 @@
 layout: post
 title: "[Devlog; rAsterink] Idea notes"
 subtitle: "Idea · Planning a lightweight PDF note app for reading papers"
+top: 2
 categories: ["📂/oss-Devlog/rAsterisk/"]
 tags: ["PDF annotation", "note-taking", "paper reading"]
 status: "작성완료"

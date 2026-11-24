@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Agent-Assisted Side-Channel Attacks on Non-Prefix KV Cache in RAG"
 subtitle: "He Sun 등. Arxiv2026"
 categories: ["📂/paper-review/HW-attacks-on-AI/B. LLM·생성모델 입력·출력 유출 (side-channel)/"]
-tags: ["paper review", "AISEC"]
+tags: ["KV cache", "RAG", "timing side-channel", "LLM agents"]
 notion: true
 notion_id: "41cbb540-e5fe-812b-9164-e46c0fdcd5a1"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

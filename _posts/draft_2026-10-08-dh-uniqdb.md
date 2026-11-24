@@ -3,11 +3,11 @@ layout: post
 title: "[pwn-wargame] dh-uniqdb"
 subtitle: "flag, exploit code 미포함"
 categories: ["📂/wargame/pwn/"]
-tags: ["pwn", "__free_hook", "overwriting"]
+tags: ["__free_hook"]
 status: "진행 중"
 notion: true
 notion_id: "3f1bb540-e5fe-807a-84f0-c83609e56001"
-notion_synced: "2026-11-22T04:14:00.000Z"
+notion_synced: "2026-11-23T17:06:00.000Z"
 banner:
   image: "/assets/images/2026-10-08/dh-uniqdb-banner.png"
   opacity: 0.5

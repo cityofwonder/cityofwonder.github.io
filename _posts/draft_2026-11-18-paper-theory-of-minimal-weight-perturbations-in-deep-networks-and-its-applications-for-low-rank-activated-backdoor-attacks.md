@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Theory of Minimal Weight Perturbations in Deep Networks and its Applications for Low-Rank Activated Backdoor Attacks"
 subtitle: "Bethan Evans 등. ICML2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC", "ICML2026"]
+tags: ["backdoor", "low-rank compression"]
 notion: true
 notion_id: "41ebb540-e5fe-81af-8f2e-ee6b08e918f0"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

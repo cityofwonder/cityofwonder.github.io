@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Witness Overlap: Directional Provenance Inside Open-Weight Model Families"
 subtitle: "Siyuan Li 등. Arxiv2026"
 categories: ["📂/paper-review/LLM-lineage/B. 가중치·내부 표현으로 판별 (white-box)/"]
-tags: ["paper review", "AISEC", "fingerprint"]
+tags: ["fine-tuning"]
 notion: true
 notion_id: "41cbb540-e5fe-8128-b28c-d3013260556c"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:11:00.000Z"
 banner:
   image: ""
   opacity: 0.5

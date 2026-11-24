@@ -3,10 +3,10 @@ layout: post
 title: "[paper] TFL: Targeted Bit-Flip Attack on Large Language Model"
 subtitle: "Jingkai Guo 등. Arxiv2026"
 categories: ["📂/paper-review/HW-attacks-on-AI/A. GPU Rowhammer·bit-flip·HW Trojan (GPUHammer 계열)/"]
-tags: ["paper review", "AISEC"]
+tags: ["bit flip", "rowhammer"]
 notion: true
 notion_id: "41cbb540-e5fe-8143-aacd-dac1bd95a921"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Peering Inside the Black-Box: Long-Range and Scalable Model Architecture Snooping via GPU Electromagnetic Side-Channel"
 subtitle: "Rui Xiao 등. NDSS2026"
 categories: ["📂/paper-review/DLSCA/D. Power·EM·magnetic (physical)/"]
-tags: ["paper review", "AISEC", "DLSCA", "NDSS2026"]
+tags: ["EM side-channel", "GPU", "architecture extraction"]
 notion: true
 notion_id: "41cbb540-e5fe-81b5-8775-e9cdb214f935"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: ""
   opacity: 0.5

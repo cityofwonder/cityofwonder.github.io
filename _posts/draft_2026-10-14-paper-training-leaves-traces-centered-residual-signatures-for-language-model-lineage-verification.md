@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Training Leaves Traces: Centered Residual Signatures for Language Model Lineage Verification"
 subtitle: "Aman Singh Thakur 등. Arxiv2026"
 categories: ["📂/paper-review/LLM-lineage/B. 가중치·내부 표현으로 판별 (white-box)/"]
-tags: ["paper review", "AISEC", "fingerprint"]
+tags: ["fine-tuning", "internal representations"]
 notion: true
 notion_id: "41cbb540-e5fe-81af-a2f9-f1158e46d77f"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:16:00.000Z"
 banner:
   image: ""
   opacity: 0.5

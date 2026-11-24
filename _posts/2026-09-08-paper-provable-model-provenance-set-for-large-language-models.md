@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Provable Model Provenance Set for Large Language Models"
 subtitle: "Xiaoqi Qiu 등. Arxiv2026.01(ICML2027 underreview)"
 categories: ["📂/paper-review/LLM-lineage/A. 출력만으로 판별 (black-box·gray-box)/"]
-tags: ["paper review", "AISEC", "fingerprint"]
+tags: ["hypothesis testing"]
 notion: true
 notion_id: "41cbb540-e5fe-81d4-b425-ea114649e893"
-notion_synced: "2026-11-22T04:34:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: "/assets/images/2026-09-08/paper-provable-model-provenance-set-for-large-language-models-banner.png"
   opacity: 0.5

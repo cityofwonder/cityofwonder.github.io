@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Is Your LLM Overcharging You? Tokenization, Transparency, and Incentives"
 subtitle: "Ander Artola Velasco 등. ICML2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/D. 다른 threat model (distribute·load·HW·billing)/"]
-tags: ["paper review", "AISEC", "ICML2026"]
+tags: ["tokenization", "API auditing"]
 notion: true
 notion_id: "41ebb540-e5fe-819c-b039-c14805f4e8e0"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:11:00.000Z"
 banner:
   image: ""
   opacity: 0.5

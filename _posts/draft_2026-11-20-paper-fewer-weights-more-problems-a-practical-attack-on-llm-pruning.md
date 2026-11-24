@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Fewer Weights, More Problems: A Practical Attack on LLM Pruning"
 subtitle: "Kazuki Egashira 등. ICLR2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC", "ICLR2026"]
+tags: ["pruning", "backdoor"]
 notion: true
 notion_id: "41ebb540-e5fe-81ae-8e69-da413a5c8dc5"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Mind the Gap: A Practical Attack on GGUF Quantization"
 subtitle: "Kazuki Egashira 등. ICML2025"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC", "ICML2025"]
+tags: ["quantization", "backdoor"]
 notion: true
 notion_id: "41ebb540-e5fe-8110-a867-fb1832ceb3d5"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:11:00.000Z"
 banner:
   image: ""
   opacity: 0.5

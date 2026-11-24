@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Rounding-Guided Backdoor Injection in Deep Learning Model Quantization"
 subtitle: "Xiangxiang Chen 등. NDSS2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC", "NDSS2026"]
+tags: ["quantization", "backdoor"]
 notion: true
 notion_id: "41ebb540-e5fe-8193-b346-e44a9881c90e"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

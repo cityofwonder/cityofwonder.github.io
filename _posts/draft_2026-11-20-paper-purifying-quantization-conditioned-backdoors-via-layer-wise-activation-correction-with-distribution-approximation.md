@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Purifying Quantization-conditioned Backdoors via Layer-wise Activation Correction with Distribution Approximation"
 subtitle: "Boheng Li 등. ICML2024"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC", "ICML2024"]
+tags: ["quantization", "backdoor", "backdoor removal"]
 notion: true
 notion_id: "41ebb540-e5fe-81f3-8382-c813b733870f"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

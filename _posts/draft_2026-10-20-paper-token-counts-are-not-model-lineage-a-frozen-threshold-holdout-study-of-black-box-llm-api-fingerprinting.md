@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Token Counts Are Not Model Lineage: A Frozen-Threshold Holdout Study of Black-Box LLM API Fingerprinting"
 subtitle: "Bo Chen. Arxiv2026"
 categories: ["📂/paper-review/LLM-lineage/C. 한계 평가·공격/"]
-tags: ["paper review", "AISEC", "fingerprint"]
+tags: ["API auditing", "tokenization"]
 notion: true
 notion_id: "41cbb540-e5fe-81b1-b2da-e34061032601"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: ""
   opacity: 0.5

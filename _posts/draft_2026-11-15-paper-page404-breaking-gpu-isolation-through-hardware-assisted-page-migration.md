@@ -3,10 +3,10 @@ layout: post
 title: "[paper] PAGE404: Breaking GPU Isolation Through Hardware-assisted Page Migration"
 subtitle: "Ravan Nazaraliyev 등. S&P2027 (Arxiv2026)"
 categories: ["📂/paper-review/DLSCA/C. GPU microarchitectural/"]
-tags: ["paper review", "AISEC", "DLSCA", "S&P2027"]
+tags: ["GPU", "multi-tenancy"]
 notion: true
 notion_id: "41cbb540-e5fe-81a3-9ed9-cde23084d32b"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: ""
   opacity: 0.5

@@ -3,10 +3,10 @@ layout: post
 title: "[paper] On the (In)Security of Loading Machine Learning Models"
 subtitle: "Gabriele Digregorio 등. S&P2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/D. 다른 threat model (distribute·load·HW·billing)/"]
-tags: ["paper review", "AISEC", "S&P2026"]
+tags: ["supply chain", "deserialization"]
 notion: true
 notion_id: "41ebb540-e5fe-8195-87e7-dc91caba1c84"
-notion_synced: "2026-11-22T04:33:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

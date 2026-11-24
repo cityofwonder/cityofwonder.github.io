@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Adversarial Contrastive Learning for LLM Quantization Attacks"
 subtitle: "Dinghong Song 등. Arxiv2026"
 categories: ["📂/paper-review/Audit-Serving-Gap/A. 변환-trigger 백도어 (quant·compile·platform)/"]
-tags: ["paper review", "AISEC"]
+tags: ["quantization", "backdoor"]
 notion: true
 notion_id: "41ebb540-e5fe-8150-a3df-dc8285a65b2a"
-notion_synced: "2026-11-22T04:32:00.000Z"
+notion_synced: "2026-11-23T17:04:00.000Z"
 banner:
   image: ""
   opacity: 0.5

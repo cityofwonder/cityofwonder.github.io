@@ -3,10 +3,10 @@ layout: post
 title: "[paper] Ghost in the Transformer: Tracing LLM Lineage with SVD-Fingerprint"
 subtitle: "Suqing Wang 등. AAAI2026"
 categories: ["📂/paper-review/LLM-lineage/B. 가중치·내부 표현으로 판별 (white-box)/"]
-tags: ["paper review", "AISEC", "fingerprint", "AAAI2026"]
+tags: ["spectral analysis"]
 notion: true
 notion_id: "41cbb540-e5fe-81f5-af28-eb1ce03d2a5f"
-notion_synced: "2026-11-22T04:34:00.000Z"
+notion_synced: "2026-11-23T17:05:00.000Z"
 banner:
   image: ""
   opacity: 0.5
