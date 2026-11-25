@@ -1,13 +1,13 @@
 ---
 layout: post
 title: "[magazine] 왜 AI가 만든 글은 읽기 어려울까?"
-subtitle: "2부 · 명사 위주 문체부터 신뢰 하락까지"
+subtitle: "Part 2 · From noun-heavy style to declining trust"
 categories: ["📂/magazine/AI/"]
 tags: []
 status: "작성완료"
 notion: true
 notion_id: "422bb540-e5fe-8113-a2f5-c82e1468428f"
-notion_synced: "2026-11-24T16:10:00.000Z"
+notion_synced: "2026-11-25T01:13:00.000Z"
 banner:
   image: "/assets/images/2026-11-24/magazine-ai-slop-2-banner.png"
   opacity: 0.5
@@ -27,8 +27,8 @@ banner:
 비교 방법은 아래 그림과 같다.
 
 <figure style="text-align: center;">
-    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-0148c7ce.png" alt="Reinhart et al. (2025) Fig. 1. 사람이 쓴 글을 약 500단어씩 두 덩어리(Chunk 1, 2)로 나누고, Chunk 1을 LLM 여섯 개에 각각 줘서 이어 쓰게 한 뒤 그 결과를 Chunk 2와 비교">
-    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Reinhart et al. (2025) Fig. 1. 사람이 쓴 글을 약 500단어씩 두 덩어리(Chunk 1, 2)로 나누고, Chunk 1을 LLM 여섯 개에 각각 줘서 이어 쓰게 한 뒤 그 결과를 Chunk 2와 비교</figcaption>
+    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-0148c7ce.png" alt="Reinhart et al. (2025) Fig. 1. 사람이 쓴 글을 약 500단어씩 두 덩어리(Chunk 1, 2)로 나누고, Chunk 1을 LLM 여섯 개에 각각 줘서 이어 쓰게 한 뒤 그 결과를 Chunk 2와 비교했다">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Reinhart et al. (2025) Fig. 1. 사람이 쓴 글을 약 500단어씩 두 덩어리(Chunk 1, 2)로 나누고, Chunk 1을 LLM 여섯 개에 각각 줘서 이어 쓰게 한 뒤 그 결과를 Chunk 2와 비교했다</figcaption>
 </figure>
 
 <span class="notion-comment">각 글의 맨 앞 약 1,000단어를 가져와, 문장이 끝나는 지점에서 약 500단어씩 두 덩어리로 나눴다.<span class="comment-bubble"><span class="comment-item">💬 맨 앞부터 자름. 논문 본문에는 "이어지는 두 덩어리, 문장 경계에서 나눔"까지만 있고, 어디서 자르는지는 HAP-E 데이터 카드에 있음: 글마다 맨 앞 약 1,000단어를 뽑되 그 구간이 절·장 경계를 넘지 않게 했고, dependency parse로 찾은 문장(또는 독립절) 끝에서 500단어씩 둘로 나눔.</span></span></span> 이 1,000단어 안에서는 절(section)이나 장(chapter)이 바뀌지 않게 했다. 첫 번째 덩어리는 여섯 LLM에 각각 주고 500단어를 더 쓰게 했다. instruction-tuned 모델에는 "In the same style, tone, and diction of the following text"로 시작하는 지시를 붙였고, base 모델은 원래 주어진 글을 이어 쓰는 모델이라 지시 없이 첫 덩어리만 줬다.
@@ -49,8 +49,8 @@ Biber 특징의 사용률이 사람과 가장 비슷했던 건 instruction tunin
 패널은 모델마다 하나다. 열은 왼쪽부터 GPT-4o 계열, Llama 3 Instruct, Llama 3 base이고, 위 줄은 큰 모델(GPT-4o, 70B Instruct, 70B), 아래 줄은 같은 계열의 작은 모델(GPT-4o Mini, 8B Instruct, 8B)이다. 그래서 같은 열의 위아래를 비교하면 모델이 클수록 사람에 가까워지는지 볼 수 있다.
 
 <figure style="text-align: center;">
-    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-d0df22d0.png" alt="Reinhart et al. (2025) Fig. 3. 중요도 상위 15개 Biber 특징을 모델이 사람 대비 몇 배 쓰는지(로그 축, 세로선 1 = 사람). 위 줄은 큰 모델, 아래 줄은 작은 모델, 오른쪽 열이 base 모델">
-    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Reinhart et al. (2025) Fig. 3. 중요도 상위 15개 Biber 특징을 모델이 사람 대비 몇 배 쓰는지(로그 축, 세로선 1 = 사람). 위 줄은 큰 모델, 아래 줄은 작은 모델, 오른쪽 열이 base 모델</figcaption>
+    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-d0df22d0.png" alt="Reinhart et al. (2025) Fig. 3. 중요도 상위 15개 Biber 특징을 모델이 사람 대비 몇 배 쓰는지(로그 축, 세로선 1 = 사람). 위 줄은 큰 모델, 아래 줄은 작은 모델, 오른쪽 열이 base 모델이다">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Reinhart et al. (2025) Fig. 3. 중요도 상위 15개 Biber 특징을 모델이 사람 대비 몇 배 쓰는지(로그 축, 세로선 1 = 사람). 위 줄은 큰 모델, 아래 줄은 작은 모델, 오른쪽 열이 base 모델이다</figcaption>
 </figure>
 
 오른쪽 열의 base 모델은 점이 대부분 세로선 근처에 모여 있고, 왼쪽 두 열의 GPT-4o와 Instruct 모델은 넓게 흩어져 있다. <span class="highlight-orange">위 줄과 아래 줄은 열마다 거의 같은 모양이라, 모델이 커져도 사람과의 차이는 줄지 않았다.</span> 논문은 큰 모델이 다른 벤치마크에서는 더 좋은 성능을 내는데도 그렇다고 덧붙인다.
@@ -92,8 +92,8 @@ Reinhart와 Shaib의 결과를 붙여 보면 AI가 쓴 글을 읽을 때 우리�
 저자들은 키 입력 기록으로 요점마다 모델이 쓴 문장에서 나왔는지 사용자가 쓴 문장에서 나왔는지 가려, 두 쪽의 유사도를 따로 쟀다. 결과는 아래 그림과 같다.
 
 <figure style="text-align: center;">
-    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-29529aa4.png" alt="Padmakumar &amp; He (2024) Figure 4. (a) 요점을 사용자가 쓴 쪽(Human Contribution)과 모델이 쓴 쪽(Model Contribution)으로 나눠 잰 유사도. 파랑은 GPT-3, 초록은 InstructGPT (b) 자주 쓰는 5-gram 상위 50개의 분포. 점선은 사용자가 쓴 부분, 실선은 모델이 쓴 부분, 빨간 점선은 혼자 쓴 에세이">
-    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Padmakumar &amp; He (2024) Figure 4. (a) 요점을 사용자가 쓴 쪽(Human Contribution)과 모델이 쓴 쪽(Model Contribution)으로 나눠 잰 유사도. 파랑은 GPT-3, 초록은 InstructGPT (b) 자주 쓰는 5-gram 상위 50개의 분포. 점선은 사용자가 쓴 부분, 실선은 모델이 쓴 부분, 빨간 점선은 혼자 쓴 에세이</figcaption>
+    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-29529aa4.png" alt="Padmakumar &amp; He (2024) Figure 4. (a) 요점을 사용자가 쓴 쪽(Human Contribution)과 모델이 쓴 쪽(Model Contribution)으로 나눠 잰 유사도. 파랑은 GPT-3, 초록은 InstructGPT (b) 자주 쓰는 5-gram 상위 50개의 분포. 점선은 사용자가 쓴 부분, 실선은 모델이 쓴 부분, 빨간 점선은 혼자 쓴 에세이다">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Padmakumar &amp; He (2024) Figure 4. (a) 요점을 사용자가 쓴 쪽(Human Contribution)과 모델이 쓴 쪽(Model Contribution)으로 나눠 잰 유사도. 파랑은 GPT-3, 초록은 InstructGPT (b) 자주 쓰는 5-gram 상위 50개의 분포. 점선은 사용자가 쓴 부분, 실선은 모델이 쓴 부분, 빨간 점선은 혼자 쓴 에세이다</figcaption>
 </figure>
 
 <span class="highlight-blue">(a)에서 유사도를 끌어올린 건 InstructGPT가 제안한 문장에서 나온 요점이었다.</span> 사용자가 직접 쓴 쪽은 GPT-3와 쓰든 InstructGPT와 쓰든 유사도에 차이가 없었다. (b)에서도 사용자가 쓴 부분의 5-gram 분포는 혼자 쓴 에세이와 같았고, InstructGPT가 쓴 부분(하늘색 실선)만 자주 쓰는 5-gram에 몰려 있었다.
@@ -109,8 +109,8 @@ Reinhart와 Shaib의 결과를 붙여 보면 AI가 쓴 글을 읽을 때 우리�
 글이 비슷한 정도는 OpenAI 임베딩 모델로 쟀다. 임베딩 모델은 글 한 편을 숫자 3,072개로 된 벡터로 바꾸고, 내용과 표현이 비슷한 글일수록 벡터의 방향이 가까워진다. 이 벡터들의 코사인 유사도로 인도인의 글과 미국인의 글을 짝지어 비교하니, 평균 유사도가 둘 다 AI 없이 쓴 경우 0.48, 둘 다 AI 자동완성을 켜고 쓴 경우 0.54였다.
 
 <figure style="text-align: center;">
-    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-1210a702.png" alt="Agarwal et al. (2025) Figure 6. 임베딩 코사인 유사도. (a) 같은 나라 사람끼리 (b)(c) 인도-미국 사이. (c)에서 AI 조건(주황) 분포가 유사도가 높은 오른쪽으로 치우쳐 있음">
-    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Agarwal et al. (2025) Figure 6. 임베딩 코사인 유사도. (a) 같은 나라 사람끼리 (b)(c) 인도-미국 사이. (c)에서 AI 조건(주황) 분포가 유사도가 높은 오른쪽으로 치우쳐 있음</figcaption>
+    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-1210a702.png" alt="Agarwal et al. (2025) Figure 6. 임베딩 코사인 유사도. (a) 같은 나라 사람끼리 (b)(c) 인도-미국 사이. (c)에서 AI 조건(주황) 분포가 유사도가 높은 오른쪽으로 치우쳐 있다">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Agarwal et al. (2025) Figure 6. 임베딩 코사인 유사도. (a) 같은 나라 사람끼리 (b)(c) 인도-미국 사이. (c)에서 AI 조건(주황) 분포가 유사도가 높은 오른쪽으로 치우쳐 있다</figcaption>
 </figure>
 
 같은 임베딩을 입력으로 글쓴이가 인도인인지 미국인인지 맞히는 분류기(logistic regression)도 학습시켰다. AI 없이 쓴 글에서 분류기의 정확도는 90.6%였고, AI를 켜고 쓴 글에서는 83.5%였다. 두 나라 사람의 글이 서로 비슷해져서 가려내기 어려워졌다는 뜻이다.
@@ -120,8 +120,8 @@ Reinhart와 Shaib의 결과를 붙여 보면 AI가 쓴 글을 읽을 때 우리�
 임베딩 거리로는 글에서 무엇이 달라졌는지 알 수 없어서, 저자들은 인도 참가자가 같은 명절과 음식에 대해 쓴 글을 AI 유무로 나눠 직접 비교했다. AI 없이 쓴 디왈리 글에는 락슈미 여신에게 기도하고 흙 등잔으로 집을 밝힌다는 디테일이 있었다. AI와 쓴 글에는 불빛과 단 음식, 선물 교환, 가족 모임 같은 일반적인 내용이 남았다. 비리야니 글에서는 Malabar식 조리법 같은 지역 디테일 대신 "rich", "aromatic" 같은 상투어가 들어갔다.
 
 <figure style="text-align: center;">
-    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-a7196c8e.png" alt="Agarwal et al. (2025) Table 5. 인도 참가자가 AI 없이(왼쪽), AI 자동완성과 함께(오른쪽, 굵은 글씨가 AI 제안) 쓴 글. 초록은 AI 조건에서 빠진 문화적 디테일, 노랑은 AI가 넣은 일반적 표현">
-    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Agarwal et al. (2025) Table 5. 인도 참가자가 AI 없이(왼쪽), AI 자동완성과 함께(오른쪽, 굵은 글씨가 AI 제안) 쓴 글. 초록은 AI 조건에서 빠진 문화적 디테일, 노랑은 AI가 넣은 일반적 표현</figcaption>
+    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-a7196c8e.png" alt="Agarwal et al. (2025) Table 5. 인도 참가자가 AI 없이(왼쪽), AI 자동완성과 함께(오른쪽, 굵은 글씨가 AI 제안) 쓴 글. 초록은 AI 조건에서 빠진 문화적 디테일, 노랑은 AI가 넣은 일반적 표현이다">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Agarwal et al. (2025) Table 5. 인도 참가자가 AI 없이(왼쪽), AI 자동완성과 함께(오른쪽, 굵은 글씨가 AI 제안) 쓴 글. 초록은 AI 조건에서 빠진 문화적 디테일, 노랑은 AI가 넣은 일반적 표현이다</figcaption>
 </figure>
 
 나도 영어로 블로그를 쓰고, 오늘처럼 초안을 AI에게 맡기기도 한다. 이 실험은 인도 참가자가 자동완성을 쓴 경우라, 완성된 초안을 받는 내 상황과 같지는 않다. <span class="highlight-green">그래도 AI가 써 준 문장을 손대지 않고 두면 내 글에서도 이런 디테일이 먼저 빠질 거라고 본다.</span>
@@ -133,8 +133,8 @@ Reinhart와 Shaib의 결과를 붙여 보면 AI가 쓴 글을 읽을 때 우리�
 [Nakano et al.(IUI 2026)](https://arxiv.org/abs/2510.24011)은 일본 참가자 261명에게 글을 읽고 평가하게 한 다음, "이 글의 XX%는 AI가 생성·편집했다"는 안내와 해당 문장 하이라이트를 보여 주고 같은 글을 다시 평가하게 했다. 실제로는 모든 글을 GPT-4o가 썼고, 바뀐 건 공개 라벨과 비율뿐이었다. <span class="highlight-blue">공개된 AI 비율이 높을수록 신뢰(trustworthiness), 배려(caring), 역량(competence), 호감(likability) 평가가 모두 유의하게 떨어졌고</span>, 오랜만에 보내는 안부 이메일이나 감사 편지 같은 대인 관계 글에서 가장 크게 떨어졌다.
 
 <figure style="text-align: center;">
-    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-421b54d6.png" alt="Nakano et al. (2026) Table 3. AIRatio 계수가 모든 지표에서 음수">
-    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Nakano et al. (2026) Table 3. AIRatio 계수가 모든 지표에서 음수</figcaption>
+    <img src="/assets/images/2026-11-24/magazine-ai-slop-2-421b54d6.png" alt="Nakano et al. (2026) Table 3. AIRatio 계수가 모든 지표에서 음수다">
+    <figcaption style="font-size: 0.9em; color: gray; margin-top: 5px;" markdown="span">Nakano et al. (2026) Table 3. AIRatio 계수가 모든 지표에서 음수다</figcaption>
 </figure>
 
 이유를 물었을 때 가장 많이 나온 답은 저자의 신뢰성과 전문성에 대한 의심(144개)이었고, 그다음이 기계적이고 부자연스러운 문체(132개)였다. 글은 한 글자도 안 바뀌었는데, 라벨을 보고 나서 문체가 기계적이라고 답한 사람이 이만큼 나온 것이다. <span class="highlight-orange">물론 응답의 38.6%는 중립이거나 긍정적이었고, 주로 AI 비율이 50% 미만일 때였다.</span>

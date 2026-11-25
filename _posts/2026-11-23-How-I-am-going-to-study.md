@@ -2,6 +2,7 @@
 layout: post
 title: "[etc] 나는 어떻게 공부를 하려고(해야)하는가?"
 subtitle: ""
+top: 2
 categories: ["📂/etc/"]
 tags: ["paper reading", "mindset"]
 status: "작성완료"
